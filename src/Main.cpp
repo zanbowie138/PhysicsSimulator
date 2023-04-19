@@ -6,9 +6,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-#include "Mesh.h"
-#include "Model.h"
-#include "ChessModel.h"
+#include "renderables/Mesh.h"
+#include "renderables/Model.h"
+#include "renderables/ChessModel.h"
+#include "renderables/Points.h"
 
 const unsigned int screenWidth = 800;
 const unsigned int screenHeight = 800;
@@ -92,15 +93,7 @@ int main()
 	Shader basicShader("basic.vert", "basic.frag");
 	std::vector<glm::vec3> points = {glm::vec3(- 1.0, -1.0, -1.0)};
 
-	VAO VAO;
-	VAO.Bind();
-
-	VBO VBO(points);
-
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(points), (void*)0);
-
-	VAO.Unbind();
-	VBO.Unbind();
+	Points pointRenderer;
 
 	/*
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
@@ -109,7 +102,7 @@ int main()
 	Mesh floor(verts, ind, tex);*/
 
 	// Shader for light cube
-	Shader lightShader("light.vert", "light.frag");
+	Shader lightShader("basic.vert", "basic.frag");
 	// Store mesh data in vectors for the mesh
 	std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
 	std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
@@ -123,10 +116,8 @@ int main()
 	// Creates the light model matrix
 	glm::vec3 lightPos = glm::vec3(0.5f, 3.0f, 0.5f);
 	glm::mat4 lightModel = glm::mat4(0.1f);
-	lightModel = glm::translate(lightModel, lightPos);
 
 	lightShader.Activate();
-	glUniformMatrix4fv(lightShader.GetUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(lightModel));
 	glUniform4f(lightShader.GetUniformLocation("lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
 	shaderProgram.Activate();
@@ -160,15 +151,11 @@ int main()
 		}
 
 		lightShader.Activate();
-		lightPos = glm::vec3(0.5f, glm::sin(glm::radians((float)frame/25)) * 3, 1.5f);
-		lightModel = glm::translate(glm::mat4(1.0f), lightPos);
-		glUniformMatrix4fv(lightShader.GetUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+		light.worldPos = glm::vec3(0.5f, glm::sin(glm::radians((float)frame/25)) * 3, 1.5f);
+		light.updateModelMat();
 
 		shaderProgram.Activate();
 		glUniform3f(shaderProgram.GetUniformLocation("lightPos"), lightPos.x, lightPos.y, lightPos.z);
-
-		basicShader.Activate();
-		camera.Matrix(basicShader, "camMatrix");
 
 		frame++;
 
@@ -180,13 +167,7 @@ int main()
 
 		piece.Draw(shaderProgram, camera);
 		light.Draw(lightShader, camera);
-
-
-		basicShader.Activate();
-		VAO.Bind();
-		glDrawArrays(GL_POINTS, 0, points.size());
-		glEnable(GL_PROGRAM_POINT_SIZE);
-		VAO.Unbind();
+		pointRenderer.Draw(basicShader, camera);
 
 		glfwSwapBuffers(window);
 

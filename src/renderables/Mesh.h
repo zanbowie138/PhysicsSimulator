@@ -1,4 +1,26 @@
-#include "Mesh.h"
+#pragma once
+#include<string>
+
+#include "components/Renderable.h"
+#include "VAO.h"
+#include "EBO.h"
+#include "Camera.h"
+#include "Texture.h"
+
+class Mesh: public Renderable
+{
+public:
+	std::vector <Vertex> vertices;
+	std::vector <GLuint> indices;
+	std::vector <Texture> textures;
+
+	// Initializes the mesh
+	Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures);
+	Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
+
+	// Draws the mesh
+	void Draw(Shader& shader, Camera& camera);
+};
 
 Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
@@ -66,6 +88,8 @@ void Mesh::Draw(Shader& shader, Camera& camera)
 		textures[i].texUnit(shader, (type + num).c_str(), i);
 		textures[i].Bind();
 	}
+
+	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
 	// Take care of the camera Matrix
 	glUniform3f(shader.GetUniformLocation("camPos"), camera.position.x, camera.position.y, camera.position.z);

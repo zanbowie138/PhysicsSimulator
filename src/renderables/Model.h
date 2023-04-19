@@ -1,43 +1,55 @@
-#include "Model.h"
+#pragma once
+#include <string>
+#include <vector>
+#include <tuple>
+#include <set>
+
+#include "components/Renderable.h"
+#include "VAO.h"
+#include "EBO.h"
+#include "Camera.h"
+#include "Texture.h"
+
+struct compareVec3
+{
+	// Adapted from https://stackoverflow.com/questions/46636721/how-do-i-use-glm-vector-relational-functions
+	bool operator() (const std::tuple<glm::vec3, glm::vec3, unsigned int>& lhs, const std::tuple<glm::vec3, glm::vec3, unsigned int>& rhs) const
+	{
+		glm::vec3 nequ = glm::notEqual(std::get<0>(lhs), std::get<0>(rhs));
+		return glm::lessThan(std::get<0>(lhs), std::get<0>(rhs))[nequ[0] ? 0 : (nequ[1] ? 1 : 2)];
+	}
+};
+
+class Model: public Renderable
+{
+public:
+	std::vector <ModelPt> vertices;
+	std::vector <GLuint> indices;
+
+	// Initializes the object
+	Model(const char* filename, bool is_stl);
+
+	// Draws the mesh
+	void Draw(Shader& shader, Camera& camera);
+
+private:
+	// Reads an stl file
+	void readSTL(const char* filepath);
+
+    // Reads a binary file
+    void readBIN(const char* filepath);
+};
 
 Model::Model(const char* filename, bool is_stl)
 {
     const char* localDir = "/Resources/Models/";
     if (!is_stl) 
     {
-        // Reading packed file
-        unsigned int vertex_len;
-        unsigned int ind_len;
-
-        std::ifstream is((std::filesystem::current_path().string() + localDir + filename).c_str(), std::ios::out | std::ios::binary);
-        is.seekg(0);
-        is.read((char*)&vertex_len, sizeof(unsigned int));
-        is.read((char*)&ind_len, sizeof(unsigned int));
-
-        glm::vec3 temp;
-        ModelPt temp_pt;
-        for (int i = 0; i < (int)vertex_len; i++)
-        {
-            is.read((char*)&temp, sizeof(glm::vec3));
-            temp_pt.position = temp;
-            is.read((char*)&temp, sizeof(glm::vec3));
-            temp_pt.normal = temp;
-            vertices.push_back(temp_pt);
-        }
-
-        GLuint temp_i;
-        for (int i = 0; i < (int)ind_len; i++)
-        {
-            is.read((char*)&temp_i, sizeof(unsigned int));
-            indices.push_back(temp_i);
-        }
-        is.close();
+        readBIN((std::filesystem::current_path().string() + localDir + filename).c_str());
     }
     else 
     {
-        STLmesh output = Model::readSTL((std::filesystem::current_path().string() + localDir + filename).c_str());
-        vertices = output.vertices;
-        indices = output.indices;
+        readSTL((std::filesystem::current_path().string() + localDir + filename).c_str());
     }
     
 
@@ -60,6 +72,8 @@ void Model::Draw(Shader& shader, Camera& camera)
     shader.Activate();
     VAO.Bind();
 
+    glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
     // Take care of the camera Matrix
     glUniform3f(shader.GetUniformLocation("camPos"), camera.position.x, camera.position.y, camera.position.z);
     camera.Matrix(shader, "camMatrix");
@@ -68,7 +82,7 @@ void Model::Draw(Shader& shader, Camera& camera)
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
-STLmesh Model::readSTL(const char* filepath)
+void Model::readSTL(const char* filepath)
 {
     // STL File format: https://people.sc.fsu.edu/~jburkardt/data/stlb/stlb.html
 
@@ -138,5 +152,36 @@ STLmesh Model::readSTL(const char* filepath)
         vertices_vector.push_back(ModelPt{ t.first, t.second });
     }
 
-    return STLmesh{ vertices_vector, indices };
+    vertices = vertices_vector;
+    Model::indices = indices;
+}
+
+void Model::readBIN(const char* filepath) {
+    // Reading packed file
+    unsigned int vertex_len;
+    unsigned int ind_len;
+
+    std::ifstream is(filepath, std::ios::out | std::ios::binary);
+    is.seekg(0);
+    is.read((char*)&vertex_len, sizeof(unsigned int));
+    is.read((char*)&ind_len, sizeof(unsigned int));
+
+    glm::vec3 temp;
+    ModelPt temp_pt;
+    for (int i = 0; i < (int)vertex_len; i++)
+    {
+        is.read((char*)&temp, sizeof(glm::vec3));
+        temp_pt.position = temp;
+        is.read((char*)&temp, sizeof(glm::vec3));
+        temp_pt.normal = temp;
+        vertices.push_back(temp_pt);
+    }
+
+    GLuint temp_i;
+    for (int i = 0; i < (int)ind_len; i++)
+    {
+        is.read((char*)&temp_i, sizeof(unsigned int));
+        indices.push_back(temp_i);
+    }
+    is.close();
 }

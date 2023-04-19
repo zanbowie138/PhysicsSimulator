@@ -30,7 +30,8 @@ public:
 	Camera(int width, int height, glm::vec3 position);
 
 	void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
-	//Sends matrix to shader
+
+	//Sends camera matrix to inputted shader to update position
 	void Matrix(Shader& shader, const char* uniform);
 	void Inputs(GLFWwindow* window);
 };

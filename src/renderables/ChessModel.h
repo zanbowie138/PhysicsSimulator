@@ -1,4 +1,47 @@
-#include "ChessModel.h"
+#pragma once
+
+#include <string>
+#include <vector>
+#include <tuple>
+#include <set>
+#include <string>
+
+#include "components/Renderable.h"
+#include "VAO.h"
+#include "EBO.h"
+#include "Camera.h"
+#include "Texture.h"
+
+enum ChessPiece
+{
+	empty,
+	pawn,
+	rook,
+	knight,
+	bishop,
+	queen,
+	king
+};
+
+class ChessModel: public Renderable
+{
+public:
+
+	ChessPiece type;
+
+	std::vector <ModelPt> vertices;
+	std::vector <GLuint> indices;
+
+	// Initializes the object
+	ChessModel(ChessPiece type, glm::vec3 worldPos);
+
+	std::string getType();
+
+	void Draw(Shader& shader, Camera& camera);
+
+	// Updates the vertices and indices vectors based on packed binary file
+	void updateModel(const char* filename);
+};
 
 ChessModel::ChessModel(ChessPiece type, glm::vec3 worldPos)
 {
@@ -9,7 +52,8 @@ ChessModel::ChessModel(ChessPiece type, glm::vec3 worldPos)
     const char* filetype = ".bin";
     updateModel((getType() + filetype).c_str());
 
-    updatePos(worldPos);
+    ChessModel::worldPos = worldPos;
+    updateModelMat();
 
     VAO.Bind();
 
@@ -106,11 +150,4 @@ void ChessModel::updateModel(const char* filename)
         indices.push_back(temp_i);
     }
     is.close();
-}
-
-void ChessModel::updatePos(glm::vec3 worldPos)
-{
-    glm::vec3 pos = worldPos;
-    glm::mat4 size = glm::mat4(0.01f);
-    modelMatrix = glm::translate(glm::rotate(size, glm::radians(0.0f), glm::vec3(1, 0, 0)), pos);
 }
