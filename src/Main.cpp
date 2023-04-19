@@ -87,13 +87,15 @@ int main()
 
 	Shader shaderProgram("chess.vert", "chess.frag");
 	ChessModel piece(ChessPiece(pawn), glm::vec3(0.0f, 0.0f, 0.0f));
+	piece.scale = 0.01;
+	piece.updateModelMat();
 
 
 	// Point setup
 	Shader basicShader("basic.vert", "basic.frag");
 	std::vector<glm::vec3> points = {glm::vec3(- 1.0, -1.0, -1.0)};
 
-	Points pointRenderer;
+	//Points pointRenderer;
 
 	/*
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
@@ -116,9 +118,6 @@ int main()
 	// Creates the light model matrix
 	glm::vec3 lightPos = glm::vec3(0.5f, 3.0f, 0.5f);
 	glm::mat4 lightModel = glm::mat4(0.1f);
-
-	lightShader.Activate();
-	glUniform4f(lightShader.GetUniformLocation("lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
 	shaderProgram.Activate();
 	glUniform4f(shaderProgram.GetUniformLocation("lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -155,7 +154,7 @@ int main()
 		light.updateModelMat();
 
 		shaderProgram.Activate();
-		glUniform3f(shaderProgram.GetUniformLocation("lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		glUniform3f(shaderProgram.GetUniformLocation("lightPos"), light.worldPos.x, light.worldPos.y, light.worldPos.z);
 
 		frame++;
 
@@ -167,7 +166,7 @@ int main()
 
 		piece.Draw(shaderProgram, camera);
 		light.Draw(lightShader, camera);
-		pointRenderer.Draw(basicShader, camera);
+		//pointRenderer.Draw(basicShader, camera);
 
 		glfwSwapBuffers(window);
 

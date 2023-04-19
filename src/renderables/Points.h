@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Renderable.h"
+#include "components/Renderable.h"
 
 class Points: public Renderable {
     public:
@@ -25,5 +25,4 @@ void Points::Draw(Shader& shader, Camera& camera) {
     glDrawArrays(GL_POINTS, 0, points.size());
 
     VAO.Unbind();
-    shader.
 }

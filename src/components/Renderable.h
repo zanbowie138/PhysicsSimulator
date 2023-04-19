@@ -1,3 +1,5 @@
+#pragma once
+
 #include "VAO.h"
 #include "shaderClass.h"
 #include "Camera.h"
@@ -14,7 +16,7 @@ class Renderable {
 
     protected:
     VAO VAO;
-    glm::mat4 modelMatrix;
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
 };
 
 void Renderable::updateModelMat() {
