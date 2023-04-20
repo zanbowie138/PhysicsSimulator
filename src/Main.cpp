@@ -96,7 +96,13 @@ int main()
 
 	// Point setup
 	Shader basicShader("basic.vert", "basic.frag");
-	std::vector<glm::vec3> points = {glm::vec3(- 1.0, -1.0, -1.0)};
+	std::vector<glm::vec3> points = 
+	{
+		glm::vec3(- 1.0, 0.0, -1.0),
+		glm::vec3(-1.0, 0.0, 1.0),
+		glm::vec3(1.0, 0.0, -1.0),
+		glm::vec3(1.0, 0.0, 1.0)
+	};
 
 	Points pointRenderer(points);
 

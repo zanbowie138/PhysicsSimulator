@@ -18,11 +18,29 @@ class Points: public Renderable {
 Points::Points() 
 {
     points = std::vector<glm::vec3>();
+
+    VAO.Bind();
+
+    VBO VBO(points, GL_DYNAMIC_DRAW);
+
+    VAO.LinkAttrib(VBO, 0, 1, GL_FLOAT, sizeof(glm::vec3), (void*)0);
+
+    VAO.Unbind();
+    VBO.Unbind();
 }
 
 Points::Points(std::vector<glm::vec3> points)
 {
     Points::points = points;
+
+    VAO.Bind();
+
+    VBO VBO(points, GL_DYNAMIC_DRAW);
+
+    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), (void*)0);
+
+    VAO.Unbind();
+    VBO.Unbind();
 }
 
 void Points::Draw(Shader& shader, Camera& camera) {
