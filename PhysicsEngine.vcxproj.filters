@@ -28,6 +28,9 @@
     <Filter Include="Header Files\Renderables">
       <UniqueIdentifier>{ccb6a93a-7c8a-433b-ab30-f9072f02fd64}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Textures">
+      <UniqueIdentifier>{ecc438d4-05ce-4274-9294-05ab88c13e2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\chess.frag">
@@ -58,21 +61,6 @@
     </ClCompile>
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EBO.cpp">
-      <Filter>Source Files\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VAO.cpp">
-      <Filter>Source Files\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VBO.cpp">
-      <Filter>Source Files\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="src\shaderClass.cpp">
-      <Filter>Source Files\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
-      <Filter>Source Files\Base</Filter>
     </ClCompile>
     <ClCompile Include="src\stb.cpp">
       <Filter>Source Files\External</Filter>
@@ -118,5 +106,28 @@
     <ClInclude Include="src\renderables\Points.h">
       <Filter>Header Files\Renderables</Filter>
     </ClInclude>
+    <ClInclude Include="src\renderables\Lines.h">
+      <Filter>Header Files\Renderables</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Textures\brick.jpg">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Resources\Textures\brick_spec.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Resources\Textures\chessboard.jpg">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Resources\Textures\planks.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Resources\Textures\planksSpec.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Resources\Textures\squarecat.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

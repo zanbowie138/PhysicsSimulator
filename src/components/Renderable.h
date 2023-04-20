@@ -7,8 +7,8 @@
 class Renderable {
     public:
     float scale = 1;
-    glm::vec3 worldPos = glm::vec3(0,0,0);
-    glm::vec3 rotation = glm::vec3(0,0,0);
+    glm::vec3 worldPos = glm::vec3(0.0,0.0,0.0);
+    glm::vec3 rotation = glm::vec3(0.0,0.0,0.0);
 
     virtual void Draw(Shader& shader, Camera& camera) = 0;
 

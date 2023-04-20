@@ -6,10 +6,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
+#include "Camera.h"
 #include "renderables/Mesh.h"
 #include "renderables/Model.h"
 #include "renderables/ChessModel.h"
 #include "renderables/Points.h"
+#include "renderables/Lines.h"
 
 const unsigned int screenWidth = 800;
 const unsigned int screenHeight = 800;
@@ -44,9 +46,18 @@ GLuint lightIndices[] =
 	4, 6, 7
 };
 
-Vertex boardVertices[] =
+Vertex boardVertexes[] =
 {
-	Vertex{}
+	Vertex{glm::vec3(-1.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0), glm::vec2(0.0,0.0)},
+	Vertex{glm::vec3(1.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0), glm::vec2(1.0,0.0)},
+	Vertex{glm::vec3(1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0), glm::vec2(1.0,1.0)},
+	Vertex{glm::vec3(-1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0), glm::vec2(0.0,1.0)}
+};
+
+GLuint boardIndices[] =
+{
+	0, 1, 2,
+	2, 3, 0
 };
 
 int main()
@@ -76,18 +87,10 @@ int main()
 
 	//Specifies the transformation from normalized coordinates (0-1) to screen coordinates
 	glViewport(0, 0, screenWidth, screenHeight);
-	
-	/*
-	// Texture data
-	Texture textures[]
-	{
-		Texture("planks.png", "diffuse", GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE),
-		Texture("planksSpec.png", "specular", GL_TEXTURE_2D, 1, GL_RED, GL_UNSIGNED_BYTE)
-	};*/
 
-	Shader shaderProgram("chess.vert", "chess.frag");
+	Shader chessShader("chess.vert", "chess.frag");
 	ChessModel piece(ChessPiece(pawn), glm::vec3(0.0f, 0.0f, 0.0f));
-	piece.scale = 0.01;
+	piece.scale = 0.01f;
 	piece.updateModelMat();
 
 
@@ -95,16 +98,20 @@ int main()
 	Shader basicShader("basic.vert", "basic.frag");
 	std::vector<glm::vec3> points = {glm::vec3(- 1.0, -1.0, -1.0)};
 
-	//Points pointRenderer;
+	Points pointRenderer(points);
 
-	/*
-	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
+	Shader defaultShader("default.vert", "default.frag");
+	// Texture data
+	Texture textures[]
+	{
+		Texture("planks.png", "diffuse", GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture("planksSpec.png", "specular", GL_TEXTURE_2D, 1, GL_RED, GL_UNSIGNED_BYTE)
+	};
+	std::vector <Vertex> verts(boardVertexes, boardVertexes + sizeof(boardVertexes) / sizeof(Vertex));
+	std::vector <GLuint> ind(boardIndices, boardIndices + sizeof(boardIndices) / sizeof(GLuint));
 	std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
-	Mesh floor(verts, ind, tex);*/
+	Mesh floor(verts, ind, tex);
 
-	// Shader for light cube
-	Shader lightShader("basic.vert", "basic.frag");
 	// Store mesh data in vectors for the mesh
 	std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
 	std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
@@ -119,9 +126,13 @@ int main()
 	glm::vec3 lightPos = glm::vec3(0.5f, 3.0f, 0.5f);
 	glm::mat4 lightModel = glm::mat4(0.1f);
 
-	shaderProgram.Activate();
-	glUniform4f(shaderProgram.GetUniformLocation("lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(shaderProgram.GetUniformLocation("lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	chessShader.Activate();
+	glUniform4f(chessShader.GetUniformLocation("lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(chessShader.GetUniformLocation("lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
+	defaultShader.Activate();
+	glUniform4f(defaultShader.GetUniformLocation("lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(defaultShader.GetUniformLocation("lightPos"), lightPos.x, lightPos.y, lightPos.z);
 	
 
 	glEnable(GL_DEPTH_TEST);
@@ -149,12 +160,15 @@ int main()
 			lastTime += 1.0;
 		}
 
-		lightShader.Activate();
-		light.worldPos = glm::vec3(0.5f, glm::sin(glm::radians((float)frame/25)) * 3, 1.5f);
+		basicShader.Activate();
+		light.worldPos = glm::vec3(0.0f, 1.0f, glm::sin(glm::radians((float)frame / 5)) / 3);
 		light.updateModelMat();
 
-		shaderProgram.Activate();
-		glUniform3f(shaderProgram.GetUniformLocation("lightPos"), light.worldPos.x, light.worldPos.y, light.worldPos.z);
+		chessShader.Activate();
+		glUniform3f(chessShader.GetUniformLocation("lightPos"), light.worldPos.x, light.worldPos.y, light.worldPos.z);
+
+		defaultShader.Activate();
+		glUniform3f(defaultShader.GetUniformLocation("lightPos"), light.worldPos.x, light.worldPos.y, light.worldPos.z);
 
 		frame++;
 
@@ -164,9 +178,14 @@ int main()
 		camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
 
 
-		piece.Draw(shaderProgram, camera);
-		light.Draw(lightShader, camera);
-		//pointRenderer.Draw(basicShader, camera);
+		piece.Draw(chessShader, camera);
+		light.Draw(basicShader, camera);
+		floor.Draw(defaultShader, camera);
+
+		
+		// Renders above everything
+		glClear(GL_DEPTH_BUFFER_BIT);
+		pointRenderer.Draw(basicShader, camera);
 
 		glfwSwapBuffers(window);
 
@@ -174,9 +193,9 @@ int main()
 	}
 
 	// Delete all objects that we created
-	shaderProgram.Delete();
-	lightShader.Delete();
+	chessShader.Delete();
 	basicShader.Delete();
+	defaultShader.Delete();
 
 	// Delete window
 	glfwDestroyWindow(window);
