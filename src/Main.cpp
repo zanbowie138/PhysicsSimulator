@@ -100,11 +100,20 @@ int main()
 	{
 		glm::vec3(- 1.0, 0.0, -1.0),
 		glm::vec3(-1.0, 0.0, 1.0),
-		glm::vec3(1.0, 0.0, -1.0),
-		glm::vec3(1.0, 0.0, 1.0)
+		glm::vec3(1.0, 0.0, 1.0),
+		glm::vec3(1.0, 0.0, -1.0)
 	};
 
-	Points pointRenderer(points);
+	std::vector<GLuint> indices =
+	{
+		0,1,
+		1,2,
+		2,3,
+		3,0
+	};
+
+	Points pointRenderer(100);
+	pointRenderer.PushBack(points);
 
 	Shader defaultShader("default.vert", "default.frag");
 	// Texture data
@@ -165,6 +174,7 @@ int main()
 			nbFrames = 0;
 			lastTime += 1.0;
 		}
+		
 
 		basicShader.Activate();
 		light.worldPos = glm::vec3(0.0f, 1.0f, glm::sin(glm::radians((float)frame / 5)) / 3);

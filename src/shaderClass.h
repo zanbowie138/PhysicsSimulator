@@ -15,14 +15,14 @@ class Shader
 {
 public:
 	GLuint ID;
-	Shader(const char* vertexFile, const char* fragmentFile);
+	inline Shader(const char* vertexFile, const char* fragmentFile);
 
-	inline void Activate();
-	inline void Delete();
+	inline const void Activate();
+	inline const void Delete();
 
-	GLint GetUniformLocation(const char *name);
+	inline const GLint GetUniformLocation(const char *name);
 private:
-	inline void CompileErrors(unsigned int shader, const char* type);
+	inline const void CompileErrors(unsigned int shader, const char* type);
 };
 
 // Reads a text file and outputs a string with everything in the text file
@@ -43,7 +43,7 @@ inline std::string get_file_contents(const char* filename)
 	throw(errno);
 }
 
-inline Shader::Shader(const char* vertexFile, const char* fragmentFile)
+Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {
 	std::string vertexCode = get_file_contents(vertexFile);
 	std::string fragmentCode = get_file_contents(fragmentFile);
@@ -78,22 +78,22 @@ inline Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	glDeleteShader(fragmentShader);
 }
 
-inline void Shader::Activate()
+const void Shader::Activate()
 {
 	glUseProgram(ID);
 }
 
-inline void Shader::Delete()
+const void Shader::Delete()
 {
 	glDeleteProgram(ID);
 }
 
-inline GLint Shader::GetUniformLocation(const char* name)
+const GLint Shader::GetUniformLocation(const char* name)
 {
 	return glGetUniformLocation(ID, name);
 }
 
-inline void Shader::CompileErrors(unsigned int shader, const char* type)
+const void Shader::CompileErrors(unsigned int shader, const char* type)
 {
 	GLint hasCompiled;
 	char infolog[1024];

@@ -9,20 +9,26 @@ public:
     std::vector<glm::vec3> vertices;
     std::vector<unsigned int> indices;
 
-    Lines();
-    Lines(std::vector<glm::vec3> lines);
+    VBO VBO;
+    EBO EBO;
 
-    void Draw(Shader& shader, Camera& camera);
+    inline Lines(GLuint indiceAmt);
+
+    inline void PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds);
+
+    inline void Draw(Shader& shader, Camera& camera);
 
 };
 
-Lines::Lines()
+Lines::Lines(GLuint indiceAmt)
 {
     vertices = std::vector<glm::vec3>();
+    indices = std::vector<unsigned int>();
+
     VAO.Bind();
 
-    VBO VBO(vertices, GL_DYNAMIC_DRAW);
-    EBO EBO(indices, GL_DYNAMIC_DRAW);
+    VBO.AllocBuffer(indiceAmt * 2 * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
+    EBO.AllocBuffer(indiceAmt * sizeof(GLuint), GL_DYNAMIC_DRAW);
 
     VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), (void*)0);
 
@@ -31,17 +37,16 @@ Lines::Lines()
     EBO.Unbind();
 }
 
-Lines::Lines(std::vector<glm::vec3> lines)
+void Lines::PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds)
 {
-    Lines::vertices = lines;
-    VAO.Bind();
+    VBO.Bind();
+    vertices.insert(vertices.end(), verts.begin(), verts.end());
+    VBO.PushData(verts);
 
-    VBO VBO(vertices, GL_DYNAMIC_DRAW);
-    EBO EBO(indices, GL_DYNAMIC_DRAW);
+    EBO.Bind();
+    indices.insert(indices.end(), inds.begin(), inds.end());
+    EBO.PushData(inds);
 
-    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), (void*)0);
-
-    VAO.Unbind();
     VBO.Unbind();
     EBO.Unbind();
 }
@@ -56,7 +61,7 @@ void Lines::Draw(Shader& shader, Camera& camera) {
 
     camera.Matrix(shader, "camMatrix");
 
-    glDrawArrays(GL_POINTS, 0, vertices.size());
+    glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 
     VAO.Unbind();
 }

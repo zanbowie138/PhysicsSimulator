@@ -8,38 +8,34 @@ class Points: public Renderable {
     public:
     std::vector<glm::vec3> points;
 
-    Points();
-    Points(std::vector<glm::vec3> points);
+    VBO VBO;
 
-    void Draw(Shader& shader, Camera& camera);
+    inline Points(GLuint amount);
+
+    inline void PushBack(const std::vector<glm::vec3>& pts);
+    inline void Draw(Shader& shader, Camera& camera);
 
 };
 
-Points::Points() 
+Points::Points(GLuint amount)
 {
     points = std::vector<glm::vec3>();
 
     VAO.Bind();
 
-    VBO VBO(points, GL_DYNAMIC_DRAW);
+    VBO.AllocBuffer(amount * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
 
-    VAO.LinkAttrib(VBO, 0, 1, GL_FLOAT, sizeof(glm::vec3), (void*)0);
+    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), (void*)0);
 
     VAO.Unbind();
     VBO.Unbind();
 }
 
-Points::Points(std::vector<glm::vec3> points)
+void Points::PushBack(const std::vector<glm::vec3>& pts)
 {
-    Points::points = points;
-
-    VAO.Bind();
-
-    VBO VBO(points, GL_DYNAMIC_DRAW);
-
-    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), (void*)0);
-
-    VAO.Unbind();
+    VBO.Bind();
+    points.insert(points.end(), pts.begin(), pts.end());
+    VBO.PushData(pts);
     VBO.Unbind();
 }
 

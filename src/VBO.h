@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include <vector>
+#include <iostream>
 
 struct Vertex
 {
@@ -23,9 +24,16 @@ class VBO
 {
 public:
 	GLuint ID;
-	VBO(std::vector<Vertex>& vertices, GLenum type = GL_STATIC_DRAW);
-	VBO(std::vector<ModelPt>& vertices, GLenum type = GL_STATIC_DRAW);
-	VBO(std::vector<glm::vec3>& vertices, GLenum type = GL_STATIC_DRAW);
+	GLuint bufSize = 0;
+	GLuint currentBufSize = 0;
+
+	inline VBO();
+	inline VBO(std::vector<Vertex>& vertices);
+	inline VBO(std::vector<ModelPt>& vertices);
+	inline VBO(std::vector<glm::vec3>& vertices);
+
+	inline void PushData(const std::vector<glm::vec3>& vertices);
+	inline void AllocBuffer(GLint size, GLenum type);
 
 	inline void Bind();
 	inline void Unbind();
@@ -33,23 +41,44 @@ public:
 };
 
 // Constructors that generates a Vertex Buffer Object and links it to vertices
-VBO::VBO(std::vector<glm::vec3>& vertices, GLenum type)
+inline VBO::VBO()
 {
 	glGenBuffers(1, &ID);
-	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(std::vector<glm::vec3>), vertices.data(), type);
 }
-VBO::VBO(std::vector<Vertex>& vertices, GLenum type)
+inline VBO::VBO(std::vector<glm::vec3>& vertices)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), type);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(std::vector<glm::vec3>), vertices.data(), GL_STATIC_DRAW);
 }
-VBO::VBO(std::vector<ModelPt>& vertices, GLenum type)
+inline VBO::VBO(std::vector<Vertex>& vertices)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ModelPt), vertices.data(), type);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+}
+inline VBO::VBO(std::vector<ModelPt>& vertices)
+{
+	glGenBuffers(1, &ID);
+	glBindBuffer(GL_ARRAY_BUFFER, ID);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ModelPt), vertices.data(), GL_STATIC_DRAW);
+}
+
+inline void VBO::PushData(const std::vector<glm::vec3>& vertices)
+{
+	if (currentBufSize + vertices.size() * sizeof(glm::vec3) > bufSize) {
+		std::cout << "VBO Buffer Overflow..." << std::endl;
+		return;
+	}
+	glBufferSubData(GL_ARRAY_BUFFER, currentBufSize, vertices.size() * sizeof(glm::vec3), vertices.data());
+	currentBufSize += vertices.size() * sizeof(glm::vec3);
+}
+
+inline void VBO::AllocBuffer(GLint size, GLenum type)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, ID);
+	glBufferData(GL_ARRAY_BUFFER, size, NULL, type);
+	bufSize = size;
 }
 
 // Binds the VBO

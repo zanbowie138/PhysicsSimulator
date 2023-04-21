@@ -15,7 +15,7 @@ public:
 	GLenum texFormat;
 	GLuint unit; 
 
-	Texture(const char* image, const char* texType, GLenum texFormat,GLuint slot, GLenum colorChannels, GLenum pixelType);
+	inline Texture(const char* image, const char* texType, GLenum texFormat,GLuint slot, GLenum colorChannels, GLenum pixelType);
 
 	// Assigns a texture unit to a texture
 	inline void texUnit(Shader& shader, const char* uniform, GLuint unit);

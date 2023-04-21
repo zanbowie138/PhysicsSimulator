@@ -2,12 +2,20 @@
 
 #include<glad/glad.h>
 #include<vector>
+#include <iostream>
 
 class EBO
 {
 public:
 	GLuint ID;
-	EBO(std::vector<GLuint>& indices, GLenum type = GL_STATIC_DRAW);
+	GLuint bufSize = 0;
+	GLuint currentBufSize = 0;
+
+	inline EBO();
+	inline EBO(std::vector<GLuint>& indices);
+
+	inline void AllocBuffer(GLint size, GLenum type);
+	inline void PushData(const std::vector<GLuint>& indices);
 
 	inline void Bind();
 	inline void Unbind();
@@ -15,11 +23,32 @@ public:
 };
 
 // Constructor that generates a Vertex Buffer Object and links it to vertices
-EBO::EBO(std::vector<GLuint>& indices, GLenum type)
+inline EBO::EBO()
+{
+	glGenBuffers(1, &ID);
+}
+inline EBO::EBO(std::vector<GLuint>& indices)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), type);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+}
+
+inline void EBO::PushData(const std::vector<GLuint>& indices)
+{
+	if (indices.size() * sizeof(GLuint) > bufSize) {
+		std::cout << "EBO Buffer Overflow..." << std::endl;
+		return;
+	}
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, currentBufSize, indices.size() * sizeof(GLuint), indices.data());
+	currentBufSize += indices.size() * sizeof(GLuint);
+}
+
+inline void EBO::AllocBuffer(GLint size, GLenum type)
+{
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, NULL, type);
+	bufSize = size;
 }
 
 // Binds the EBO
