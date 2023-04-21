@@ -5,10 +5,6 @@
 #include <set>
 
 #include "components/Renderable.h"
-#include "VAO.h"
-#include "EBO.h"
-#include "Camera.h"
-#include "Texture.h"
 
 struct compareVec3
 {

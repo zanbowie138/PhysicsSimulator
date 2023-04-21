@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "components/Renderable.h"
+#include "Camera.h"
+#include "VBO.h"
 
 class Points: public Renderable {
     public:

@@ -7,10 +7,9 @@
 #include <string>
 
 #include "components/Renderable.h"
-#include "VAO.h"
-#include "EBO.h"
 #include "Camera.h"
-#include "Texture.h"
+#include "VBO.h"
+#include "EBO.h"
 
 enum ChessPiece
 {

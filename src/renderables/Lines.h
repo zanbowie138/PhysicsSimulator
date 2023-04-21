@@ -3,6 +3,9 @@
 #include <vector>
 
 #include "components/Renderable.h"
+#include "Camera.h"
+#include "VBO.h"
+#include "EBO.h"
 
 class Lines : public Renderable {
 public:
