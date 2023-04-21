@@ -21,6 +21,6 @@ class Renderable {
 
 void Renderable::updateModelMat() {
     glm::mat4 size = glm::mat4(scale);
-    glm::mat4 rotated = glm::rotate(glm::rotate(glm::rotate(size, glm::radians(rotation.x), glm::vec3(1,0,0)), glm::radians(rotation.y), glm::vec3(0,1,0)), glm::radians(rotation.z), glm::vec3(0,0,1));
-    modelMatrix = glm::translate(rotated, worldPos);
+    glm::mat4 translated = glm::translate(size, worldPos);
+    modelMatrix = glm::rotate(glm::rotate(glm::rotate(translated, glm::radians(rotation.x), glm::vec3(1,0,0)), glm::radians(rotation.y), glm::vec3(0,1,0)), glm::radians(rotation.z), glm::vec3(0,0,1));
 }

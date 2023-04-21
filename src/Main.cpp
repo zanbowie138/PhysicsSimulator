@@ -177,7 +177,7 @@ int main()
 		
 
 		basicShader.Activate();
-		light.worldPos = glm::vec3(0.0f, 1.0f, glm::sin(glm::radians((float)frame / 5)) / 3);
+		light.worldPos = glm::vec3(glm::cos(glm::radians((float)frame / 15))/1.3, 1.0f, glm::sin(glm::radians((float)frame / 15))/1.3);
 		light.updateModelMat();
 
 		chessShader.Activate();
@@ -201,7 +201,7 @@ int main()
 		
 		// Renders above everything
 		glClear(GL_DEPTH_BUFFER_BIT);
-		pointRenderer.Draw(basicShader, camera);
+		//pointRenderer.Draw(basicShader, camera);
 
 		glfwSwapBuffers(window);
 
