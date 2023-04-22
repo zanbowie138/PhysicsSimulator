@@ -89,8 +89,8 @@ int main()
 	//Specifies the transformation from normalized coordinates (0-1) to screen coordinates
 	glViewport(0, 0, screen_width, screen_height);
 
-	Shader chess_shader("chess.vert", "chess.frag");
-	ChessModel piece(static_cast<ChessPiece>(pawn), glm::vec3(0.0f, 0.0f, 0.0f));
+	Shader flatShader("chess.vert", "chess.frag");
+	ChessModel piece(pawn, glm::vec3(0.0f, 0.0f, 0.0f));
 	piece.scale = 0.01f;
 	piece.UpdateModelMat();
 
@@ -136,10 +136,12 @@ int main()
 	auto boxElements = std::vector<GLuint>();
 	for (int i = 0; i < boxIndices.size(); i++)
 	{
-		boxVertexes.push_back(Vertex{boxVertices[boxIndices[i]], boxNormals[i / 6]});
+		boxVertexes.push_back(Vertex{boxVertices[boxIndices[i]], boxNormals[i / 6] * -1.0f});
 		boxElements.push_back(i);
 	}
 	Mesh box(boxVertexes, boxElements);
+	box.scale = 10.0f;
+	box.UpdateModelMat();
 
 
 	// Point setup
@@ -178,7 +180,7 @@ int main()
 	std::vector<GLuint> ind(board_indices, board_indices + sizeof(board_indices) / sizeof(GLuint));
 	std::vector<Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
 	Mesh floor(verts, ind, tex);
-	floor.scale = 1;
+	floor.scale = 10.0f;
 	floor.UpdateModelMat();
 
 	// Light setup
@@ -193,9 +195,9 @@ int main()
 	// Creates the light model matrix
 	auto lightPos = glm::vec3(0.5f, 3.0f, 0.5f);
 
-	chess_shader.Activate();
-	glUniform4f(chess_shader.GetUniformLocation("lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(chess_shader.GetUniformLocation("lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	flatShader.Activate();
+	glUniform4f(flatShader.GetUniformLocation("lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(flatShader.GetUniformLocation("lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	defaultShader.Activate();
 	glUniform4f(defaultShader.GetUniformLocation("lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -235,8 +237,8 @@ int main()
 		                           glm::sin(glm::radians(static_cast<float>(frame) / 15)) / 1.3);
 		light.UpdateModelMat();
 
-		chess_shader.Activate();
-		glUniform3f(chess_shader.GetUniformLocation("lightPos"), light.worldPos.x, light.worldPos.y, light.worldPos.z);
+		flatShader.Activate();
+		glUniform3f(flatShader.GetUniformLocation("lightPos"), light.worldPos.x, light.worldPos.y, light.worldPos.z);
 
 		defaultShader.Activate();
 		glUniform3f(defaultShader.GetUniformLocation("lightPos"), light.worldPos.x, light.worldPos.y, light.worldPos.z);
@@ -249,15 +251,15 @@ int main()
 		camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
 
 
-		piece.Draw(chess_shader, camera);
+		piece.Draw(flatShader, camera);
 		light.Draw(basicShader, camera);
 		floor.Draw(defaultShader, camera);
-		box.Draw(chess_shader, camera);
+		box.Draw(flatShader, camera);
 
 
 		// Renders above everything
 		glClear(GL_DEPTH_BUFFER_BIT);
-		pointRenderer.Draw(basicShader, camera);
+		//pointRenderer.Draw(basicShader, camera);
 
 		glfwSwapBuffers(window);
 
@@ -265,7 +267,7 @@ int main()
 	}
 
 	// Delete all objects that we created
-	chess_shader.Delete();
+	flatShader.Delete();
 	basicShader.Delete();
 	defaultShader.Delete();
 
