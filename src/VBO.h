@@ -23,21 +23,21 @@ struct ModelPt
 class VBO
 {
 public:
-	GLuint ID;
+	mutable GLuint ID{};
 	GLuint bufSize = 0;
 	GLuint currentBufSize = 0;
 
 	inline VBO();
-	inline VBO(std::vector<Vertex>& vertices);
-	inline VBO(std::vector<ModelPt>& vertices);
-	inline VBO(std::vector<glm::vec3>& vertices);
+	explicit inline VBO(const std::vector<Vertex>& vertices);
+	explicit inline VBO(const std::vector<ModelPt>& vertices);
+	explicit inline VBO(const std::vector<glm::vec3>& vertices);
 
 	inline void PushData(const std::vector<glm::vec3>& vertices);
 	inline void AllocBuffer(GLint size, GLenum type);
 
-	inline void Bind();
-	inline void Unbind();
-	inline void Delete();
+	inline void Bind() const;
+	static inline void Unbind();
+	inline void Delete() const;
 };
 
 // Constructors that generates a Vertex Buffer Object and links it to vertices
@@ -45,19 +45,22 @@ inline VBO::VBO()
 {
 	glGenBuffers(1, &ID);
 }
-inline VBO::VBO(std::vector<glm::vec3>& vertices)
+
+inline VBO::VBO(const std::vector<glm::vec3>& vertices)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(std::vector<glm::vec3>), vertices.data(), GL_STATIC_DRAW);
 }
-inline VBO::VBO(std::vector<Vertex>& vertices)
+
+inline VBO::VBO(const std::vector<Vertex>& vertices)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 }
-inline VBO::VBO(std::vector<ModelPt>& vertices)
+
+inline VBO::VBO(const std::vector<ModelPt>& vertices)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
@@ -66,7 +69,8 @@ inline VBO::VBO(std::vector<ModelPt>& vertices)
 
 inline void VBO::PushData(const std::vector<glm::vec3>& vertices)
 {
-	if (currentBufSize + vertices.size() * sizeof(glm::vec3) > bufSize) {
+	if (currentBufSize + vertices.size() * sizeof(glm::vec3) > bufSize)
+	{
 		std::cout << "VBO Buffer Overflow..." << std::endl;
 		return;
 	}
@@ -74,15 +78,15 @@ inline void VBO::PushData(const std::vector<glm::vec3>& vertices)
 	currentBufSize += vertices.size() * sizeof(glm::vec3);
 }
 
-inline void VBO::AllocBuffer(GLint size, GLenum type)
+inline void VBO::AllocBuffer(const GLint size, const GLenum type)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, size, NULL, type);
+	glBufferData(GL_ARRAY_BUFFER, size, nullptr, type);
 	bufSize = size;
 }
 
 // Binds the VBO
-inline void VBO::Bind()
+inline void VBO::Bind() const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
 }
@@ -94,7 +98,7 @@ inline void VBO::Unbind()
 }
 
 // Deletes the VBO
-inline void VBO::Delete()
+inline void VBO::Delete() const
 {
 	glDeleteBuffers(1, &ID);
 }

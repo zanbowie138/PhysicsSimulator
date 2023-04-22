@@ -13,7 +13,7 @@ void main()
 {
 	Position = vec3(model * vec4(aPos, 1.0f));
 	Normal = aNormal;
-	Color = vec3(0.8f, 0.8f, 0.1f);
+	Color = vec3(1.0f);
 
 	gl_Position = camMatrix * vec4(Position, 1.0f);
 }

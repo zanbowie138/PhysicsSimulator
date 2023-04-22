@@ -7,19 +7,19 @@
 class EBO
 {
 public:
-	GLuint ID;
+	mutable GLuint ID{};
 	GLuint bufSize = 0;
 	GLuint currentBufSize = 0;
 
 	inline EBO();
-	inline EBO(std::vector<GLuint>& indices);
+	explicit inline EBO(const std::vector<GLuint>& indices);
 
 	inline void AllocBuffer(GLint size, GLenum type);
 	inline void PushData(const std::vector<GLuint>& indices);
 
-	inline void Bind();
-	inline void Unbind();
-	inline void Delete();
+	inline void Bind() const;
+	static inline void Unbind();
+	inline void Delete() const;
 };
 
 // Constructor that generates a Vertex Buffer Object and links it to vertices
@@ -27,7 +27,8 @@ inline EBO::EBO()
 {
 	glGenBuffers(1, &ID);
 }
-inline EBO::EBO(std::vector<GLuint>& indices)
+
+inline EBO::EBO(const std::vector<GLuint>& indices)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
@@ -36,7 +37,8 @@ inline EBO::EBO(std::vector<GLuint>& indices)
 
 inline void EBO::PushData(const std::vector<GLuint>& indices)
 {
-	if (indices.size() * sizeof(GLuint) > bufSize) {
+	if (indices.size() * sizeof(GLuint) > bufSize)
+	{
 		std::cout << "EBO Buffer Overflow..." << std::endl;
 		return;
 	}
@@ -44,15 +46,15 @@ inline void EBO::PushData(const std::vector<GLuint>& indices)
 	currentBufSize += indices.size() * sizeof(GLuint);
 }
 
-inline void EBO::AllocBuffer(GLint size, GLenum type)
+inline void EBO::AllocBuffer(const GLint size, const GLenum type)
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, NULL, type);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, type);
 	bufSize = size;
 }
 
 // Binds the EBO
-inline void EBO::Bind()
+inline void EBO::Bind() const
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
 }
@@ -64,7 +66,7 @@ inline void EBO::Unbind()
 }
 
 // Deletes the EBO
-inline void EBO::Delete()
+inline void EBO::Delete() const
 {
 	glDeleteBuffers(1, &ID);
 }

@@ -7,7 +7,7 @@
 class GameState
 {
 public:
-    GameState();
+	GameState();
 
-    void Setup();
+	void Setup();
 };

@@ -7,22 +7,23 @@
 #include "VBO.h"
 #include "EBO.h"
 
-class Mesh: public Renderable
+class Mesh : public Renderable
 {
 public:
-	std::vector <Vertex> vertices;
-	std::vector <GLuint> indices;
-	std::vector <Texture> textures;
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+	std::vector<Texture> textures;
 
 	// Initializes the mesh
-	Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures);
-	Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, const std::vector<Texture>& textures);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
 
 	// Draws the mesh
-	void Draw(Shader& shader, Camera& camera);
+	void Draw(const Shader& shader, const Camera& camera) const override;
 };
 
-Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
+inline Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices,
+                  const std::vector<Texture>& textures)
 {
 	Mesh::vertices = vertices;
 	Mesh::indices = indices;
@@ -33,7 +34,7 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vec
 	VBO VBO(vertices);
 	EBO EBO(indices);
 
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), nullptr);
 	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
 	VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
 	VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
@@ -43,7 +44,7 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vec
 	EBO.Unbind();
 }
 
-Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
+inline Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices)
 {
 	Mesh::vertices = vertices;
 	Mesh::indices = indices;
@@ -53,7 +54,7 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 	VBO VBO(vertices);
 	EBO EBO(indices);
 
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), nullptr);
 	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
 	VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
 	VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
@@ -63,7 +64,7 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 	EBO.Unbind();
 }
 
-void Mesh::Draw(Shader& shader, Camera& camera)
+inline void Mesh::Draw(const Shader& shader, const Camera& camera) const
 {
 	// Bind shader to be able to access uniforms
 	shader.Activate();
@@ -85,16 +86,16 @@ void Mesh::Draw(Shader& shader, Camera& camera)
 		{
 			num = std::to_string(numSpecular++);
 		}
-		textures[i].texUnit(shader, (type + num).c_str(), i);
+		textures[i].TexUnit(shader, (type + num).c_str(), i);
 		textures[i].Bind();
 	}
 
-	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, value_ptr(modelMatrix));
 
 	// Take care of the camera Matrix
 	glUniform3f(shader.GetUniformLocation("camPos"), camera.position.x, camera.position.y, camera.position.z);
 	camera.Matrix(shader, "camMatrix");
 
 	// Draw the actual mesh
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 }

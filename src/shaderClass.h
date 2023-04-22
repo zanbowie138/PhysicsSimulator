@@ -17,18 +17,19 @@ public:
 	GLuint ID;
 	inline Shader(const char* vertexFile, const char* fragmentFile);
 
-	inline const void Activate();
-	inline const void Delete();
+	inline void Activate() const;
+	inline void Delete() const;
 
-	inline const GLint GetUniformLocation(const char *name);
+	inline GLint GetUniformLocation(const char* name) const;
+
 private:
-	inline const void CompileErrors(unsigned int shader, const char* type);
+	static inline void CompileErrors(unsigned int shader, const char* type);
 };
 
 // Reads a text file and outputs a string with everything in the text file
 inline std::string get_file_contents(const char* filename)
 {
-	std::string localDir = "/shaders/";
+	const std::string localDir = "/shaders/";
 	std::ifstream in((std::filesystem::current_path().string() + localDir + filename).c_str(), std::ios::binary);
 	if (in)
 	{
@@ -36,17 +37,17 @@ inline std::string get_file_contents(const char* filename)
 		in.seekg(0, std::ios::end);
 		contents.resize(in.tellg());
 		in.seekg(0, std::ios::beg);
-		in.read(&contents[0], contents.size());
+		in.read(contents.data(), contents.size());
 		in.close();
-		return(contents);
+		return (contents);
 	}
 	throw(errno);
 }
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {
-	std::string vertexCode = get_file_contents(vertexFile);
-	std::string fragmentCode = get_file_contents(fragmentFile);
+	const std::string vertexCode = get_file_contents(vertexFile);
+	const std::string fragmentCode = get_file_contents(fragmentFile);
 
 	// Convert string into char arrays
 	const char* vertexSource = vertexCode.c_str();
@@ -54,15 +55,15 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 
 	// Create and compile vertex shader
 	// This controls where the vertices are located
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSource, NULL);
+	const GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexSource, nullptr);
 	glCompileShader(vertexShader);
 	CompileErrors(vertexShader, "VERTEX");
 
 	// Create and compile fragment shader
 	// This controls how the shape is colored
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+	const GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
 	glCompileShader(fragmentShader);
 	CompileErrors(fragmentShader, "FRAGMENT");
 
@@ -78,22 +79,22 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	glDeleteShader(fragmentShader);
 }
 
-const void Shader::Activate()
+void Shader::Activate() const
 {
 	glUseProgram(ID);
 }
 
-const void Shader::Delete()
+void Shader::Delete() const
 {
 	glDeleteProgram(ID);
 }
 
-const GLint Shader::GetUniformLocation(const char* name)
+GLint Shader::GetUniformLocation(const char* name) const
 {
 	return glGetUniformLocation(ID, name);
 }
 
-const void Shader::CompileErrors(unsigned int shader, const char* type)
+void Shader::CompileErrors(const unsigned int shader, const char* type)
 {
 	GLint hasCompiled;
 	char infolog[1024];
@@ -102,7 +103,7 @@ const void Shader::CompileErrors(unsigned int shader, const char* type)
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
 		if (hasCompiled == GL_FALSE)
 		{
-			glGetShaderInfoLog(shader, 1024, NULL, infolog);
+			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
 			std::cout << "SHADER_COMPILATION_ERROR for: " << type << "\n" << std::endl;
 		}
 	}
@@ -111,7 +112,7 @@ const void Shader::CompileErrors(unsigned int shader, const char* type)
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
 		if (hasCompiled == GL_FALSE)
 		{
-			glGetShaderInfoLog(shader, 1024, NULL, infolog);
+			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
 			std::cout << "SHADER_LINKING_ERROR for: " << type << "\n" << std::endl;
 		}
 	}

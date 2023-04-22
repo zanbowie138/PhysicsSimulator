@@ -13,12 +13,12 @@
 class Camera
 {
 public:
-	glm::vec3 position;
+	glm::vec3 position{};
 	glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::mat4 cameraMatrix = glm::mat4(1.0f);
 
-	bool firstClick = true;
+	bool first_click = true;
 
 	int width;
 	int height;
@@ -32,6 +32,6 @@ public:
 	void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
 
 	//Sends camera matrix to inputted shader to update position
-	void Matrix(Shader& shader, const char* uniform);
+	void Matrix(const Shader& shader, const char* uniform) const;
 	void Inputs(GLFWwindow* window);
 };

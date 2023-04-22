@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Base">
-      <UniqueIdentifier>{29eb3f83-afb9-4caa-a5ac-4639b1b8ac5c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Base">
       <UniqueIdentifier>{9ea0d6a4-0f7a-4833-a833-b8d32a764149}</UniqueIdentifier>
     </Filter>
