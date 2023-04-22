@@ -94,7 +94,7 @@ int main()
 	piece.scale = 0.01f;
 	piece.UpdateModelMat();
 
-	std::vector<glm::vec3> box_vertices =
+	std::vector<glm::vec3> boxVertices =
 	{
 		glm::vec3(-1.0f, -1.0f, 1.0f),
 		glm::vec3(-1.0f, -1.0f, -1.0f),
@@ -106,7 +106,7 @@ int main()
 		glm::vec3(1.0f, 1.0f, 1.0f)
 	};
 
-	std::vector<glm::vec3> box_normals =
+	std::vector<glm::vec3> boxNormals =
 	{
 		glm::vec3(0, -1, 0),
 		glm::vec3(0, 0, 1),
@@ -116,7 +116,7 @@ int main()
 		glm::vec3(0, 1, 0)
 	};
 
-	std::vector<GLuint> box_indices =
+	std::vector<GLuint> boxIndices =
 	{
 		0, 1, 2, // Down
 		0, 2, 3,
@@ -132,14 +132,14 @@ int main()
 		4, 6, 7
 	};
 
-	auto box_vertexes = std::vector<Vertex>();
-	auto box_elements = std::vector<GLuint>();
-	for (int i = 0; i < box_indices.size(); i++)
+	auto boxVertexes = std::vector<Vertex>();
+	auto boxElements = std::vector<GLuint>();
+	for (int i = 0; i < boxIndices.size(); i++)
 	{
-		box_vertexes.push_back(Vertex{box_vertices[box_indices[i]], box_normals[i / 6]});
-		box_elements.push_back(i);
+		boxVertexes.push_back(Vertex{boxVertices[boxIndices[i]], boxNormals[i / 6]});
+		boxElements.push_back(i);
 	}
-	Mesh box(box_vertexes, box_elements);
+	Mesh box(boxVertexes, boxElements);
 
 
 	// Point setup
@@ -222,7 +222,7 @@ int main()
 		nbFrames++;
 		if (currentTime - lastTime >= 1.0)
 		{
-			// If last prinf() was more than 1 sec ago
+			// If last printf() was more than 1 sec ago
 			// printf and reset timer
 			printf("%f mspf, %f fps\n", 1000.0 / static_cast<double>(nbFrames), static_cast<double>(nbFrames));
 			nbFrames = 0;
