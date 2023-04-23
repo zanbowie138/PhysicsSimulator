@@ -124,7 +124,7 @@ SceneController::SceneController(GLFWwindow* window, const GLuint screenWidth, c
 	light.worldPos = ub.lightPos;
 	light.UpdateModelMat();
 
-	ChessModel piece(pawn, glm::vec3(0.0f, 0.0f, 0.0f));
+	ChessModel piece(king, glm::vec3(0.0f, 0.0f, 0.0f));
 	piece.scale = 0.1f;
 	piece.UpdateModelMat();
 
