@@ -20,7 +20,8 @@ public:
 	inline void Activate() const;
 	inline void Delete() const;
 
-	inline GLint GetUniformLocation(const char* name) const;
+	inline GLuint GetUniformLocation(const char* name) const;
+	inline GLuint GetUniformBlockIndex(const char* name) const;
 
 private:
 	static inline void CompileErrors(unsigned int shader, const char* type);
@@ -89,9 +90,14 @@ void Shader::Delete() const
 	glDeleteProgram(ID);
 }
 
-GLint Shader::GetUniformLocation(const char* name) const
+GLuint Shader::GetUniformLocation(const char* name) const
 {
 	return glGetUniformLocation(ID, name);
+}
+
+inline GLuint Shader::GetUniformBlockIndex(const char* name) const
+{
+	return glGetUniformBlockIndex(ID, name);
 }
 
 void Shader::CompileErrors(const unsigned int shader, const char* type)

@@ -30,10 +30,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\chess.frag">
+    <None Include="shaders\flat.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="shaders\chess.vert">
+    <None Include="shaders\flat.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="shaders\default.frag">
@@ -53,7 +53,7 @@
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameController.cpp">
+    <ClCompile Include="src\SceneController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Main.cpp">
@@ -70,7 +70,7 @@
     <ClInclude Include="src\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\GameController.h">
+    <ClInclude Include="src\SceneController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\EBO.h">
@@ -105,6 +105,9 @@
     </ClInclude>
     <ClInclude Include="src\renderables\Lines.h">
       <Filter>Header Files\Renderables</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UBO.h">
+      <Filter>Header Files\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

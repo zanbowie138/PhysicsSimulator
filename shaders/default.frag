@@ -9,13 +9,16 @@ in vec2 texCoord;
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
 
-uniform vec4 lightColor;
-uniform vec3 lightPos;
-uniform vec3 camPos;
+layout(std140) uniform Lighting 
+{
+	vec4 camPos;
+	vec4 lightPos;
+	vec4 lightColor;
+};
 
 vec4 pointLight() 
 {
-	vec3 lightVec = lightPos - Position;
+	vec3 lightVec = lightPos.xyz - Position;
 	float dist = length(lightVec);
 	float a = 0.05;
 	float b = 0.7;
@@ -25,7 +28,7 @@ vec4 pointLight()
 	float ambient = 0.2f;
 
 	vec3 normal = normalize(Normal);
-	vec3 camDir = normalize(camPos - Position);
+	vec3 camDir = normalize(camPos.xyz - Position);
 	vec3 lightDir = normalize(lightVec);
 
 	float diffuse = max(dot(normal, lightDir), 0.0f);

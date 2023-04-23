@@ -31,9 +31,9 @@ public:
 	// Initializes the object
 	ChessModel(ChessPiece type, glm::vec3 worldPos);
 
-	[[nodiscard]] std::string GetType() const;
+	std::string GetType() const;
 
-	void Draw(const Shader& shader, const Camera& camera) const override;
+	void Draw(const Shader& shader) const override;
 
 	// Updates the vertices and indices vectors based on packed binary file
 	void UpdateModel(const char* filename);
@@ -52,7 +52,7 @@ inline ChessModel::ChessModel(const ChessPiece type, const glm::vec3 worldPos)
 
 	VAO.Bind();
 
-	VBO VBO(vertices);
+	const VBO VBO(vertices);
 	EBO EBO(indices);
 
 	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
@@ -92,7 +92,7 @@ inline std::string ChessModel::GetType() const
 	return "error";
 }
 
-inline void ChessModel::Draw(const Shader& shader, const Camera& camera) const
+inline void ChessModel::Draw(const Shader& shader) const
 {
 	// Bind shader to be able to access uniforms
 	shader.Activate();
@@ -100,10 +100,6 @@ inline void ChessModel::Draw(const Shader& shader, const Camera& camera) const
 
 	// Update position
 	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, value_ptr(modelMatrix));
-
-	// Take care of the camera Matrix
-	glUniform3f(shader.GetUniformLocation("camPos"), camera.position.x, camera.position.y, camera.position.z);
-	camera.Matrix(shader, "camMatrix");
 
 	// Draw the actual mesh
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);

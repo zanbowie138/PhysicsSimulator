@@ -165,14 +165,14 @@
   <ItemGroup>
     <None Include="shaders\basic.frag" />
     <None Include="shaders\basic.vert" />
-    <None Include="shaders\chess.frag" />
-    <None Include="shaders\chess.vert" />
+    <None Include="shaders\flat.frag" />
+    <None Include="shaders\flat.vert" />
     <None Include="shaders\default.frag" />
     <None Include="shaders\default.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\GameController.cpp" />
+    <ClCompile Include="src\SceneController.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\stb.cpp" />
@@ -181,7 +181,7 @@
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\components\Renderable.h" />
     <ClInclude Include="src\EBO.h" />
-    <ClInclude Include="src\GameController.h" />
+    <ClInclude Include="src\SceneController.h" />
     <ClInclude Include="src\renderables\ChessModel.h" />
     <ClInclude Include="src\renderables\Lines.h" />
     <ClInclude Include="src\renderables\Mesh.h" />
@@ -189,6 +189,7 @@
     <ClInclude Include="src\renderables\Points.h" />
     <ClInclude Include="src\shaderClass.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\UBO.h" />
     <ClInclude Include="src\VAO.h" />
     <ClInclude Include="src\VBO.h" />
   </ItemGroup>

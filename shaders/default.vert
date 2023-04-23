@@ -9,7 +9,10 @@ out vec3 Color;
 out vec3 Normal;
 out vec2 texCoord;
 
-uniform mat4 camMatrix;
+layout(std140) uniform Camera 
+{
+	mat4 camMatrix;
+};
 uniform mat4 model;
 
 void main()

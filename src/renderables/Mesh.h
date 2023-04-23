@@ -15,23 +15,20 @@ public:
 	std::vector<Texture> textures;
 
 	// Initializes the mesh
-	Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, const std::vector<Texture>& textures);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, std::vector<Texture> textures);
 	Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
 
 	// Draws the mesh
-	void Draw(const Shader& shader, const Camera& camera) const override;
+	void Draw(const Shader& shader) const override;
 };
 
 inline Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices,
-                  const std::vector<Texture>& textures)
+                  std::vector<Texture> textures): vertices(vertices), indices(indices), textures(std::move(textures))
 {
-	Mesh::vertices = vertices;
-	Mesh::indices = indices;
-	Mesh::textures = textures;
 
 	VAO.Bind();
 
-	VBO VBO(vertices);
+	const VBO VBO(vertices);
 	EBO EBO(indices);
 
 	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), nullptr);
@@ -44,14 +41,11 @@ inline Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>
 	EBO.Unbind();
 }
 
-inline Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices)
+inline Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices): vertices(vertices), indices(indices)
 {
-	Mesh::vertices = vertices;
-	Mesh::indices = indices;
-
 	VAO.Bind();
 
-	VBO VBO(vertices);
+	const VBO VBO(vertices);
 	EBO EBO(indices);
 
 	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), nullptr);
@@ -64,7 +58,7 @@ inline Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>
 	EBO.Unbind();
 }
 
-inline void Mesh::Draw(const Shader& shader, const Camera& camera) const
+inline void Mesh::Draw(const Shader& shader) const
 {
 	// Bind shader to be able to access uniforms
 	shader.Activate();
@@ -91,10 +85,6 @@ inline void Mesh::Draw(const Shader& shader, const Camera& camera) const
 	}
 
 	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, value_ptr(modelMatrix));
-
-	// Take care of the camera Matrix
-	glUniform3f(shader.GetUniformLocation("camPos"), camera.position.x, camera.position.y, camera.position.z);
-	camera.Matrix(shader, "camMatrix");
 
 	// Draw the actual mesh
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);

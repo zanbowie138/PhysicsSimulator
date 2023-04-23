@@ -20,7 +20,7 @@ public:
 
 	inline void PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds);
 
-	inline void Draw(const Shader& shader, const Camera& camera) const override;
+	inline void Draw(const Shader& shader) const override;
 };
 
 Lines::Lines(const GLuint indiceAmt)
@@ -54,7 +54,7 @@ void Lines::PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsi
 	EBO.Unbind();
 }
 
-void Lines::Draw(const Shader& shader, const Camera& camera) const
+void Lines::Draw(const Shader& shader) const
 {
 	shader.Activate();
 	VAO.Bind();
@@ -62,8 +62,6 @@ void Lines::Draw(const Shader& shader, const Camera& camera) const
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, value_ptr(modelMatrix));
-
-	camera.Matrix(shader, "camMatrix");
 
 	glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, nullptr);
 

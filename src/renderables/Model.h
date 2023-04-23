@@ -27,7 +27,7 @@ public:
 	Model(const char* filename, bool is_stl);
 
 	// Draws the mesh
-	void Draw(const Shader& shader, const Camera& camera) const override;
+	void Draw(const Shader& shader) const override;
 
 private:
 	// Reads an stl file
@@ -52,7 +52,7 @@ inline Model::Model(const char* filename, const bool is_stl)
 
 	VAO.Bind();
 
-	VBO VBO(vertices);
+	const VBO VBO(vertices);
 	EBO EBO(indices);
 
 	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
@@ -63,17 +63,13 @@ inline Model::Model(const char* filename, const bool is_stl)
 	EBO.Unbind();
 }
 
-inline void Model::Draw(const Shader& shader, const Camera& camera) const
+inline void Model::Draw(const Shader& shader) const
 {
 	// Bind shader to be able to access uniforms
 	shader.Activate();
 	VAO.Bind();
 
 	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, value_ptr(modelMatrix));
-
-	// Take care of the camera Matrix
-	glUniform3f(shader.GetUniformLocation("camPos"), camera.position.x, camera.position.y, camera.position.z);
-	camera.Matrix(shader, "camMatrix");
 
 	// Draw the actual mesh
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
