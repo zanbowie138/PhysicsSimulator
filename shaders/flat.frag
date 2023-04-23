@@ -38,7 +38,7 @@ vec4 pointLight()
 		float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
 		specular = specAmount * specularLight;
 	};
-	return vec4(Color, 1.0f) * (diffuse * intensity + ambient + specular) * lightColor;
+	return vec4(Color, 1.0f) * (diffuse * intensity + ambient + specular * intensity) * lightColor;
 }
 
 void main()
