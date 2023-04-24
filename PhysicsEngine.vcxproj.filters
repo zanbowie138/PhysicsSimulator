@@ -109,6 +109,15 @@
     <ClInclude Include="src\UBO.h">
       <Filter>Header Files\Base</Filter>
     </ClInclude>
+    <ClInclude Include="src\BoundingBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BoundingBoxTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Collidable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\brick.jpg">
