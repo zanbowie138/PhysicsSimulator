@@ -160,8 +160,6 @@ SceneController::SceneController(GLFWwindow* window, const GLuint screenWidth, c
 
 void SceneController::DrawScene(const unsigned frame)
 {
-	//Handles inputs to camera
-	cam.Inputs(window);
 	//Updates camera matrix
 	cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 
@@ -210,3 +208,91 @@ void SceneController::Clean() const
 		s->Delete();
 	}
 }
+
+void SceneController::HandleInputs(bool mouseActive)
+{
+	// Handles key inputs
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		cam.position += cam.speed * cam.orientation;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		cam.position += cam.speed * -normalize(cross(cam.orientation, cam.up));
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		cam.position += cam.speed * -cam.orientation;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		cam.position += cam.speed * normalize(cross(cam.orientation, cam.up));
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		cam.position += cam.speed * cam.up;
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	{
+		cam.position += cam.speed * -cam.up;
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	{
+		cam.speed = cam.baseSpeed * 5;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+	{
+		cam.speed = cam.baseSpeed;
+	}
+
+
+	// Handles mouse inputs
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouseActive)
+	{
+		// Hides mouse cursor
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		mouseShown = false;
+
+		// Prevents camera from jumping on the first click
+		if (cam.first_click)
+		{
+			glfwSetCursorPos(window, (cam.width / 2), (cam.height / 2));
+			cam.first_click = false;
+		}
+
+		// Stores the coordinates of the cursor
+		double mouseX;
+		double mouseY;
+		// Fetches the coordinates of the cursor
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+
+		// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
+		// and then "transforms" them into degrees 
+		const float rotX = cam.sensitivity * static_cast<float>(mouseY - (cam.height / 2)) / cam.height;
+		const float rotY = cam.sensitivity * static_cast<float>(mouseX - (cam.width / 2)) / cam.width;
+
+		// Calculates upcoming vertical change in the cam.orientation
+		const glm::vec3 newOrientation = rotate(cam.orientation, glm::radians(-rotX), normalize(cross(cam.orientation, cam.up)));
+
+		// Decides whether or not the next vertical cam.orientation is legal or not
+		if (abs(angle(newOrientation, cam.up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+		{
+			cam.orientation = newOrientation;
+		}
+
+		// Rotates the cam.orientation left and right
+		cam.orientation = rotate(cam.orientation, glm::radians(-rotY), cam.up);
+
+		// Sets mouse cursor to the middle of the screen so that it doesn't end cam.up roaming around
+		glfwSetCursorPos(window, (cam.width / 2), (cam.height / 2));
+	}
+	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	{
+		// Unhides cursor since camera is not looking around anymore
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		mouseShown = true;
+		// Makes sure the next time the camera looks around it doesn't jump
+		cam.first_click = true;
+	}
+}
+

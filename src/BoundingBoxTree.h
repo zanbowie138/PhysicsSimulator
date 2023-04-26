@@ -4,7 +4,7 @@
 #include "BoundingBox.h"
 
 constexpr int NULL_NODE = 0xffffffff;
-
+/*
 struct Node {
 	BoundingBox box;
 	unsigned int objectIndex;
