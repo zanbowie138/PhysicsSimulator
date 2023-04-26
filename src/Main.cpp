@@ -17,7 +17,7 @@
 constexpr unsigned int screen_width = 800;
 constexpr unsigned int screen_height = 800;
 
-constexpr unsigned int aliasing_samples = 8;
+constexpr unsigned int aliasing_samples = 2;
 
 int main()
 {
@@ -96,8 +96,8 @@ int main()
 			// If last printf() was more than 1 sec ago
 			// printf and reset timer
 			//printf("%f mspf, %f fps\n", 1000.0 / static_cast<double>(nbFrames), static_cast<double>(nbFrames));
-			mspf = 1000.0 / static_cast<double>(nbFrames);
-			fps = static_cast<double>(nbFrames);
+			mspf = 1000.0f / static_cast<float>(nbFrames);
+			fps = static_cast<float>(nbFrames);
 			nbFrames = 0;
 			lastTime += 1.0;
 		}
