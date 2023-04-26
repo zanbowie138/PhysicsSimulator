@@ -15,6 +15,8 @@ public:
 
 	bool isLeaf;
 
+	int height;
+
 	BoundingBox(const glm::vec3 max, const glm::vec3 min): max(max), min(min){}
 
 	bool IsColliding(const BoundingBox& other) const;
