@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <string>
 
 #include "SceneController.h"
 
@@ -67,6 +68,8 @@ int main()
 	double lastTime = glfwGetTime();
 	double currentTime = 0.0;
 	int nbFrames = 0;
+	float fps = 0;
+	float mspf = 0;
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -92,12 +95,13 @@ int main()
 		{
 			// If last printf() was more than 1 sec ago
 			// printf and reset timer
-			printf("%f mspf, %f fps\n", 1000.0 / static_cast<double>(nbFrames), static_cast<double>(nbFrames));
+			//printf("%f mspf, %f fps\n", 1000.0 / static_cast<double>(nbFrames), static_cast<double>(nbFrames));
+			mspf = 1000.0 / static_cast<double>(nbFrames);
+			fps = static_cast<double>(nbFrames);
 			nbFrames = 0;
 			lastTime += 1.0;
 		}
 		frame++;
-
 
 		renderer.DrawScene(frame);
 
@@ -106,8 +110,12 @@ int main()
 		//glClear(GL_DEPTH_BUFFER_BIT);
 		//pointRenderer.Draw(basicShader, camera);
 
-		ImGui::Begin("ImGui Window");
-		ImGui::Text("Hello there!");
+		ImGui::Begin("FPS Counter");
+		std::stringstream ss;
+		ss << "FPS: " << fps << "\nMSPF: " << mspf;
+		std::string s = ss.str();
+		ImGui::Text(s.c_str());
+		//ImGui::Text("MSPF: " + mspf);
 		ImGui::End();
 
 		ImGui::Render();
