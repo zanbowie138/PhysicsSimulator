@@ -1,3 +1,8 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb/stb_image.h>
@@ -46,6 +51,16 @@ int main()
 	// Enable anti-aliasing
 	glEnable(GL_MULTISAMPLE);
 
+	// Setup ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+
 	auto renderer = SceneController(window, screen_width, screen_height);
 
 	unsigned int frame = 0;
@@ -54,8 +69,22 @@ int main()
 	int nbFrames = 0;
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwPollEvents();
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		if (!io.WantCaptureMouse)
+		{
+			renderer.HandleInputs(true);
+			if (!renderer.mouseShown)
+			{
+				ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+			}
+		}
 
 		currentTime = glfwGetTime();
 		nbFrames++;
@@ -74,15 +103,24 @@ int main()
 
 
 		// Renders above everything
-		glClear(GL_DEPTH_BUFFER_BIT);
+		//glClear(GL_DEPTH_BUFFER_BIT);
 		//pointRenderer.Draw(basicShader, camera);
 
-		glfwSwapBuffers(window);
+		ImGui::Begin("ImGui Window");
+		ImGui::Text("Hello there!");
+		ImGui::End();
 
-		glfwPollEvents();
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		glfwSwapBuffers(window);
 	}
 
 	renderer.Clean();
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	// Delete window
 	glfwDestroyWindow(window);

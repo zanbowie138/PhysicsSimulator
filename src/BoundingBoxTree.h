@@ -2,7 +2,7 @@
 #include "BoundingBox.h"
 
 constexpr int NULL_NODE = 0xffffffff;
-
+/*
 struct Node {
 	BoundingBox box;
 	unsigned int objectIndex;
@@ -84,5 +84,5 @@ inline void BoundingBoxTree::TreeQuery(BoundingBox* box)
 
 inline void BoundingBoxTree::ExpandCapacity() 
 {
-	void* newMemory = malloc()
-}
+	void* newMemory = malloc();
+}*/

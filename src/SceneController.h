@@ -32,6 +32,7 @@ public:
 	Camera cam;
 	GLFWwindow* window;
 	UBO UBO{};
+	bool mouseShown;
 
 	std::vector<std::unique_ptr<Renderable>> objects;
 	std::vector<std::unique_ptr<Shader>> shaders;
@@ -39,5 +40,6 @@ public:
 	SceneController(GLFWwindow* window, const GLuint screenWidth, const GLuint screenHeight);
 
 	void DrawScene(const unsigned frame);
+	void HandleInputs(bool mouseActive);
 	void Clean() const;
 };

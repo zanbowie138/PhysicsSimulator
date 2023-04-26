@@ -33,5 +33,4 @@ public:
 
 	//Sends camera matrix to inputted shader to update position
 	void Matrix(const Shader& shader, const char* uniform) const;
-	void Inputs(GLFWwindow* window);
 };
