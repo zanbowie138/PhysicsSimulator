@@ -185,10 +185,8 @@ void BoundingBoxTree::TreeQuery(unsigned int node)
 
 void BoundingBoxTree::ExpandCapacity(unsigned int newNodeCapacity) 
 {
-	if (newNodeCapacity <= nodeCapacity)
-	{
-		throw std::invalid_argument("newNodeCapacity parameter must be greater than or equal to current nodeCapacity.");
-	}
+
+	assert(newNodeCapacity > nodeCapacity);
 
 	nodeCapacity = newNodeCapacity;
 
@@ -208,7 +206,7 @@ void BoundingBoxTree::ExpandCapacity(unsigned int newNodeCapacity)
 	freeList = nodeCount;
 }
 
-bool BoundingBoxTree::IsLeaf(unsigned int index)
+bool BoundingBoxTree::IsLeaf(unsigned int index) const
 {
 	return !(nodes[index].left == NULL_NODE && nodes[index].right == NULL_NODE);
 }

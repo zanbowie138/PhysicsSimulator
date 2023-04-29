@@ -149,13 +149,15 @@ SceneController::SceneController(GLFWwindow* window, const GLuint screenWidth, c
 		3, 0
 	};
 
-	Points pointRenderer(100);
-	pointRenderer.PushBack(points);
+	piece.UpdateBoundingBox();
+	Lines pointRenderer(100);
+	pointRenderer.PushBack(piece.boundingBox);
 
 	objects.emplace_back(std::make_unique<Mesh>(floor));
 	objects.emplace_back(std::make_unique<Mesh>(box));
 	objects.emplace_back(std::make_unique<Mesh>(light));
 	objects.emplace_back(std::make_unique<ChessModel>(piece));
+	objects.emplace_back(std::make_unique<Lines>(pointRenderer));
 }
 
 void SceneController::DrawScene(const unsigned frame)
@@ -166,6 +168,7 @@ void SceneController::DrawScene(const unsigned frame)
 	glm::vec3 light_pos = glm::vec3(0.0f, 3.0f + glm::sin(glm::radians(static_cast<float>(frame)/10.0f)) * 2, 0.0f);
 	objects[2]->worldPos = light_pos;
 
+	// Updates UBO
 	UBO.Bind();
 	char tempBuffer[92];
 	memcpy(tempBuffer, &cam.cameraMatrix, sizeof(glm::mat4));
@@ -188,8 +191,14 @@ void SceneController::DrawScene(const unsigned frame)
 		{
 			o->Draw(*shaders[1]);
 		}
-		else if (count == 2)
+		else if (count == 2 || count == 4)
 		{
+			shaders[2]->Activate();
+			glUniform4fv(shaders[2]->GetUniformLocation("color"), 1, value_ptr(o->color));
+			if (count == 4)
+			{
+				glClear(GL_DEPTH_BUFFER_BIT);
+			}
 			o->Draw(*shaders[2]);
 		}
 		count++;

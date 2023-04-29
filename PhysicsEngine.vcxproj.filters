@@ -95,6 +95,9 @@
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source Files\External\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="src\BoundingBoxTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h">
@@ -139,9 +142,6 @@
     <ClInclude Include="src\BoundingBox.h">
       <Filter>Header Files\Collision</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderables\ChessModel.h">
-      <Filter>Header Files\Collision</Filter>
-    </ClInclude>
     <ClInclude Include="src\Collidable.h">
       <Filter>Header Files\Collision</Filter>
     </ClInclude>
@@ -174,6 +174,9 @@
     </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderables\ChessModel.h">
+      <Filter>Header Files\Renderables</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

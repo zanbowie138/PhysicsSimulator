@@ -115,7 +115,6 @@ int main()
 		ss << "FPS: " << fps << "\nMSPF: " << mspf;
 		std::string s = ss.str();
 		ImGui::Text(s.c_str());
-		//ImGui::Text("MSPF: " + mspf);
 		ImGui::End();
 
 		ImGui::Render();

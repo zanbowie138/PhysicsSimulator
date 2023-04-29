@@ -26,7 +26,7 @@ public:
 
 	unsigned int freeList;
 
-	BoundingBoxTree(unsigned int initialCapacity = 1);
+	explicit BoundingBoxTree(unsigned int initialCapacity = 1);
 	~BoundingBoxTree();
 
 	// Allocates a space for a new node
@@ -45,6 +45,6 @@ public:
 	// Balance
 	unsigned int Balance(unsigned int node);
 private:
-	bool IsLeaf(unsigned int index);
+	bool IsLeaf(unsigned int index) const;
 	void ResetNodeData(unsigned int node);
 };

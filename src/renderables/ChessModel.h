@@ -8,6 +8,7 @@
 #include "../EBO.h"
 #include "../VBO.h"
 #include "../components/Renderable.h"
+#include "../Collidable.h"
 
 enum ChessPiece
 {
@@ -20,7 +21,7 @@ enum ChessPiece
 	king
 };
 
-class ChessModel : public Renderable
+class ChessModel : public Renderable, public Collidable
 {
 public:
 	ChessPiece type;
@@ -37,6 +38,8 @@ public:
 
 	// Updates the vertices and indices vectors based on packed binary file
 	void UpdateModel(const char* filename);
+
+	void UpdateBoundingBox() override;
 };
 
 inline ChessModel::ChessModel(const ChessPiece type, const glm::vec3 worldPos)
@@ -142,4 +145,18 @@ inline void ChessModel::UpdateModel(const char* filename)
 		indices.push_back(temp_i);
 	}
 	is.close();
+}
+
+inline void ChessModel::UpdateBoundingBox()
+{
+	boundingBox.max = vertices[0].position * scale;
+	boundingBox.min = vertices[0].position * scale;
+	for (ModelPt point : vertices)
+	{
+		for (unsigned int i = 0; i < 3; i++)
+		{
+			boundingBox.max[i] = std::max(boundingBox.max[i], point.position[i] * scale);
+			boundingBox.min[i] = std::min(boundingBox.min[i], point.position[i] * scale);
+		}
+	}
 }

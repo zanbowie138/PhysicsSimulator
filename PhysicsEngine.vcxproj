@@ -178,6 +178,7 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\BoundingBoxTree.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\SceneController.cpp" />
     <ClCompile Include="src\glad.c" />

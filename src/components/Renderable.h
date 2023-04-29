@@ -13,6 +13,8 @@ public:
 	glm::vec3 worldPos = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
+	glm::vec4 color = glm::vec4(1.0f);
+
 	virtual void Draw(const Shader& shader) const = 0;
 
 	void UpdateModelMat();

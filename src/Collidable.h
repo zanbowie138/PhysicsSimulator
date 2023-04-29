@@ -3,9 +3,7 @@
 class Collidable
 {
 public:
-	Collidable();
+	BoundingBox boundingBox;
 
-	BoundingBox box;
-
-	virtual void updateBoundingBox();
+	virtual void UpdateBoundingBox() = 0;
 };
