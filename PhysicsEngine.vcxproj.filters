@@ -178,6 +178,12 @@
     <ClInclude Include="src\renderables\ChessModel.h">
       <Filter>Header Files\Renderables</Filter>
     </ClInclude>
+    <ClInclude Include="src\EntityManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ComponentManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\brick.jpg">

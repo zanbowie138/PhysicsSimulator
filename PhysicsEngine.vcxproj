@@ -198,9 +198,11 @@
     <ClInclude Include="src\BoundingBoxTree.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Collidable.h" />
+    <ClInclude Include="src\ComponentManager.h" />
     <ClInclude Include="src\components\Renderable.h" />
     <ClInclude Include="src\EBO.h" />
     <ClInclude Include="src\BoundingBox.h" />
+    <ClInclude Include="src\EntityManager.h" />
     <ClInclude Include="src\SceneController.h" />
     <ClInclude Include="src\renderables\ChessModel.h" />
     <ClInclude Include="src\renderables\Lines.h" />

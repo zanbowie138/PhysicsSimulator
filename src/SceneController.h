@@ -16,6 +16,7 @@
 #include "renderables/Lines.h"
 #include "shaderClass.h"
 #include "UBO.h"
+#include "EntityManager.h"
 
 struct UniformBlock
 {
@@ -33,6 +34,8 @@ public:
 	GLFWwindow* window;
 	UBO UBO{};
 	bool mouseShown;
+
+	std::set<EntityID> mEntities;
 
 	std::vector<std::unique_ptr<Renderable>> objects;
 	std::vector<std::unique_ptr<Shader>> shaders;
