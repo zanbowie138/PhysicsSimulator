@@ -28,18 +28,6 @@ struct UniformBlock
 	glm::vec4 lightColor; // 112 // 16
 };
 
-struct Transform 
-{
-	glm::vec3 worldPos;
-	glm::vec3 scale;
-	glm::vec3 rotation;
-};
-
-struct Material
-{
-	glm::vec4 color;
-};
-
 class SceneController
 {
 public:
@@ -47,9 +35,6 @@ public:
 	GLFWwindow* window;
 	UBO UBO{};
 	bool mouseShown;
-
-	std::set<Entity> mEntities;
-	ComponentManager mComponentManager;
 
 	std::vector<std::unique_ptr<Renderable>> objects;
 	std::vector<std::unique_ptr<Shader>> shaders;
