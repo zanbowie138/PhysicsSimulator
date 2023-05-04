@@ -98,7 +98,6 @@ GLint Shader::GetUniformLocation(const char* name) const
 	assert(location != -1);
 
 	return location;
-	
 }
 
 inline GLuint Shader::GetUniformBlockIndex(const char* name) const
@@ -116,7 +115,7 @@ void Shader::CompileErrors(const unsigned int shader, const char* type)
 		if (hasCompiled == GL_FALSE)
 		{
 			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
-			std::cout << "SHADER_COMPILATION_ERROR for: " << type << "\n" << std::endl;
+			std::cout << "SHADER_COMPILATION_ERROR for: " << type << "\n" << infolog << std::endl;
 		}
 	}
 	else
@@ -125,7 +124,7 @@ void Shader::CompileErrors(const unsigned int shader, const char* type)
 		if (hasCompiled == GL_FALSE)
 		{
 			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
-			std::cout << "SHADER_LINKING_ERROR for: " << type << "\n" << std::endl;
+			std::cout << "SHADER_LINKING_ERROR for: " << type << "\n" << infolog << std::endl;
 		}
 	}
 }

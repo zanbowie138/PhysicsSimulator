@@ -5,9 +5,14 @@
 #include "EntityManager.h"
 #include "ComponentArray.h"
 
+// Component ID
+using ComponentType = uint8_t;
+
+// In charge of managing all the Component Arrays
 class ComponentManager
 {
 public:
+	// Creates a new array of components 
 	template<typename T>
 	void RegisterComponent()
 	{
@@ -26,6 +31,7 @@ public:
 		++mNextComponentType;
 	}
 
+	// Return this component's type - used for creating signatures
 	template<typename T>
 	ComponentType GetComponentType()
 	{
@@ -33,28 +39,27 @@ public:
 
 		assert(mComponentTypes.find(typeName) != mComponentTypes.end() && "Component not registered before use.");
 
-		// Return this component's type - used for creating signatures
 		return mComponentTypes[typeName];
 	}
 
+	// Add a component to the array for an entity
 	template<typename T>
 	void AddComponent(Entity entity, T component)
 	{
-		// Add a component to the array for an entity
 		GetComponentArray<T>()->InsertData(entity, component);
 	}
 
+	// Remove a component from the array for an entity
 	template<typename T>
 	void RemoveComponent(Entity entity)
 	{
-		// Remove a component from the array for an entity
 		GetComponentArray<T>()->RemoveData(entity);
 	}
 
+	// Get a reference to a component from the array for an entity
 	template<typename T>
 	T& GetComponent(Entity entity)
 	{
-		// Get a reference to a component from the array for an entity
 		return GetComponentArray<T>()->GetData(entity);
 	}
 

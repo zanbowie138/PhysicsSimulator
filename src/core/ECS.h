@@ -4,22 +4,10 @@
 #include "SystemManager.h"
 #include "glm/glm.hpp"
 
-struct Transform 
-{
-	glm::vec3 worldPos;
-	glm::vec3 rotation;
-	glm::vec3 scale;
-};
-
-struct Material
-{
-	glm::vec4 color;
-};
-
-class ECS
+class ECSController
 {
 public:
-
+	ECSController(){}
 	void Init()
 	{
 		// Create pointers to each manager

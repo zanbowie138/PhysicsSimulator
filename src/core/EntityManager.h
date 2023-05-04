@@ -11,12 +11,10 @@ constexpr unsigned int MAX_COMPONENTS = 10;
 // EntityID
 using Entity = unsigned int;
 
-// Component ID
-using ComponentType = uint8_t;
-
 // Basically an array of bools identifying what components are being used
 using Signature = std::bitset<MAX_COMPONENTS>;
 
+// In charge of distributing Entity IDs and keeping track of what entities are in use
 class EntityManager
 {
 public:
