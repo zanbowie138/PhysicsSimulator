@@ -21,6 +21,7 @@ namespace Core {
 		GLFWwindow* mWindow = nullptr;
 		std::bitset<static_cast<size_t>(InputButtons::ENUM_LENGTH)> mButtons;
 	public:
+		//WindowManager(): screen_width(800), screen_height(800), aliasing_samples(2), mWindow(nullptr){}
 		glm::vec2 GetMousePos() const
 		{
 			double mouseX;

@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-#include "../Camera.h"
-#include "../EBO.h"
-#include "../VBO.h"
-#include "../components/Renderable.h"
-#include "../Collidable.h"
+#include "renderer/Camera.h"
+#include "renderer/EBO.h"
+#include "renderer/VBO.h"
+#include "Renderable.h"
+#include "physics/Collidable.h"
 
 enum ChessPiece
 {
@@ -21,9 +21,16 @@ enum ChessPiece
 	king
 };
 
-class ChessModel : public Renderable, public Collidable
+struct ModelPt
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+};
+
+class ChessModel
 {
 public:
+	VAO VAO;
 	ChessPiece type;
 
 	std::vector<ModelPt> vertices;
@@ -34,12 +41,8 @@ public:
 
 	std::string GetType() const;
 
-	void Draw(const Shader& shader) const override;
-
 	// Updates the vertices and indices vectors based on packed binary file
 	void UpdateModel(const char* filename);
-
-	void UpdateBoundingBox() override;
 };
 
 inline ChessModel::ChessModel(const ChessPiece type, const glm::vec3 worldPos)
@@ -50,12 +53,9 @@ inline ChessModel::ChessModel(const ChessPiece type, const glm::vec3 worldPos)
 	const auto filetype = ".bin";
 	UpdateModel((GetType() + filetype).c_str());
 
-	ChessModel::worldPos = worldPos;
-	UpdateModelMat();
-
 	VAO.Bind();
 
-	const VBO VBO(vertices);
+	VBO<ModelPt> VBO(vertices);
 	EBO EBO(indices);
 
 	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
@@ -95,19 +95,6 @@ inline std::string ChessModel::GetType() const
 	return "error";
 }
 
-inline void ChessModel::Draw(const Shader& shader) const
-{
-	// Bind shader to be able to access uniforms
-	shader.Activate();
-	VAO.Bind();
-
-	// Update position
-	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, value_ptr(modelMatrix));
-
-	// Draw the actual mesh
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
-}
-
 inline void ChessModel::UpdateModel(const char* filename)
 {
 	// Local file path
@@ -145,18 +132,4 @@ inline void ChessModel::UpdateModel(const char* filename)
 		indices.push_back(temp_i);
 	}
 	is.close();
-}
-
-inline void ChessModel::UpdateBoundingBox()
-{
-	boundingBox.max = vertices[0].position * scale;
-	boundingBox.min = vertices[0].position * scale;
-	for (ModelPt point : vertices)
-	{
-		for (unsigned int i = 0; i < 3; i++)
-		{
-			boundingBox.max[i] = std::max(boundingBox.max[i], point.position[i] * scale);
-			boundingBox.min[i] = std::min(boundingBox.min[i], point.position[i] * scale);
-		}
-	}
 }

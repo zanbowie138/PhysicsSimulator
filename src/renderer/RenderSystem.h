@@ -18,12 +18,12 @@ class RenderSystem: public System
 {
 private:
 
-    constexpr unsigned int screen_width = 800;
-    constexpr unsigned int screen_height = 800;
+    const unsigned int screen_width = 800;
+    const unsigned int screen_height = 800;
 
-    constexpr unsigned int aliasing_samples = 2;
+    const unsigned int aliasing_samples = 2;
 
-    GLFWwindow* mWindow;
+    GLFWwindow* mWindow; // TODO: Figure out cleaning
     Camera* mCamera;
 public:
     explicit RenderSystem(GLFWwindow* window): mWindow(window){}

@@ -6,38 +6,48 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <vector>
 
 #include "core/ECS.h"
 #include "components/Components.h"
 #include "renderer/RenderSystem.h"
+#include "renderables/ChessModel.h"
+#include "core/WindowManager.h"
 
-constexpr unsigned int screen_width = 800;
-constexpr unsigned int screen_height = 800;
-
-constexpr unsigned int aliasing_samples = 2;
 
 int main()
 {
+	Core::WindowManager windowManager;
+	windowManager.Init("OpenGL Window", 800, 800);
+
 	ECSController ecsController;
 	ecsController.Init();
 	ecsController.RegisterComponent<Components::Transform>();
+	ecsController.RegisterComponent<Components::RenderInfo>();
 
 	auto renderSystem = ecsController.RegisterSystem<RenderSystem>();
 
 	Signature signature;
 	signature.set(ecsController.GetComponentType<Components::Transform>());
+	signature.set(ecsController.GetComponentType<Components::RenderInfo>());
 	ecsController.SetSystemSignature<RenderSystem>(signature);
 
-	std::vector<Entity> entities;
-	entities.emplace_back(ecsController.CreateEntity());
+	auto entity = ecsController.CreateEntity();
 
+	Shader flatShader("flat.vert", "flat.frag");
+	ChessModel piece(king, glm::vec3(0.0f, 0.0f, 0.0f));
+
+	// TODO: MODEL MATRIX
+
+	ecsController.AddComponent(entity, Components::Transform());
+	ecsController.AddComponent(entity, Components::RenderInfo{piece.VAO.ID, flatShader.ID, static_cast<unsigned int>(piece.indices.size())});
 
 	while (!glfwWindowShouldClose(window))
 	{
-		
+		renderSystem->PreUpdate(0.0f);
+		renderSystem->Update(0.0f);
+		renderSystem->PostUpdate(0.0f);
 	}
-
-	renderer.Clean();
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

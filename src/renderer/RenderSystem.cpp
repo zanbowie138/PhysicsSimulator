@@ -30,7 +30,7 @@ void RenderSystem::Update(double dt)
 
 	if (!io.WantCaptureMouse)
 	{
-		renderer.HandleInputs(true);
+		// TODO: GET INPUTS
 		if (!renderer.mouseShown)
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
@@ -47,6 +47,9 @@ void RenderSystem::Update(double dt)
 		// Bind shader
 		glUseProgram(shader_ID);
 
+		// TODO: Uniforms and model matrix
+
+		// Draw VAO
 		glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, nullptr);
 	}
 }

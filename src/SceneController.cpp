@@ -13,8 +13,6 @@ SceneController::SceneController(GLFWwindow* window, const GLuint screenWidth, c
 	char ub_char[sizeof(ub)];
 	memcpy(ub_char, &ub, sizeof(ub));
 
-
-
 	Shader defaultShader("default.vert", "default.frag");
 	shaders.emplace_back(std::move(std::make_unique<Shader>(defaultShader)));
 	Shader flatShader("flat.vert", "flat.frag");

@@ -19,8 +19,9 @@ public:
 
 	void UpdateModelMat();
 
-protected:
 	VAO VAO;
+
+protected:
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 };
 
