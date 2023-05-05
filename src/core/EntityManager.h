@@ -5,21 +5,13 @@
 #include <cassert>
 #include <stack>
 
-constexpr unsigned int MAX_ENTITIES = 500;
-constexpr unsigned int MAX_COMPONENTS = 10;
-
-// EntityID
-using Entity = unsigned int;
-
-// Basically an array of bools identifying what components are being used
-using Signature = std::bitset<MAX_COMPONENTS>;
+#include "GlobalTypes.h"
 
 // In charge of distributing Entity IDs and keeping track of what entities are in use
 class EntityManager
 {
 public:
 	EntityManager(){}
-	~EntityManager();
 
 	Entity CreateEntity()
 	{

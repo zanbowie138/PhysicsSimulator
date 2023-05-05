@@ -1,4 +1,20 @@
 #pragma once
+#include <bitset>
+#include "glm/glm.hpp"
+
+constexpr unsigned int MAX_ENTITIES = 500;
+constexpr unsigned int MAX_COMPONENTS = 10;
+
+// EntityID
+using Entity = unsigned int;
+
+// Basically an array of bools identifying what components are being used
+using Signature = std::bitset<MAX_COMPONENTS>;
+
+// Component ID
+using ComponentType = uint8_t;
+
+
 // Input
 enum class InputButtons
 {
@@ -11,14 +27,4 @@ enum class InputButtons
 	CONTROL,
 	SHIFT,
 	ENUM_LENGTH
-};
-
-// Global Uniforms
-struct UniformBlock
-{
-	glm::mat4 camMatrix;  // 0 // 64
-
-	glm::vec4 camPos;	  // 64 // 16
-	glm::vec4 lightPos;	  //    // 16
-	glm::vec4 lightColor; // 112 // 16
 };

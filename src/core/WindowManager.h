@@ -33,7 +33,7 @@ namespace Core {
 
 			return std::move(glm::vec2(mouseX, mouseY));
 		}
-	public:
+
 		void Init(const char* windowTitle, unsigned int windowWidth, unsigned int windowHeight)
 		{
 			// Initialize GLFW
@@ -101,7 +101,7 @@ namespace Core {
 			}
 		}
 
-		void Shutdown()
+		void Shutdown() const
 		{
 			// Delete window
 			glfwDestroyWindow(mWindow);

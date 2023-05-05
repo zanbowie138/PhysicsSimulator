@@ -189,6 +189,7 @@
     <ClInclude Include="src\core\GlobalTypes.h" />
     <ClInclude Include="src\core\System.h" />
     <ClInclude Include="src\core\SystemManager.h" />
+    <ClInclude Include="src\core\UniformBufferManager.h" />
     <ClInclude Include="src\core\WindowManager.h" />
     <ClInclude Include="src\physics\BoundingBox.h" />
     <ClInclude Include="src\physics\BoundingBoxTree.h" />
@@ -198,6 +199,7 @@
     <ClInclude Include="src\renderables\Mesh.h" />
     <ClInclude Include="src\renderables\Model.h" />
     <ClInclude Include="src\renderables\Points.h" />
+    <ClInclude Include="src\renderables\Renderable.h" />
     <ClInclude Include="src\renderer\Camera.h" />
     <ClInclude Include="src\renderer\EBO.h" />
     <ClInclude Include="src\renderer\RenderSystem.h" />
@@ -206,8 +208,6 @@
     <ClInclude Include="src\renderer\UBO.h" />
     <ClInclude Include="src\renderer\VAO.h" />
     <ClInclude Include="src\renderer\VBO.h" />
-    <ClInclude Include="src\SceneController.h" />
-    <ClInclude Include="src\systems\Renderable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c" />
@@ -215,7 +215,6 @@
     <ClCompile Include="src\physics\BoundingBoxTree.cpp" />
     <ClCompile Include="src\renderer\Camera.cpp" />
     <ClCompile Include="src\renderer\RenderSystem.cpp" />
-    <ClCompile Include="src\SceneController.cpp" />
     <ClCompile Include="src\stb.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

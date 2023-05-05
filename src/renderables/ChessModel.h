@@ -7,6 +7,7 @@
 #include "renderer/Camera.h"
 #include "renderer/EBO.h"
 #include "renderer/VBO.h"
+#include "renderer/VAO.h"
 #include "Renderable.h"
 #include "physics/Collidable.h"
 

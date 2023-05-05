@@ -1,9 +1,6 @@
 #pragma once
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/transform.hpp"
-#include "VAO.h"
-#include "shaderClass.h"
-#include "Camera.h"
 
 class Renderable
 {

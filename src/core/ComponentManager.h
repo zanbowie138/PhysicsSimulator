@@ -2,11 +2,9 @@
 #include <unordered_map>
 #include <memory>
 
+#include "GlobalTypes.h"
 #include "EntityManager.h"
 #include "ComponentArray.h"
-
-// Component ID
-using ComponentType = uint8_t;
 
 // In charge of managing all the Component Arrays
 class ComponentManager
@@ -46,14 +44,14 @@ public:
 	template<typename T>
 	void AddComponent(Entity entity, T component)
 	{
-		GetComponentArray<T>()->InsertData(entity, component);
+		GetComponentArray<T>()->InsertEntity(entity, component);
 	}
 
 	// Remove a component from the array for an entity
 	template<typename T>
 	void RemoveComponent(Entity entity)
 	{
-		GetComponentArray<T>()->RemoveData(entity);
+		GetComponentArray<T>()->RemoveEntity(entity);
 	}
 
 	// Get a reference to a component from the array for an entity

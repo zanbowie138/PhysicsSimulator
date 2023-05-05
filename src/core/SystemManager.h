@@ -2,11 +2,11 @@
 
 #include <memory>
 
+#include "GlobalTypes.h"
+
 #include "EntityManager.h"
 #include "ComponentManager.h"
 #include "System.h"
-
-
 
 class SystemManager
 {

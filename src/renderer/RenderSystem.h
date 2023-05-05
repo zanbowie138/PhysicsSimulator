@@ -1,19 +1,17 @@
 #pragma once
+#include "../core/System.h"
+#include "Camera.h"
+#include "../core/ECS.h"
+
+#include "../components/RenderInfo.h"
+#include "../core/ComponentManager.h"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "../core/System.h"
-#include "Camera.h"
-
-#include "../components/RenderInfo.h"
-
-
-
-#include "../core/ComponentManager.h"
 
 // https://github.com/maxbrundev/OpenGL-Modern-ECS-GameEngine/blob/master/Renderer/include/Systems/RenderSystem.h
 
-extern GLFWwindow* window;
 class RenderSystem: public System 
 {
 private:
@@ -25,8 +23,9 @@ private:
 
     GLFWwindow* mWindow; // TODO: Figure out cleaning
     Camera* mCamera;
+    mutable ImGuiIO* ioptr;
 public:
-    explicit RenderSystem(GLFWwindow* window): mWindow(window){}
+    explicit RenderSystem(): mWindow(nullptr), mCamera(nullptr), ioptr(nullptr){}
     ~RenderSystem() = default;
 
     void InitOpenGL() const;
@@ -37,5 +36,8 @@ public:
 
     void PostUpdate(double dt);
 
+    void SetWindow(GLFWwindow* window);
     void SetCamera(Camera* camera);
+
+    void Clean();
 };

@@ -9,7 +9,7 @@ class EBO
 public:
 	mutable GLuint ID{};
 	GLuint bufSize = 0;
-	GLuint currentBufSize = 0;
+	size_t currentBufSize = 0;
 
 	inline EBO();
 	explicit inline EBO(const std::vector<GLuint>& indices);

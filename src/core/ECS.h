@@ -1,8 +1,8 @@
 #pragma once
-
+#include "glm/glm.hpp"
 #include "ComponentManager.h"
 #include "SystemManager.h"
-#include "glm/glm.hpp"
+
 
 class ECSController
 {
@@ -64,7 +64,7 @@ public:
 	}
 
 	template<typename T>
-	T& GetComponent(Entity entity)
+	T& GetComponent(Entity entity) const
 	{
 		return mComponentManager->GetComponent<T>(entity);
 	}

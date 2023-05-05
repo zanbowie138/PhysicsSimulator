@@ -17,7 +17,8 @@ public:
 	/// <param name="type">data type of each component in array</param>
 	/// <param name="stride">byte offset of each consecutive vertex</param>
 	/// <param name="offset">Specifies a offset of the first component of the first generic vertex attribute</param>
-	static inline void LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void* offset);
+	template <typename T>
+	static inline void LinkAttrib(const VBO<T>& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void* offset);
 	inline void Bind() const;
 	static inline void Unbind();
 	inline void Delete() const;
@@ -30,7 +31,8 @@ inline VAO::VAO()
 }
 
 // Links a VBO to the VAO using a certain layout
-inline void VAO::LinkAttrib(const VBO& VBO, const GLuint layout, const GLuint numComponents, const GLenum type, const GLsizeiptr stride, const void* offset)
+template <typename T>
+inline void VAO::LinkAttrib(const VBO<T>& VBO, const GLuint layout, const GLuint numComponents, const GLenum type, const GLsizeiptr stride, const void* offset)
 {
 	/*
 	* layout: Specifies the index of the generic vertex attribute to be modified.
