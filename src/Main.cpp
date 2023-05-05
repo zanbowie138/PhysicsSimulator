@@ -50,22 +50,30 @@ int main()
 	auto entity = ecsController.CreateEntity();
 
 	Shader flatShader("flat.vert", "flat.frag");
+
+	// TODO: Remove renderables, just have model loading
 	ChessModel piece(king, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Add components to entity
 	ecsController.AddComponent(entity, Components::Transform());
+	// TODO: Add type of draw to RenderInfo(etc. Draw elements, points...)
 	ecsController.AddComponent(entity, Components::RenderInfo{piece.VAO.ID, flatShader.ID, piece.indices.size()});
 
 	// Manage Uniform Buffer
-	// TODO: Shader dependencies??
+	// TODO: Inputs
 	Core::UniformBufferManager UBO;
 	UBO.SetCamera(&cam);
 	UBO.Allocate();
 	UBO.InitBind();
+
+	// TODO: Make this applicable to all shaders
+	// Maybe create some sort of bitset with dependencies for uniform blocks
+	// Could have these dependencies in actual shader file, shader class reads these and updates accordingly
 	UBO.BindShader(flatShader);
 
 	while (!glfwWindowShouldClose(window))
 	{
+		windowManager.ProcessInputs();
 		UBO.UpdateData();
 
 		renderSystem->PreUpdate(0.0f);
@@ -73,6 +81,7 @@ int main()
 		renderSystem->PostUpdate(0.0f);
 	}
 
+	// TODO: Better cleaning system, add clean into system parent class as a virtual function?
 	renderSystem->Clean();
 
 	windowManager.Shutdown();
