@@ -4,6 +4,7 @@
 #include "../core/ECS.h"
 
 #include "../components/RenderInfo.h"
+#include "../components/Transform.h"
 #include "../core/ComponentManager.h"
 
 #include "imgui.h"

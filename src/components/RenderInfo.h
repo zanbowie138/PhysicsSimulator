@@ -7,6 +7,6 @@ namespace Components
 	struct RenderInfo {
 		GLuint VAO_ID;
 		GLuint shader_ID;
-		GLuint indices;
+		size_t indices;
 	};
 }

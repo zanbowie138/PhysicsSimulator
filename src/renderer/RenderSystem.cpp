@@ -38,10 +38,18 @@ void RenderSystem::Update(double dt)
 		// TODO: GET INPUTS
 		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 	}*/
+	
 
 	for (auto const& entity : mEntities)
 	{
 		const auto& [VAO_ID, shader_ID, indices] = ecsController.GetComponent<Components::RenderInfo>(entity);
+
+		// Update transform
+		auto transform = ecsController.GetComponent<Components::Transform>(entity);
+		transform.scale = glm::vec3(0.01f);
+		transform.CalculateModelMat();
+
+		glUniformMatrix4fv(glGetUniformLocation(shader_ID, "model"), 1, GL_FALSE, value_ptr(transform.modelMat));
 
 		// Bind vertex array
 		glBindVertexArray(VAO_ID);
