@@ -1,7 +1,6 @@
 #pragma once
 
 #include<glad/glad.h>
-#include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
@@ -93,9 +92,4 @@ inline void Camera::MoveCam(const InputBitset& buttons, const glm::vec2& mousePo
 		// Rotates the cam.orientation left and right
 		orientation = rotate(orientation, glm::radians(-rotY), up);
 	}
-}
-
-inline void Camera::Matrix(const Shader& shader, const char* uniform) const
-{
-	glUniformMatrix4fv(shader.GetUniformLocation(uniform), 1, GL_FALSE, value_ptr(cameraMatrix));
 }
