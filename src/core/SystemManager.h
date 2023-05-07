@@ -69,6 +69,18 @@ public:
 		}
 	}
 
+	void CleanSystems() const
+	{
+		// Erase a destroyed entity from all system lists
+		// mEntities is a set so no check needed
+		for (auto const& pair : mSystems)
+		{
+			auto const& system = pair.second;
+
+			system->Clean();
+		}
+	}
+
 private:
 	// Map from system type string pointer to a signature
 	std::unordered_map<const char*, Signature> mSignatures{};

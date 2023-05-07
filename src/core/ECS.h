@@ -7,7 +7,8 @@
 class ECSController
 {
 public:
-	ECSController(){}
+	ECSController() = default;
+
 	void Init()
 	{
 		// Create pointers to each manager
@@ -17,12 +18,12 @@ public:
 	}
 
 	// Entity methods
-	Entity CreateEntity()
+	Entity CreateEntity() const
 	{
 		return mEntityManager->CreateEntity();
 	}
 
-	void DestroyEntity(Entity entity)
+	void DestroyEntity(Entity entity) const
 	{
 		mEntityManager->DestroyEntity(entity);
 
@@ -34,7 +35,7 @@ public:
 
 	// Component methods
 	template<typename T>
-	void RegisterComponent()
+	void RegisterComponent() const
 	{
 		mComponentManager->RegisterComponent<T>();
 	}
@@ -52,7 +53,7 @@ public:
 	}
 
 	template<typename T>
-	void RemoveComponent(Entity entity)
+	void RemoveComponent(Entity entity) const
 	{
 		mComponentManager->RemoveComponent<T>(entity);
 
@@ -70,7 +71,7 @@ public:
 	}
 
 	template<typename T>
-	ComponentType GetComponentType()
+	ComponentType GetComponentType() const
 	{
 		return mComponentManager->GetComponentType<T>();
 	}
@@ -84,9 +85,14 @@ public:
 	}
 
 	template<typename T>
-	void SetSystemSignature(Signature signature)
+	void SetSystemSignature(Signature signature) const
 	{
 		mSystemManager->SetSignature<T>(signature);
+	}
+
+	void Clean() const
+	{
+		mSystemManager->CleanSystems();
 	}
 
 private:

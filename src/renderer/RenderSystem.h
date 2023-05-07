@@ -1,5 +1,7 @@
 #pragma once
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include "Camera.h"
 
 #include "../components/RenderInfo.h"
@@ -36,5 +38,6 @@ public:
     void SetWindow(GLFWwindow* window);
     void SetCamera(Camera* camera);
 
-    void Clean();
+    void Clean() override;
 };
+

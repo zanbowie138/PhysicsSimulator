@@ -56,11 +56,11 @@ int main()
 
 	// Add components to entity
 	ecsController.AddComponent(entity, Components::Transform());
+
 	// TODO: Add type of draw to RenderInfo(etc. Draw elements, points...)
 	ecsController.AddComponent(entity, Components::RenderInfo{piece.VAO.ID, flatShader.ID, piece.indices.size()});
 
 	// Manage Uniform Buffer
-	// TODO: Inputs
 	Core::UniformBufferManager UBO;
 	UBO.SetCamera(&cam);
 	UBO.Allocate();
@@ -83,8 +83,8 @@ int main()
 		renderSystem->PostUpdate();
 	}
 
-	// TODO: Better cleaning system, add clean into system parent class as a virtual function?
-	renderSystem->Clean();
+	ecsController.Clean();
+	// TODO: Add cleaning for OpenGL objects
 
 	windowManager.Shutdown();
 

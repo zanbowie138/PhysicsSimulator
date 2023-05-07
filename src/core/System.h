@@ -7,7 +7,9 @@
 class System 
 {
 public:
-
     // Storage of all entities who use this system
     std::set<Entity> mEntities;
+
+    // Cleans the system
+    virtual void Clean() = 0;
 };

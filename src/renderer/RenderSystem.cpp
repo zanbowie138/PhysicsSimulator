@@ -38,9 +38,9 @@ void RenderSystem::Update()
 		// TODO: GET INPUTS
 		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 	}*/
-	
 
-	for (auto const& entity : mEntities)
+
+	for (const auto& entity : mEntities)
 	{
 		const auto& [VAO_ID, shader_ID, indices] = ecsController.GetComponent<Components::RenderInfo>(entity);
 
