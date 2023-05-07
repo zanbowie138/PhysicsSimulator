@@ -168,9 +168,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\renderer\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\renderer\RenderSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

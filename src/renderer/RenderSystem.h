@@ -31,11 +31,11 @@ public:
 
     void InitOpenGL() const;
 
-    void PreUpdate(double dt);
+    void PreUpdate();
 
-    void Update(double dt);
+    void Update();
 
-    void PostUpdate(double dt);
+    void PostUpdate();
 
     void SetWindow(GLFWwindow* window);
     void SetCamera(Camera* camera);

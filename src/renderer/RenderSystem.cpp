@@ -17,7 +17,7 @@ void RenderSystem::InitOpenGL() const
 	ImGui_ImplOpenGL3_Init("#version 330");*/
 }
 
-void RenderSystem::PreUpdate(double dt)
+void RenderSystem::PreUpdate()
 {
 	glfwPollEvents();
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
@@ -28,7 +28,7 @@ void RenderSystem::PreUpdate(double dt)
 	//ImGui::NewFrame();
 }
 
-void RenderSystem::Update(double dt)
+void RenderSystem::Update()
 {
 	//assert(mCamera && "Camera not set.");
 	assert(mWindow && "Window not set.");
@@ -64,7 +64,7 @@ void RenderSystem::Update(double dt)
 	}
 }
 
-void RenderSystem::PostUpdate(double dt)
+void RenderSystem::PostUpdate()
 {
 	/*ImGui::Begin("FPS Counter");
 	std::stringstream ss;

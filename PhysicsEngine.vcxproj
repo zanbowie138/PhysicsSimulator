@@ -213,7 +213,6 @@
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\physics\BoundingBoxTree.cpp" />
-    <ClCompile Include="src\renderer\Camera.cpp" />
     <ClCompile Include="src\renderer\RenderSystem.cpp" />
     <ClCompile Include="src\stb.cpp" />
   </ItemGroup>

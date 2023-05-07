@@ -9,6 +9,7 @@
 #include<glm/gtx/vector_angle.hpp>
 
 #include"shaderClass.h"
+#include "../core/GlobalTypes.h"
 
 class Camera
 {
@@ -17,8 +18,6 @@ public:
 	glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::mat4 cameraMatrix = glm::mat4(1.0f);
-
-	bool first_click = true;
 
 	int width;
 	int height;
@@ -31,6 +30,72 @@ public:
 
 	void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
 
+	void MoveCam(const InputBitset& buttons, const glm::vec2& mousePos);
+
 	//Sends camera matrix to inputted shader to update position
 	void Matrix(const Shader& shader, const char* uniform) const;
 };
+
+inline Camera::Camera(const int width, const int height, const glm::vec3 position)
+{
+	Camera::width = width;
+	Camera::height = height;
+	Camera::position = position;
+}
+
+inline void Camera::UpdateMatrix(const float FOVdeg, const float nearPlane, const float farPlane)
+{
+	auto view = glm::mat4(1.0f);
+	auto proj = glm::mat4(1.0f);
+
+	view = lookAt(position, position + orientation, up);
+	proj = glm::perspective(glm::radians(FOVdeg), static_cast<float>(width) / height, nearPlane, farPlane);
+
+	cameraMatrix = proj * view;
+}
+
+inline void Camera::MoveCam(const InputBitset& buttons, const glm::vec2& mousePos)
+{
+	if (buttons.test((static_cast<std::size_t>(InputButtons::W))))
+		position += speed * orientation;
+	if (buttons.test((static_cast<std::size_t>(InputButtons::A))))
+		position += speed * -normalize(cross(orientation, up));
+	if (buttons.test((static_cast<std::size_t>(InputButtons::S))))
+		position += speed * -orientation;
+	if (buttons.test((static_cast<std::size_t>(InputButtons::D))))
+		position += speed * normalize(cross(orientation, up));
+	if (buttons.test((static_cast<std::size_t>(InputButtons::SPACE))))
+		position += speed * up;
+	if (buttons.test((static_cast<std::size_t>(InputButtons::CONTROL))))
+		position += speed * -up;
+	if (buttons.test((static_cast<std::size_t>(InputButtons::SHIFT))))
+		speed = baseSpeed * 5;
+	else
+		speed = baseSpeed;
+
+	if (buttons.test((static_cast<std::size_t>(InputButtons::MOUSE))))
+	{
+		// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
+		// and then "transforms" them into degrees 
+		const float rotX = sensitivity * static_cast<float>(mousePos.y - (height / 2)) / height;
+		const float rotY = sensitivity * static_cast<float>(mousePos.x - (width / 2)) / width;
+
+		// Calculates upcoming vertical change in the cam.orientation
+		const glm::vec3 newOrientation = glm::rotate(orientation, glm::radians(-rotX), glm::normalize(glm::cross(orientation, up)));
+
+
+		// Decides whether or not the next vertical cam.orientation is legal or not
+		if (abs(angle(newOrientation, up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+		{
+			orientation = newOrientation;
+		}
+
+		// Rotates the cam.orientation left and right
+		orientation = rotate(orientation, glm::radians(-rotY), up);
+	}
+}
+
+inline void Camera::Matrix(const Shader& shader, const char* uniform) const
+{
+	glUniformMatrix4fv(shader.GetUniformLocation(uniform), 1, GL_FALSE, value_ptr(cameraMatrix));
+}

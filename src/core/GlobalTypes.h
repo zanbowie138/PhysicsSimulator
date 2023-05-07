@@ -28,3 +28,4 @@ enum class InputButtons
 	SHIFT,
 	ENUM_LENGTH
 };
+using InputBitset = std::bitset<static_cast<size_t>(InputButtons::ENUM_LENGTH)>;

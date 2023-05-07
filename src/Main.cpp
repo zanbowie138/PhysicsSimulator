@@ -74,11 +74,13 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		windowManager.ProcessInputs();
+		cam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos());
+		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 		UBO.UpdateData();
 
-		renderSystem->PreUpdate(0.0f);
-		renderSystem->Update(0.0f);
-		renderSystem->PostUpdate(0.0f);
+		renderSystem->PreUpdate();
+		renderSystem->Update();
+		renderSystem->PostUpdate();
 	}
 
 	// TODO: Better cleaning system, add clean into system parent class as a virtual function?
