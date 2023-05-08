@@ -20,7 +20,7 @@
 class RenderSystem: public System 
 {
 private:
-    GLFWwindow* mWindow; // TODO: Figure out cleaning
+    GLFWwindow* mWindow;
     Camera* mCamera;
     mutable ImGuiIO* ioptr;
 public:

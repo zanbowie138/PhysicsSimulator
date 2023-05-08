@@ -57,8 +57,6 @@ void RenderSystem::Update()
 		// Bind shader
 		glUseProgram(shader_ID);
 
-		// TODO: Uniforms and model matrix
-
 		// Draw VAO
 		glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, nullptr);
 	}
