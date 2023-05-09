@@ -4,7 +4,12 @@
 #include <tuple>
 #include <set>
 
-#include "components/Renderable.h"
+#include "../core/GlobalTypes.h"
+#include "../renderer/Camera.h"
+#include "../renderer/EBO.h"
+#include "../renderer/VBO.h"
+#include "../renderer/VAO.h"
+#include "../physics/Collidable.h"
 
 struct CompareVec3
 {
@@ -17,17 +22,16 @@ struct CompareVec3
 	}
 };
 
-class Model : public Renderable
+class Model
 {
 public:
+	VAO VAO;
+
 	std::vector<ModelPt> vertices;
 	std::vector<GLuint> indices;
 
 	// Initializes the object
 	Model(const char* filename, bool is_stl);
-
-	// Draws the mesh
-	void Draw(const Shader& shader) const override;
 
 private:
 	// Reads an stl file
@@ -35,6 +39,8 @@ private:
 
 	// Reads a binary file
 	void ReadBIN(const char* filepath);
+
+	void InitVAO();
 };
 
 inline Model::Model(const char* filename, const bool is_stl)
@@ -49,30 +55,7 @@ inline Model::Model(const char* filename, const bool is_stl)
 		ReadSTL((std::filesystem::current_path().string() + localDir + filename).c_str());
 	}
 
-
-	VAO.Bind();
-
-	const VBO VBO(vertices);
-	EBO EBO(indices);
-
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
-	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(ModelPt), (void*)(3 * sizeof(float)));
-
-	VAO.Unbind();
-	VBO.Unbind();
-	EBO.Unbind();
-}
-
-inline void Model::Draw(const Shader& shader) const
-{
-	// Bind shader to be able to access uniforms
-	shader.Activate();
-	VAO.Bind();
-
-	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, value_ptr(modelMatrix));
-
-	// Draw the actual mesh
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
+	InitVAO();
 }
 
 inline void Model::ReadSTL(const char* filepath)
@@ -180,4 +163,19 @@ inline void Model::ReadBIN(const char* filepath)
 		indices.push_back(temp_i);
 	}
 	is.close();
+}
+
+inline void Model::InitVAO()
+{
+	VAO.Bind();
+
+	const VBO VBO(vertices);
+	EBO EBO(indices);
+
+	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
+	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(ModelPt), (void*)(3 * sizeof(float)));
+
+	VAO.Unbind();
+	VBO.Unbind();
+	EBO.Unbind();
 }

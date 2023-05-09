@@ -29,3 +29,28 @@ enum class InputButtons
 	ENUM_LENGTH
 };
 using InputBitset = std::bitset<static_cast<size_t>(InputButtons::ENUM_LENGTH)>;
+
+
+enum ChessPiece
+{
+	empty,
+	pawn,
+	rook,
+	knight,
+	bishop,
+	queen,
+	king
+};
+
+struct ModelPt
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+};
+
+struct Vertex
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec3 uv;
+};

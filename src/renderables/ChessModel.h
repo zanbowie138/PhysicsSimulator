@@ -4,29 +4,12 @@
 #include <string>
 #include <vector>
 
-#include "renderer/Camera.h"
-#include "renderer/EBO.h"
-#include "renderer/VBO.h"
-#include "renderer/VAO.h"
-#include "Renderable.h"
-#include "physics/Collidable.h"
-
-enum ChessPiece
-{
-	empty,
-	pawn,
-	rook,
-	knight,
-	bishop,
-	queen,
-	king
-};
-
-struct ModelPt
-{
-	glm::vec3 position;
-	glm::vec3 normal;
-};
+#include "../core/GlobalTypes.h"
+#include "../renderer/Camera.h"
+#include "../renderer/EBO.h"
+#include "../renderer/VBO.h"
+#include "../renderer/VAO.h"
+#include "../physics/Collidable.h"
 
 class ChessModel
 {

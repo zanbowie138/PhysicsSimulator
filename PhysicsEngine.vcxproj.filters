@@ -37,6 +37,9 @@
     <Filter Include="Header Files\Core">
       <UniqueIdentifier>{1bdd6d05-179a-49b2-b357-270e2e8d4f10}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Models">
+      <UniqueIdentifier>{6e7682c3-45c7-44b9-819c-d0706bcc9aa7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\flat.frag">
@@ -56,6 +59,27 @@
     </None>
     <None Include="shaders\basic.frag">
       <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Resources\Models\bunny.dat">
+      <Filter>Resource Files\Models</Filter>
+    </None>
+    <None Include="Resources\Models\bunny.stl">
+      <Filter>Resource Files\Models</Filter>
+    </None>
+    <None Include="Resources\Models\cube.stl">
+      <Filter>Resource Files\Models</Filter>
+    </None>
+    <None Include="Resources\Models\output.dat">
+      <Filter>Resource Files\Models</Filter>
+    </None>
+    <None Include="Resources\Models\paladin.dat">
+      <Filter>Resource Files\Models</Filter>
+    </None>
+    <None Include="Resources\Models\paladin.stl">
+      <Filter>Resource Files\Models</Filter>
+    </None>
+    <None Include="Resources\Models\trump.stl">
+      <Filter>Resource Files\Models</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -159,9 +183,6 @@
     </ClInclude>
     <ClInclude Include="src\components\RenderInfo.h">
       <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\renderables\Renderable.h">
-      <Filter>Header Files\Renderables</Filter>
     </ClInclude>
     <ClInclude Include="src\core\UniformBufferManager.h">
       <Filter>Header Files\Core</Filter>

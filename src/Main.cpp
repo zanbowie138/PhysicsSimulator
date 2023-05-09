@@ -15,6 +15,7 @@
 #include "renderer/RenderSystem.h"
 #include "renderables/ChessModel.h"
 #include "core/WindowManager.h"
+#include "renderables/Model.h"
 
 ECSController ecsController;
 
@@ -49,19 +50,22 @@ int main()
 	// Create entity
 	auto entity = ecsController.CreateEntity();
 	auto entity2 = ecsController.CreateEntity();
+	auto entity3 = ecsController.CreateEntity();
 
 	Shader flatShader("flat.vert", "flat.frag");
 
-	// TODO: Remove renderables, just have model loading
 	ChessModel piece(king, glm::vec3(0.0f, 0.0f, 0.0f));
 	ChessModel piece1(pawn, glm::vec3(3.0f, 0.0f, 0.0f));
+	Model bunny("bunny.dat", false);
 
 	// Add components to entity
 	ecsController.AddComponent(entity, Components::Transform());
-	ecsController.AddComponent(entity, Components::Transform{glm::vec3(3.0f, 0.0f, 0.0f)});
+	ecsController.AddComponent(entity2, Components::Transform{glm::vec3(1.0f, 0.0f, 0.0f)});
+	ecsController.AddComponent(entity3, Components::Transform{ glm::vec3(2.0f, 0.0f, 0.0f) });
 
 	ecsController.AddComponent(entity, Components::RenderInfo{piece.VAO.ID, flatShader.ID, piece.indices.size()});
 	ecsController.AddComponent(entity2, Components::RenderInfo{piece1.VAO.ID, flatShader.ID, piece1.indices.size()});
+	ecsController.AddComponent(entity3, Components::RenderInfo{ bunny.VAO.ID, flatShader.ID, bunny.indices.size() });
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO;
