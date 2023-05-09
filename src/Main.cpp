@@ -47,32 +47,24 @@ int main()
 	signature.set(ecsController.GetComponentType<Components::RenderInfo>());
 	ecsController.SetSystemSignature<RenderSystem>(signature);
 
-	// Create entity
-	auto entity = ecsController.CreateEntity();
-	auto entity2 = ecsController.CreateEntity();
-	auto entity3 = ecsController.CreateEntity();
-
 	Shader flatShader("flat.vert", "flat.frag");
 
 	ChessModel piece(king, glm::vec3(0.0f, 0.0f, 0.0f));
-	ChessModel piece1(pawn, glm::vec3(3.0f, 0.0f, 0.0f));
+	piece.ShaderID = flatShader.ID; // TODO: Make this easier to initialize
+	piece.InitECS();
+
 	Model bunny("bunny.dat", false);
-
-	// Add components to entity
-	ecsController.AddComponent(entity, Components::Transform());
-	ecsController.AddComponent(entity2, Components::Transform{glm::vec3(1.0f, 0.0f, 0.0f)});
-	ecsController.AddComponent(entity3, Components::Transform{ glm::vec3(2.0f, 0.0f, 0.0f) });
-
-	ecsController.AddComponent(entity, Components::RenderInfo{piece.VAO.ID, flatShader.ID, piece.indices.size()});
-	ecsController.AddComponent(entity2, Components::RenderInfo{piece1.VAO.ID, flatShader.ID, piece1.indices.size()});
-	ecsController.AddComponent(entity3, Components::RenderInfo{ bunny.VAO.ID, flatShader.ID, bunny.indices.size() });
+	bunny.ShaderID = flatShader.ID;
+	bunny.InitECS();
+	bunny.GetTransform().worldPos = glm::vec3(1.0f, 0.0f, 0.0f);
+	
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO;
 	UBO.SetCamera(&cam);
 	// Allocate buffer in OpenGL
 	UBO.Allocate();
-	// 
+	// Bind uniform ranges in the buffer
 	UBO.InitBind();
 
 	// TODO: Make this applicable to all shaders

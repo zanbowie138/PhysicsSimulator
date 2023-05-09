@@ -206,6 +206,7 @@
     <ClInclude Include="src\renderables\Mesh.h" />
     <ClInclude Include="src\renderables\Model.h" />
     <ClInclude Include="src\renderables\Points.h" />
+    <ClInclude Include="src\renderables\Renderable.h" />
     <ClInclude Include="src\renderer\Camera.h" />
     <ClInclude Include="src\renderer\EBO.h" />
     <ClInclude Include="src\renderer\RenderSystem.h" />

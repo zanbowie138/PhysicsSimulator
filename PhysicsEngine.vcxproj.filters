@@ -187,6 +187,9 @@
     <ClInclude Include="src\core\UniformBufferManager.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\renderables\Renderable.h">
+      <Filter>Header Files\Renderables</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\renderer\RenderSystem.cpp">

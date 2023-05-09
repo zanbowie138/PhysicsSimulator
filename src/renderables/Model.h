@@ -9,6 +9,7 @@
 #include "../renderer/EBO.h"
 #include "../renderer/VBO.h"
 #include "../renderer/VAO.h"
+#include "Renderable.h"
 #include "../physics/Collidable.h"
 
 struct CompareVec3
@@ -22,13 +23,10 @@ struct CompareVec3
 	}
 };
 
-class Model
+class Model: public Renderable
 {
 public:
-	VAO VAO;
-
 	std::vector<ModelPt> vertices;
-	std::vector<GLuint> indices;
 
 	// Initializes the object
 	Model(const char* filename, bool is_stl);
@@ -40,7 +38,7 @@ private:
 	// Reads a binary file
 	void ReadBIN(const char* filepath);
 
-	void InitVAO();
+	void InitVAO() override;
 };
 
 inline Model::Model(const char* filename, const bool is_stl)
@@ -167,15 +165,15 @@ inline void Model::ReadBIN(const char* filepath)
 
 inline void Model::InitVAO()
 {
-	VAO.Bind();
+	mVAO.Bind();
 
-	const VBO VBO(vertices);
+	VBO VBO(vertices);
 	EBO EBO(indices);
 
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
-	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(ModelPt), (void*)(3 * sizeof(float)));
+	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
+	mVAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(ModelPt), (void*)(3 * sizeof(float)));
 
-	VAO.Unbind();
+	mVAO.Unbind();
 	VBO.Unbind();
 	EBO.Unbind();
 }

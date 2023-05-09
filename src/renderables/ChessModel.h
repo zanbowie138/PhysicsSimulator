@@ -10,15 +10,14 @@
 #include "../renderer/VBO.h"
 #include "../renderer/VAO.h"
 #include "../physics/Collidable.h"
+#include "Renderable.h"
 
-class ChessModel
+class ChessModel: public Renderable
 {
 public:
-	VAO VAO;
 	ChessPiece type;
 
 	std::vector<ModelPt> vertices;
-	std::vector<GLuint> indices;
 
 	// Initializes the object
 	ChessModel(ChessPiece type, glm::vec3 worldPos);
@@ -27,6 +26,9 @@ public:
 
 	// Updates the vertices and indices vectors based on packed binary file
 	void UpdateModel(const char* filename);
+
+private:
+	void InitVAO() override;
 };
 
 inline ChessModel::ChessModel(const ChessPiece type, const glm::vec3 worldPos)
@@ -37,17 +39,7 @@ inline ChessModel::ChessModel(const ChessPiece type, const glm::vec3 worldPos)
 	const auto filetype = ".bin";
 	UpdateModel((GetType() + filetype).c_str());
 
-	VAO.Bind();
-
-	VBO<ModelPt> VBO(vertices);
-	EBO EBO(indices);
-
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
-	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(ModelPt), (void*)(3 * sizeof(float)));
-
-	VAO.Unbind();
-	VBO.Unbind();
-	EBO.Unbind();
+	InitVAO();
 }
 
 inline std::string ChessModel::GetType() const
@@ -116,4 +108,19 @@ inline void ChessModel::UpdateModel(const char* filename)
 		indices.push_back(temp_i);
 	}
 	is.close();
+}
+
+inline void ChessModel::InitVAO()
+{
+	mVAO.Bind();
+
+	VBO<ModelPt> VBO(vertices);
+	EBO EBO(indices);
+
+	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
+	mVAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(ModelPt), (void*)(3 * sizeof(float)));
+
+	mVAO.Unbind();
+	VBO.Unbind();
+	EBO.Unbind();
 }
