@@ -76,6 +76,11 @@ public:
 		return mComponentManager->GetComponentType<T>();
 	}
 
+	Signature GetEntitySignature(Entity entity) const 
+	{
+		return mEntityManager->GetSignature(entity);
+	}
+
 
 	// System methods
 	template<typename T>

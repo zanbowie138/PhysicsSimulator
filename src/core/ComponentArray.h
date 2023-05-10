@@ -59,6 +59,11 @@ public:
 			RemoveEntity(entity);
 		}
 	}
+
+	bool HasEntity(Entity entity) const 
+	{
+		return mEntityToIndexMap.count(entity);
+	}
 private:
 	// Stores the individual components for each entity
 	std::array<T, MAX_ENTITIES> mComponentArray;

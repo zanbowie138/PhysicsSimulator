@@ -31,7 +31,7 @@ public:
 
 	// Return this component's type - used for creating signatures
 	template<typename T>
-	ComponentType GetComponentType()
+	ComponentType GetComponentType() const
 	{
 		const char* typeName = typeid(T).name();
 
@@ -59,6 +59,14 @@ public:
 	T& GetComponent(Entity entity)
 	{
 		return GetComponentArray<T>()->GetData(entity);
+	}
+
+	template <typename T>
+	bool ComponentHasEntity(T type) const
+	{
+		const char* typeName = typeid(T).name();
+
+		return mComponentArrays.find(typeName) != mComponentArrays.end();
 	}
 
 	void EntityDestroyed(Entity entity)

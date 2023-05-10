@@ -6,6 +6,7 @@
 
 #include "../components/RenderInfo.h"
 #include "../components/Transform.h"
+#include "../components/TextureInfo.h"
 
 #include "../core/ECS.h"
 #include "../core/System.h"

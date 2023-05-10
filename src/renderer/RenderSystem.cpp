@@ -51,18 +51,22 @@ void RenderSystem::Update()
 
 		glUniformMatrix4fv(glGetUniformLocation(shader_ID, "model"), 1, GL_FALSE, value_ptr(transform.modelMat));
 
-		if (ecsController.)
-		// Textures
-		// Set texture uniform value
-		glUniform1i(glGetUniformLocation(shader_ID, "diffuse"), 0);
-		// Activate texture unit
-		glActiveTexture(GL_TEXTURE0);
-		// Bind texture to 
-		glBindTexture(GL_TEXTURE_2D, tex_ID);
+		if (ecsController.GetEntitySignature(entity).test(ecsController.GetComponentType<Components::TextureInfo>()))
+		{
+			const auto& [diffuse_ID, specular_ID] = ecsController.GetComponent<Components::TextureInfo>(entity);
+			
+			// Textures
+			// Set texture uniform value
+			glUniform1i(glGetUniformLocation(shader_ID, "diffuse"), 0);
+			// Activate texture unit
+			glActiveTexture(GL_TEXTURE0);
+			// Bind texture to 
+			glBindTexture(GL_TEXTURE_2D, diffuse_ID);
 
-		glUniform1i(glGetUniformLocation(shader_ID, "specular"), 1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tex_ID);
+			glUniform1i(glGetUniformLocation(shader_ID, "specular"), 1);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, specular_ID);
+		}
 
 		// Bind vertex array
 		glBindVertexArray(VAO_ID);
