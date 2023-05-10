@@ -21,9 +21,10 @@ public:
 	Mesh(std::vector<Vertex> vertices, const std::vector<GLuint>& indices, std::vector<Texture> textures);
 	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
 
+	void InitECS();
+
 private:
 	void InitVAO() override;
-	void InitECS();
 };
 
 inline Mesh::Mesh(std::vector<Vertex> vertices, const std::vector<GLuint>& indices, std::vector<Texture> textures): indices(std::move(indices)), vertices(
