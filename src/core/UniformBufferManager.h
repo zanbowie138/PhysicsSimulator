@@ -16,21 +16,16 @@ namespace Core {
     class UniformBufferManager 
     {
     private:
-        Camera* cam = nullptr;
         UBO UBO;
     public:
         inline void Allocate();
         inline void InitBind();
         inline void BindShader(const Shader& shader);
-        inline void UpdateData();
+        inline void UpdateData(const Camera& cam);
         UniformBufferManager(){}
         inline void SetCamera(Camera* camera);
     };
-
-    inline void UniformBufferManager::SetCamera(Camera* camera) {
-        cam = camera;
-    }
-
+    
     inline void UniformBufferManager::Allocate()
     {
         UBO.Bind();
@@ -54,12 +49,12 @@ namespace Core {
             UBO.BindShader(shader, "Lighting", 1);
     }
 
-    inline void UniformBufferManager::UpdateData()
+    inline void UniformBufferManager::UpdateData(const Camera& cam)
     {
         UBO.Bind();
         UniformBlock ub = {};
-        ub.camMatrix = cam->cameraMatrix;
-        ub.camPos = glm::vec4(cam->position, 1.0);
+        ub.camMatrix = cam.cameraMatrix;
+        ub.camPos = glm::vec4(cam.position, 1.0);
         ub.lightPos = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
         ub.lightColor = glm::vec4(1.0, 1.0, 1.0, 1.0);
 

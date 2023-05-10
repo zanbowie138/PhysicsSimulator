@@ -88,7 +88,7 @@ int main()
 	
 
 	// Manage Uniform Buffer
-	Core::UniformBufferManager UBO;
+	Core::UniformBufferManager UBO; // TODO: Combine UBO & UBM
 	UBO.SetCamera(&cam);
 	// Allocate buffer in OpenGL
 	UBO.Allocate();
@@ -110,7 +110,7 @@ int main()
 		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 		// Update uniform buffer
 		// TODO: pass matrix by reference
-		UBO.UpdateData();
+		UBO.UpdateData(cam);
 
 		renderSystem->PreUpdate();
 		renderSystem->Update();
