@@ -1,8 +1,3 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
@@ -10,14 +5,17 @@
 #include <vector>
 
 #include "core/ECS.h"
-#include "components/Components.h"
 #include "core/UniformBufferManager.h"
-#include "renderer/RenderSystem.h"
-#include "renderables/ChessModel.h"
 #include "core/WindowManager.h"
+
+#include "components/Components.h"
+
+#include "renderer/RenderSystem.h"
+#include "renderer/Texture.h"
+
+#include "renderables/ChessModel.h"
 #include "renderables/Model.h"
 #include "renderables/Mesh.h"
-#include "renderer/Texture.h"
 
 ECSController ecsController;
 
@@ -50,7 +48,9 @@ int main()
 	ecsController.SetSystemSignature<RenderSystem>(signature);
 
 	Shader flatShader("flat.vert", "flat.frag");
+	Shader defaultShader("default.vert", "default.frag");
 	Shader basicShader("basic.vert", "basic.frag");
+	basicShader.mUniforms.reset(static_cast<size_t>(UniformBlockConfig::LIGHTING));
 
 	ChessModel piece(king, glm::vec3(0.0f, 0.0f, 0.0f));
 	piece.ShaderID = flatShader.ID; // TODO: Make this easier to initialize
@@ -74,7 +74,6 @@ int main()
 		0, 1, 2,
 		2, 3, 0
 	};
-	// Texture data
 	Texture textures[]
 	{
 		Texture("planks.png", "diffuse", GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE),
@@ -84,6 +83,7 @@ int main()
 	std::vector<GLuint> ind(board_indices, board_indices + sizeof(board_indices) / sizeof(GLuint));
 	std::vector<Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
 	Mesh floor(verts, ind, tex);
+	floor.ShaderID = defaultShader.ID;
 	floor.InitECS();
 	
 
@@ -95,16 +95,21 @@ int main()
 	// Bind uniform ranges in the buffer
 	UBO.InitBind();
 
-	// TODO: Make this applicable to all shaders
-	// Maybe create some sort of bitset with dependencies for uniform blocks
-	// Could have these dependencies in actual shader file, shader class reads these and updates accordingly
+	// Set uniform blocks in shaders to UBO indexes
+	UBO.BindShader(basicShader);
+	UBO.BindShader(defaultShader);
 	UBO.BindShader(flatShader);
 
 	while (!glfwWindowShouldClose(window))
 	{
+		// Update window input bitset
 		windowManager.ProcessInputs();
+		// Move camera based on window inputs
 		cam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos());
+		// Update camera matrix
 		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
+		// Update uniform buffer
+		// TODO: pass matrix by reference
 		UBO.UpdateData();
 
 		renderSystem->PreUpdate();
