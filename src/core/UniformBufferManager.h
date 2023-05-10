@@ -1,6 +1,5 @@
 #pragma once
 #include "GlobalTypes.h"
-#include "../renderer/UBO.h"
 #include "../renderer/Camera.h"
 namespace Core {
     // Global Uniforms
@@ -16,42 +15,65 @@ namespace Core {
     class UniformBufferManager 
     {
     private:
-        UBO UBO;
+        GLuint ID;
     public:
-        inline void Allocate();
-        inline void InitBind();
+        inline UniformBufferManager();
+        inline void BindBuffer();
+        inline void UnbindBuffer();
+
+        inline void AllocateBuffer();
+        
+        inline void DefineRanges();
         inline void BindShader(const Shader& shader);
+
         inline void UpdateData(const Camera& cam);
-        UniformBufferManager(){}
         inline void SetCamera(Camera* camera);
+
+        inline void Clean();
     };
-    
-    inline void UniformBufferManager::Allocate()
+
+    inline UniformBufferManager::UniformBufferManager()
     {
-        UBO.Bind();
-        UBO.AllocBuffer(112, GL_DYNAMIC_DRAW);
-        UBO.Unbind();
+        glGenBuffers(1, &ID);
     }
 
-    inline void UniformBufferManager::InitBind()
+    inline void UniformBufferManager::BindBuffer()
     {
-        UBO.Bind();
-        UBO.BindUniformRange(0, 0, sizeof(glm::mat4));
-        UBO.BindUniformRange(1, 64, 48);
+        glBindBuffer(GL_UNIFORM_BUFFER, ID);
+    }
+
+    inline void UniformBufferManager::UnbindBuffer()
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+    
+    inline void UniformBufferManager::AllocateBuffer()
+    {
+        BindBuffer();
+        glBufferData(GL_UNIFORM_BUFFER, 112, nullptr, GL_DYNAMIC_DRAW);
+        UnbindBuffer();
+    }
+
+    inline void UniformBufferManager::DefineRanges()
+    {
+        // glBindBufferRange(GL_UNIFORM_BUFFER, index, ID, offset, size)
+        BindBuffer();
+        glBindBufferRange(GL_UNIFORM_BUFFER, 0, ID, 0, sizeof(glm::mat4));	
+        glBindBufferRange(GL_UNIFORM_BUFFER, 1, ID, 64, 48);	
     }
 
     inline void UniformBufferManager::BindShader(const Shader& shader)
     {
-        UBO.Bind();
+        BindBuffer();
         if (shader.mUniforms.test((static_cast<std::size_t>(UniformBlockConfig::CAMERA))))
-    	    UBO.BindShader(shader, "Camera", 0);
+            glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Camera"), 0);
         if (shader.mUniforms.test((static_cast<std::size_t>(UniformBlockConfig::LIGHTING))))
-            UBO.BindShader(shader, "Lighting", 1);
+            glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Lighting"), 1);
     }
 
     inline void UniformBufferManager::UpdateData(const Camera& cam)
     {
-        UBO.Bind();
+        BindBuffer();
         UniformBlock ub = {};
         ub.camMatrix = cam.cameraMatrix;
         ub.camPos = glm::vec4(cam.position, 1.0);
@@ -61,6 +83,12 @@ namespace Core {
         char ub_char[sizeof(ub)];
         memcpy(ub_char, &ub, sizeof(ub));
 
-        UBO.EditBuffer(ub_char, sizeof(ub));
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(ub), ub_char, GL_DYNAMIC_DRAW);
+    }
+
+    // Deletes the UBO
+    inline void UniformBufferManager::Clean()
+    {
+        glDeleteBuffers(1, &ID);
     }
 };

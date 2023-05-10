@@ -21,6 +21,8 @@ ECSController ecsController;
 
 int main()
 {
+	// TODO: Combine VBO, EBO into one class
+	// TODO: Remove hardcoding ranges from UBO
 	// Window creation
 	Core::WindowManager windowManager;
 	windowManager.Init("OpenGL Window", 800, 800);
@@ -91,9 +93,9 @@ int main()
 	Core::UniformBufferManager UBO; // TODO: Combine UBO & UBM
 	UBO.SetCamera(&cam);
 	// Allocate buffer in OpenGL
-	UBO.Allocate();
+	UBO.AllocateBuffer();
 	// Bind uniform ranges in the buffer
-	UBO.InitBind();
+	UBO.DefineRanges();
 
 	// Set uniform blocks in shaders to UBO indexes
 	UBO.BindShader(basicShader);
