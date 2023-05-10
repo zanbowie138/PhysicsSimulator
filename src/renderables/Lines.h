@@ -3,10 +3,9 @@
 #include <vector>
 
 #include "Renderable.h"
-#include "Camera.h"
-#include "VBO.h"
-#include "EBO.h"
-#include "BoundingBox.h"
+#include "../renderer/VBO.h"
+#include "../renderer/EBO.h"
+#include "../physics/BoundingBox.h"
 
 class Lines : public Renderable
 {
@@ -91,30 +90,16 @@ inline void Lines::PushBack(const BoundingBox& box)
 	EBO.Unbind();
 }
 
-void Lines::Draw(const Shader& shader) const
-{
-	shader.Activate();
-	VAO.Bind();
-
-	glEnable(GL_PROGRAM_POINT_SIZE);
-
-	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, value_ptr(modelMatrix));
-
-	glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, nullptr);
-
-	VAO.Unbind();
-}
-
 inline void Lines::InitVAO() 
 {
-	VAO.Bind();
+	mVAO.Bind();
 
 	VBO.AllocBuffer(indiceAmt * 2 * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
 	EBO.AllocBuffer(indiceAmt * sizeof(GLuint), GL_DYNAMIC_DRAW);
 
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
+	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
 
-	VAO.Unbind();
+	mVAO.Unbind();
 	VBO.Unbind();
 	EBO.Unbind();
 }

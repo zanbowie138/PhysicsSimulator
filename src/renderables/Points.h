@@ -3,8 +3,9 @@
 #include <vector>
 
 #include "Renderable.h"
-#include "Camera.h"
-#include "VBO.h"
+#include "../renderer/VBO.h"
+#include "../renderer/EBO.h"
+#include "../physics/BoundingBox.h"
 
 class Points : public Renderable
 {
@@ -41,13 +42,13 @@ void Points::PushBack(const std::vector<glm::vec3>& pts)
 
 inline void Points::InitVAO
 {
-	VAO.Bind();
+	mVAO.Bind();
 
 	VBO.AllocBuffer(amount * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
 
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
+	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
 
-	VAO.Unbind();
+	mVAO.Unbind();
 	VBO.Unbind();
 }
 
