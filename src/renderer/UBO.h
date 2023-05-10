@@ -48,7 +48,7 @@ inline void UBO::BindUniformRange(const GLuint index, const GLuint offset, const
 
 inline void UBO::BindShader(const Shader& shader, const char* uniformName, const GLuint index) const
 {
-	glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex(uniformName) , index);
+	glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex(uniformName), index);
 }
 
 inline void UBO::EditBuffer(const char* buffer, const GLuint size, const GLenum type) const

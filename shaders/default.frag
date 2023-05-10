@@ -6,8 +6,8 @@ in vec3 Color;
 in vec3 Normal;
 in vec2 texCoord;
 
-uniform sampler2D diffuse0;
-uniform sampler2D specular0;
+uniform sampler2D diffuse;
+uniform sampler2D specular;
 
 layout(std140) uniform Lighting 
 {

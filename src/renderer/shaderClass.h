@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <cerrno>
+#include "../core/GlobalTypes.h"
 
 std::string get_file_contents(const char* filename);
 
@@ -15,6 +16,8 @@ class Shader
 {
 public:
 	GLuint ID;
+	UBBitset mUniforms;
+
 	inline Shader(const char* vertexFile, const char* fragmentFile);
 
 	inline void Activate() const;
@@ -47,6 +50,8 @@ inline std::string get_file_contents(const char* filename)
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {
+	mUniforms.set();
+	
 	const std::string vertexCode = get_file_contents(vertexFile);
 	const std::string fragmentCode = get_file_contents(fragmentFile);
 
@@ -95,7 +100,7 @@ GLint Shader::GetUniformLocation(const char* name) const
 	GLint location =  glGetUniformLocation(ID, name);
 
 	// Check if error
-	assert(location != -1);
+	assert(location != -1 && "Uniform location not found.");
 
 	return location;
 }

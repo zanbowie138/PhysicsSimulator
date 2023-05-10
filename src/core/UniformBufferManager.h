@@ -48,9 +48,10 @@ namespace Core {
     inline void UniformBufferManager::BindShader(const Shader& shader)
     {
         UBO.Bind();
-
-    	UBO.BindShader(shader, "Camera", 0);
-        UBO.BindShader(shader, "Lighting", 1);
+        if (shader.mUniforms.test((static_cast<std::size_t>(UniformBlockConfig::CAMERA))))
+    	    UBO.BindShader(shader, "Camera", 0);
+        if (shader.mUniforms.test((static_cast<std::size_t>(UniformBlockConfig::LIGHTING))))
+            UBO.BindShader(shader, "Lighting", 1);
     }
 
     inline void UniformBufferManager::UpdateData()

@@ -30,6 +30,15 @@ enum class InputButtons
 };
 using InputBitset = std::bitset<static_cast<size_t>(InputButtons::ENUM_LENGTH)>;
 
+enum class UniformBlockConfig
+{
+	CAMERA,
+	LIGHTING,
+	ENUM_LENGTH
+};
+using UBBitset = std::bitset<static_cast<size_t>(UniformBlockConfig::ENUM_LENGTH)>;
+
+
 
 enum ChessPiece
 {
