@@ -80,6 +80,7 @@ inline Texture::Texture(const char* image, const char* texType, const GLenum tex
 	glBindTexture(texFormat, 0);
 }
 
+// Gives a texture2D variable an index
 inline void Texture::TexUnit(const Shader& shader, const char* uniform, const GLuint unit)
 {
 	// Gets the location of the uniform
