@@ -114,7 +114,7 @@ inline void ChessModel::InitVAO()
 {
 	mVAO.Bind();
 
-	VBO<ModelPt> VBO(vertices);
+	VBO VBO(vertices);
 	EBO EBO(indices);
 
 	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);

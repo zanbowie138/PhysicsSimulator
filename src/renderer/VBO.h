@@ -6,7 +6,6 @@
 #include <vector>
 #include <iostream>
 
-template <typename T>
 class VBO
 {
 public:
@@ -16,6 +15,7 @@ public:
 
 	inline VBO();
 
+	template <typename T>
 	explicit inline VBO(const std::vector<T>& vertices);
 
 	inline void PushData(const std::vector<glm::vec3>& vertices);
@@ -27,30 +27,27 @@ public:
 };
 
 // Constructors that generates a Vertex Buffer Object and links it to vertices
-template <typename T>
-inline VBO<T>::VBO()
+inline VBO::VBO()
 {
 	glGenBuffers(1, &ID);
 }
 
 template <typename T>
-inline VBO<T>::VBO(const std::vector<T>& vertices)
+inline VBO::VBO(const std::vector<T>& vertices)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(), GL_STATIC_DRAW);
 }
 
-template <typename T>
-inline void VBO<T>::PushData(const std::vector<glm::vec3>& vertices)
+inline void VBO::PushData(const std::vector<glm::vec3>& vertices)
 {
 	assert(currentBufSize + vertices.size() * sizeof(glm::vec3) < bufSize && "VBO Overflow");
 	glBufferSubData(GL_ARRAY_BUFFER, currentBufSize, vertices.size() * sizeof(glm::vec3), vertices.data());
 	currentBufSize += vertices.size() * sizeof(glm::vec3);
 }
 
-template <typename T>
-inline void VBO<T>::AllocBuffer(const GLint size, const GLenum type)
+inline void VBO::AllocBuffer(const GLint size, const GLenum type)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
 	glBufferData(GL_ARRAY_BUFFER, size, nullptr, type);
@@ -58,22 +55,19 @@ inline void VBO<T>::AllocBuffer(const GLint size, const GLenum type)
 }
 
 // Binds the VBO
-template <typename T>
-inline void VBO<T>::Bind() const
+inline void VBO::Bind() const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
 }
 
 // Unbinds the VBO
-template <typename T>
-inline void VBO<T>::Unbind()
+inline void VBO::Unbind()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // Deletes the VBO
-template <typename T>
-inline void VBO<T>::Delete() const
+inline void VBO::Delete() const
 {
 	glDeleteBuffers(1, &ID);
 }
