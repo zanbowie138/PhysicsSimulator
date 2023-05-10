@@ -15,6 +15,7 @@ class Mesh: public Renderable
 {
 public:
 	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
 
 	// Initializes the mesh
@@ -25,6 +26,7 @@ public:
 
 private:
 	void InitVAO() override;
+	size_t GetSize() override;
 };
 
 inline Mesh::Mesh(std::vector<Vertex> vertices, const std::vector<GLuint>& indices, std::vector<Texture> textures): indices(std::move(indices)), vertices(
@@ -69,4 +71,9 @@ inline void Mesh::InitECS()
 	ecsController.AddComponent(mEntityID, Components::RenderInfo{ mVAO.ID, ShaderID, indices.size() });
 	if (!textures.empty())
 		ecsController.AddComponent(mEntityID, Components::TextureInfo{ textures[0].ID, textures[1].ID });
+}
+
+inline size_t Mesh::GetSize()
+{
+	return indices.size();
 }

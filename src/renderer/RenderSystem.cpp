@@ -42,7 +42,7 @@ void RenderSystem::Update()
 
 	for (const auto& entity : mEntities)
 	{
-		const auto& [VAO_ID, shader_ID, indices] = ecsController.GetComponent<Components::RenderInfo>(entity);
+		const auto& [primitive_type, VAO_ID, shader_ID, size] = ecsController.GetComponent<Components::RenderInfo>(entity);
 
 		// Update transform
 		auto transform = ecsController.GetComponent<Components::Transform>(entity);
@@ -75,7 +75,10 @@ void RenderSystem::Update()
 		glUseProgram(shader_ID);
 
 		// Draw VAO
-		glDrawElements(GL_TRIANGLES, indices, GL_UNSIGNED_INT, nullptr);
+		if (primitive_type == GL_POINTS)
+			glDrawArrays(primitive_type, 0, size);
+		else 
+			glDrawElements(primitive_type, size, GL_UNSIGNED_INT, nullptr);
 	}
 }
 

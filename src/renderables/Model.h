@@ -27,6 +27,7 @@ class Model: public Renderable
 {
 public:
 	std::vector<ModelPt> vertices;
+	std::vector<GLuint> indices;
 
 	// Initializes the object
 	Model(const char* filename, bool is_stl);
@@ -39,6 +40,7 @@ private:
 	void ReadBIN(const char* filepath);
 
 	void InitVAO() override;
+	size_t GetSize() override;
 };
 
 inline Model::Model(const char* filename, const bool is_stl)
@@ -176,4 +178,9 @@ inline void Model::InitVAO()
 	mVAO.Unbind();
 	VBO.Unbind();
 	EBO.Unbind();
+}
+
+inline size_t Model::GetSize()
+{
+	return indices.size();
 }

@@ -23,6 +23,8 @@ int main()
 {
 	// TODO: Combine VBO, EBO into one class
 	// TODO: Remove hardcoding ranges from UBO
+	// TODO: GUI
+	// TODO: lines & points
 	// Window creation
 	Core::WindowManager windowManager;
 	windowManager.Init("OpenGL Window", 800, 800);

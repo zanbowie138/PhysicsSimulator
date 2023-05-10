@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "components/Renderable.h"
+#include "Renderable.h"
 #include "Camera.h"
 #include "VBO.h"
 #include "EBO.h"
@@ -12,7 +12,7 @@ class Lines : public Renderable
 {
 public:
 	std::vector<glm::vec3> vertices;
-	std::vector<unsigned int> indices;
+	std::vector<GLuint> indices;
 
 	VBO VBO;
 	EBO EBO;
@@ -21,8 +21,9 @@ public:
 
 	inline void PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds);
 	inline void PushBack(const BoundingBox& box);
-
-	inline void Draw(const Shader& shader) const override;
+private:
+	void InitVAO() override;
+	size_t GetSize() override;
 };
 
 Lines::Lines(const GLuint indiceAmt)
@@ -30,18 +31,9 @@ Lines::Lines(const GLuint indiceAmt)
 	vertices = std::vector<glm::vec3>();
 	indices = std::vector<unsigned int>();
 
-	color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	primitiveType = GL_LINES;
 
-	VAO.Bind();
-
-	VBO.AllocBuffer(indiceAmt * 2 * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
-	EBO.AllocBuffer(indiceAmt * sizeof(GLuint), GL_DYNAMIC_DRAW);
-
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
-
-	VAO.Unbind();
-	VBO.Unbind();
-	EBO.Unbind();
+	InitVAO();
 }
 
 void Lines::PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds)
@@ -111,4 +103,23 @@ void Lines::Draw(const Shader& shader) const
 	glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, nullptr);
 
 	VAO.Unbind();
+}
+
+inline void Lines::InitVAO() 
+{
+	VAO.Bind();
+
+	VBO.AllocBuffer(indiceAmt * 2 * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
+	EBO.AllocBuffer(indiceAmt * sizeof(GLuint), GL_DYNAMIC_DRAW);
+
+	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
+
+	VAO.Unbind();
+	VBO.Unbind();
+	EBO.Unbind();
+}
+
+inline size_t Lines::GetSize()
+{
+	return indices.size();
 }

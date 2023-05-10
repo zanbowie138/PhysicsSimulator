@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "components/Renderable.h"
+#include "Renderable.h"
 #include "Camera.h"
 #include "VBO.h"
 
@@ -16,21 +16,19 @@ public:
 	explicit inline Points(GLuint amount);
 
 	inline void PushBack(const std::vector<glm::vec3>& pts);
-	inline void Draw(const Shader& shader) const override;
+
+private:
+	void InitVAO() override;
+	size_t GetSize() override;
 };
 
 Points::Points(const GLuint amount)
 {
 	points = std::vector<glm::vec3>();
 
-	VAO.Bind();
+	primitiveType = GL_POINTS;
 
-	VBO.AllocBuffer(amount * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
-
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
-
-	VAO.Unbind();
-	VBO.Unbind();
+	InitVAO();
 }
 
 void Points::PushBack(const std::vector<glm::vec3>& pts)
@@ -41,16 +39,19 @@ void Points::PushBack(const std::vector<glm::vec3>& pts)
 	VBO.Unbind();
 }
 
-void Points::Draw(const Shader& shader) const
+inline void Points::InitVAO
 {
-	shader.Activate();
 	VAO.Bind();
 
-	glEnable(GL_PROGRAM_POINT_SIZE);
+	VBO.AllocBuffer(amount * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
 
-	glUniformMatrix4fv(shader.GetUniformLocation("model"), 1, GL_FALSE, value_ptr(modelMatrix));
-
-	glDrawArrays(GL_POINTS, 0, points.size());
+	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
 
 	VAO.Unbind();
+	VBO.Unbind();
+}
+
+inline void Points::GetSize
+{
+	return points.size();
 }

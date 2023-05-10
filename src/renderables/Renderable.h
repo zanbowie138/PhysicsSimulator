@@ -15,27 +15,27 @@ public:
 	Entity mEntityID = 999;
 
 	GLuint ShaderID = 999;
-
-	std::vector<GLuint> indices;
+	GLenum primitiveType = GL_TRIANGLES;
 
 	void InitECS();
 	Components::Transform& GetTransform() const;
 
 	virtual void InitVAO() = 0;
+	virtual size_t GetSize() = 0;
 private:
 	Components::Transform transform;
 };
 
 inline void Renderable::InitECS()
 {
-	assert(!indices.empty() && "No indices");
+	assert(GetSize() > 0 && "Size is 0");
 
 	// Initialize entity
 	mEntityID = ecsController.CreateEntity();
 
 	// Add components
 	ecsController.AddComponent(mEntityID, transform);
-	ecsController.AddComponent(mEntityID, Components::RenderInfo{ mVAO.ID, ShaderID, indices.size() });
+	ecsController.AddComponent(mEntityID, Components::RenderInfo{ primitiveType, mVAO.ID, ShaderID, GetSize() });
 }
 
 inline Components::Transform& Renderable::GetTransform() const

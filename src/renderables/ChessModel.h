@@ -18,6 +18,7 @@ public:
 	ChessPiece type;
 
 	std::vector<ModelPt> vertices;
+	std::vector<GLuint> indices;
 
 	// Initializes the object
 	ChessModel(ChessPiece type, glm::vec3 worldPos);
@@ -29,6 +30,7 @@ public:
 
 private:
 	void InitVAO() override;
+	size_t GetSize() override;
 };
 
 inline ChessModel::ChessModel(const ChessPiece type, const glm::vec3 worldPos)
@@ -123,4 +125,9 @@ inline void ChessModel::InitVAO()
 	mVAO.Unbind();
 	VBO.Unbind();
 	EBO.Unbind();
+}
+
+inline size_t ChessModel::GetSize()
+{
+	return indices.size();
 }
