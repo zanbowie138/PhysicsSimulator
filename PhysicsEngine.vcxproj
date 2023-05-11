@@ -188,6 +188,7 @@
   <ItemGroup>
     <ClInclude Include="src\components\Components.h" />
     <ClInclude Include="src\components\RenderInfo.h" />
+    <ClInclude Include="src\components\TextureInfo.h" />
     <ClInclude Include="src\components\Transform.h" />
     <ClInclude Include="src\core\ComponentArray.h" />
     <ClInclude Include="src\core\ComponentManager.h" />
@@ -212,7 +213,6 @@
     <ClInclude Include="src\renderer\RenderSystem.h" />
     <ClInclude Include="src\renderer\shaderClass.h" />
     <ClInclude Include="src\renderer\Texture.h" />
-    <ClInclude Include="src\renderer\UBO.h" />
     <ClInclude Include="src\renderer\VAO.h" />
     <ClInclude Include="src\renderer\VBO.h" />
   </ItemGroup>

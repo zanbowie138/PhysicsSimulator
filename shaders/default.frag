@@ -2,12 +2,11 @@
 out vec4 o_Color;
 
 in vec3 Position;
-in vec3 Color;
 in vec3 Normal;
 in vec2 texCoord;
 
-uniform sampler2D diffuse;
-uniform sampler2D specular;
+uniform sampler2D diffuse0;
+uniform sampler2D specular0;
 
 layout(std140) uniform Lighting 
 {

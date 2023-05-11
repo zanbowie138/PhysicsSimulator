@@ -154,9 +154,6 @@
     <ClInclude Include="src\renderer\EBO.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderer\UBO.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\renderer\VAO.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -189,6 +186,9 @@
     </ClInclude>
     <ClInclude Include="src\renderables\Renderable.h">
       <Filter>Header Files\Renderables</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components\TextureInfo.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

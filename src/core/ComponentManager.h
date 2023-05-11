@@ -31,7 +31,7 @@ public:
 
 	// Return this component's type - used for creating signatures
 	template<typename T>
-	ComponentType GetComponentType() const
+	ComponentType GetComponentType()
 	{
 		const char* typeName = typeid(T).name();
 

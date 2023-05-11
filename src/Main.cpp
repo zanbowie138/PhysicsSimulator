@@ -39,6 +39,8 @@ int main()
 	// Register components
 	ecsController.RegisterComponent<Components::Transform>();
 	ecsController.RegisterComponent<Components::RenderInfo>();
+	ecsController.RegisterComponent<Components::TextureInfo>();
+
 
 	// Create RenderSystem and add dependencies
 	auto renderSystem = ecsController.RegisterSystem<RenderSystem>();
@@ -58,20 +60,23 @@ int main()
 
 	ChessModel piece(king, glm::vec3(0.0f, 0.0f, 0.0f));
 	piece.ShaderID = flatShader.ID; // TODO: Make this easier to initialize
+	piece.transform.scale = glm::vec3(0.01);
 	piece.InitECS();
 
 	Model bunny("bunny.dat", false);
 	bunny.ShaderID = flatShader.ID;
+	bunny.transform.scale = glm::vec3(0.01);
+	bunny.transform.rotation = glm::vec3(-90, 0, 0);
 	bunny.InitECS();
-	bunny.GetTransform().worldPos = glm::vec3(1.0f, 0.0f, 0.0f);
+	ecsController.GetComponent<Components::Transform>(bunny.mEntityID).worldPos = glm::vec3(1.0f, 0.0f, 0.0f);
 
 	// Wood floor setup
 	Vertex board_vertexes[] =
 	{
 		Vertex{glm::vec3(-1.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.0, 0.0)},
 		Vertex{glm::vec3(1.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(1.0, 0.0)},
-		Vertex{glm::vec3(1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(1.0, 3.0)},
-		Vertex{glm::vec3(-1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.0, 3.0)}
+		Vertex{glm::vec3(1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(1.0, 1.0)},
+		Vertex{glm::vec3(-1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.0, 1.0)}
 	};
 	GLuint board_indices[] =
 	{
@@ -80,8 +85,8 @@ int main()
 	};
 	Texture textures[]
 	{
-		Texture("planks.png", "diffuse", GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE),
-		Texture("planksSpec.png", "specular", GL_TEXTURE_2D, 1, GL_RED, GL_UNSIGNED_BYTE)
+		Texture("planks.png", GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture("planksSpec.png",  GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE)
 	};
 	std::vector<Vertex> verts(board_vertexes, board_vertexes + sizeof(board_vertexes) / sizeof(Vertex));
 	std::vector<GLuint> ind(board_indices, board_indices + sizeof(board_indices) / sizeof(GLuint));
@@ -89,11 +94,9 @@ int main()
 	Mesh floor(verts, ind, tex);
 	floor.ShaderID = defaultShader.ID;
 	floor.InitECS();
-	
 
 	// Manage Uniform Buffer
-	Core::UniformBufferManager UBO; // TODO: Combine UBO & UBM
-	UBO.SetCamera(&cam);
+	Core::UniformBufferManager UBO; 
 	// Allocate buffer in OpenGL
 	UBO.AllocateBuffer();
 	// Bind uniform ranges in the buffer

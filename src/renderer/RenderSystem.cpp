@@ -42,12 +42,18 @@ void RenderSystem::Update()
 
 	for (const auto& entity : mEntities)
 	{
+
 		const auto& [primitive_type, VAO_ID, shader_ID, size] = ecsController.GetComponent<Components::RenderInfo>(entity);
 
 		// Update transform
 		auto transform = ecsController.GetComponent<Components::Transform>(entity);
-		transform.scale = glm::vec3(0.01f);
 		transform.CalculateModelMat();
+
+		// Bind vertex array
+		glBindVertexArray(VAO_ID);
+
+		// Bind shader
+		glUseProgram(shader_ID);
 
 		glUniformMatrix4fv(glGetUniformLocation(shader_ID, "model"), 1, GL_FALSE, value_ptr(transform.modelMat));
 
@@ -57,22 +63,16 @@ void RenderSystem::Update()
 			
 			// Textures
 			// Set texture uniform value
-			glUniform1i(glGetUniformLocation(shader_ID, "diffuse"), 0);
+			glUniform1i(glGetUniformLocation(shader_ID, "diffuse0"), 0);
 			// Activate texture unit
 			glActiveTexture(GL_TEXTURE0);
 			// Bind texture to 
 			glBindTexture(GL_TEXTURE_2D, diffuse_ID);
 
-			glUniform1i(glGetUniformLocation(shader_ID, "specular"), 1);
+			glUniform1i(glGetUniformLocation(shader_ID, "specular0"), 1);
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, specular_ID);
 		}
-
-		// Bind vertex array
-		glBindVertexArray(VAO_ID);
-
-		// Bind shader
-		glUseProgram(shader_ID);
 
 		// Draw VAO
 		if (primitive_type == GL_POINTS)
