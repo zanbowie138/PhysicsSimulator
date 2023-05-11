@@ -46,6 +46,7 @@ int main()
 	auto renderSystem = ecsController.RegisterSystem<RenderSystem>();
 	renderSystem->SetWindow(windowManager.GetWindow());
 	renderSystem->SetCamera(&cam);
+	renderSystem->InitOpenGL();
 
 	// Set RenderSystem signature
 	Signature signature;
@@ -60,12 +61,12 @@ int main()
 
 	ChessModel piece(king, glm::vec3(0.0f, 0.0f, 0.0f));
 	piece.ShaderID = flatShader.ID; // TODO: Make this easier to initialize
-	piece.transform.scale = glm::vec3(0.01);
+	piece.transform.scale = glm::vec3(0.01f);
 	piece.InitECS();
 
 	Model bunny("bunny.dat", false);
 	bunny.ShaderID = flatShader.ID;
-	bunny.transform.scale = glm::vec3(0.01);
+	bunny.transform.scale = glm::vec3(0.01f);
 	bunny.transform.rotation = glm::vec3(-90, 0, 0);
 	bunny.InitECS();
 	ecsController.GetComponent<Components::Transform>(bunny.mEntityID).worldPos = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -109,6 +110,7 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
+		renderSystem->PreUpdate();
 		// Update window input bitset
 		windowManager.ProcessInputs();
 		// Move camera based on window inputs
@@ -116,10 +118,8 @@ int main()
 		// Update camera matrix
 		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 		// Update uniform buffer
-		// TODO: pass matrix by reference
 		UBO.UpdateData(cam);
 
-		renderSystem->PreUpdate();
 		renderSystem->Update();
 		renderSystem->PostUpdate();
 	}
@@ -128,6 +128,7 @@ int main()
 	// TODO: Add cleaning for OpenGL objects
 
 	windowManager.Shutdown();
+
 
 	return 0;
 }
