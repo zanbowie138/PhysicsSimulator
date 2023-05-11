@@ -7,6 +7,7 @@
 #include "core/ECS.h"
 #include "core/UniformBufferManager.h"
 #include "core/WindowManager.h"
+#include "core/GUI.h"
 
 #include "components/Components.h"
 
@@ -23,12 +24,14 @@ int main()
 {
 	// TODO: Combine VBO, EBO into one class
 	// TODO: Remove hardcoding ranges from UBO
-	// TODO: GUI
 	// TODO: lines & points
 	// Window creation
 	Core::WindowManager windowManager;
 	windowManager.Init("OpenGL Window", 800, 800);
 	GLFWwindow* window = windowManager.GetWindow();
+
+	GUI GUI;
+	GUI.Init(window);
 
 	// Camera creation
 	Camera cam{800,800, glm::vec3(0.0f, 1.0f, 7.0f)};
@@ -111,8 +114,11 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		renderSystem->PreUpdate();
+		GUI.NewFrame();
+
 		// Update window input bitset
-		windowManager.ProcessInputs();
+		windowManager.ProcessInputs(!GUI.MouseOver());
+		GUI.SetMouse(windowManager.mouseShown);
 		// Move camera based on window inputs
 		cam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos());
 		// Update camera matrix
@@ -121,10 +127,14 @@ int main()
 		UBO.UpdateData(cam);
 
 		renderSystem->Update();
+		GUI.Draw();
+
+		GUI.Render();
 		renderSystem->PostUpdate();
 	}
 
 	ecsController.Clean();
+	GUI.Clean();
 	// TODO: Add cleaning for OpenGL objects
 
 	windowManager.Shutdown();

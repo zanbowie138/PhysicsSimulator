@@ -220,6 +220,9 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\GUI.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\renderer\RenderSystem.cpp">

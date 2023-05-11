@@ -1,9 +1,4 @@
 #pragma once
-
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -24,9 +19,8 @@ class RenderSystem: public System
 private:
     GLFWwindow* mWindow;
     Camera* mCamera;
-    mutable ImGuiIO* ioptr;
 public:
-    explicit RenderSystem(): mWindow(nullptr), mCamera(nullptr), ioptr(nullptr){}
+    explicit RenderSystem(): mWindow(nullptr), mCamera(nullptr){}
     ~RenderSystem() = default;
 
     void InitOpenGL() const;

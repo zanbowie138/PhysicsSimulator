@@ -1,5 +1,7 @@
 #pragma once
-
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -23,14 +25,17 @@ namespace Core {
 		glm::vec2 mMousePos = glm::vec2(0.0f);
 		InputBitset mButtons;
 
-		bool firstClick;
+		bool firstClick = false;
 	public:
 		const InputBitset& GetInputs() const;
 		const glm::vec2& GetMousePos() const;
 
-		void Init(const char* windowTitle, unsigned int windowWidth, unsigned int windowHeight);
+		bool mouseShown = true;
 
-		void ProcessInputs();
+		void Init(const char* windowTitle, unsigned int windowWidth, unsigned int windowHeight);
+		void ImGuiInit();
+
+		void ProcessInputs(bool);
 
 		void Shutdown() const;
 
@@ -76,56 +81,62 @@ namespace Core {
 		glEnable(GL_MULTISAMPLE);
 	}
 
-	inline void WindowManager::ProcessInputs()
+	inline void WindowManager::ProcessInputs(bool active)
 	{
 		glfwPollEvents();
 
+		mouseShown = true;
 		mButtons.reset();
 
-		// Set mouse position variables before they are possibly reset
-		double mouseX;
-		double mouseY;
-		glfwGetCursorPos(mWindow, &mouseX, &mouseY);
-		mMousePos = glm::vec2(mouseX, mouseY);
-
-		// Handles key inputs
-		if (glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		if (active)
 		{
-			mButtons.set(static_cast<std::size_t>(InputButtons::MOUSE));
+			// Set mouse position variables before they are possibly reset
+			double mouseX;
+			double mouseY;
+			glfwGetCursorPos(mWindow, &mouseX, &mouseY);
+			mMousePos = glm::vec2(mouseX, mouseY);
 
-			// Checking if this is a first time click
-			if (firstClick)
+			// Handles key inputs
+			if (glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 			{
-				glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-				mMousePos = glm::vec2(screen_width / 2, screen_height / 2);
+				mButtons.set(static_cast<std::size_t>(InputButtons::MOUSE));
+
+				// Checking if this is a first time click
+				if (firstClick)
+				{
+					glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+					mMousePos = glm::vec2(screen_width / 2, screen_height / 2);
+				}
+
+				mouseShown = false;
+				firstClick = false;
+
+				// Center mouse to prevent drifting
+				glfwSetCursorPos(mWindow, (screen_width / 2), (screen_height / 2));
 			}
+			else if (!firstClick)
+			{
+				// Unhides cursor since camera is not looking around anymore
+				glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-			firstClick = false;
-
-			// Center mouse to prevent drifting
-			glfwSetCursorPos(mWindow, (screen_width / 2), (screen_height / 2));
+				mouseShown = true;
+				firstClick = true;
+			}
+			if (glfwGetKey(mWindow, GLFW_KEY_W) == GLFW_PRESS)
+				mButtons.set(static_cast<std::size_t>(InputButtons::W));
+			if (glfwGetKey(mWindow, GLFW_KEY_A) == GLFW_PRESS)
+				mButtons.set(static_cast<std::size_t>(InputButtons::A));
+			if (glfwGetKey(mWindow, GLFW_KEY_S) == GLFW_PRESS)
+				mButtons.set(static_cast<std::size_t>(InputButtons::S));
+			if (glfwGetKey(mWindow, GLFW_KEY_D) == GLFW_PRESS)
+				mButtons.set(static_cast<std::size_t>(InputButtons::D));
+			if (glfwGetKey(mWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
+				mButtons.set(static_cast<std::size_t>(InputButtons::SPACE));
+			if (glfwGetKey(mWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+				mButtons.set(static_cast<std::size_t>(InputButtons::CONTROL));
+			if (glfwGetKey(mWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+				mButtons.set(static_cast<std::size_t>(InputButtons::SHIFT));
 		}
-		else if (!firstClick)
-		{
-			// Unhides cursor since camera is not looking around anymore
-			glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-			firstClick = true;
-		}
-		if (glfwGetKey(mWindow, GLFW_KEY_W) == GLFW_PRESS)
-			mButtons.set(static_cast<std::size_t>(InputButtons::W));
-		if (glfwGetKey(mWindow, GLFW_KEY_A) == GLFW_PRESS)
-			mButtons.set(static_cast<std::size_t>(InputButtons::A));
-		if (glfwGetKey(mWindow, GLFW_KEY_S) == GLFW_PRESS)
-			mButtons.set(static_cast<std::size_t>(InputButtons::S));
-		if (glfwGetKey(mWindow, GLFW_KEY_D) == GLFW_PRESS)
-			mButtons.set(static_cast<std::size_t>(InputButtons::D));
-		if (glfwGetKey(mWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
-			mButtons.set(static_cast<std::size_t>(InputButtons::SPACE));
-		if (glfwGetKey(mWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-			mButtons.set(static_cast<std::size_t>(InputButtons::CONTROL));
-		if (glfwGetKey(mWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-			mButtons.set(static_cast<std::size_t>(InputButtons::SHIFT));
 	}
 
 	inline void WindowManager::Shutdown() const
