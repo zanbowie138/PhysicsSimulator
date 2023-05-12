@@ -1,50 +1,68 @@
 #pragma once
 #include <vector>
+#include <unordered_map>
 
+#include "../core/GlobalTypes.h"
 #include "BoundingBox.h"
 
 constexpr int NULL_NODE = 0xffffffff;
 
 struct Node {
 	BoundingBox box;
-	unsigned int objectIndex;
-	unsigned int parent;
-	unsigned int height;
-	unsigned int next;
-	unsigned int left;
-	unsigned int right;
+
+	//size_t index;
+	size_t height;
+
+	size_t parent;
+
+	size_t left;
+	size_t right;
+
+	size_t next;
 };
 
 class BoundingBoxTree
 {
 public:
 	std::vector<Node> nodes;
+	// Used to get entity
+	std::unordered_map<size_t, Entity> nodeToEntityMap;
+	// Used to get node
+	std::unordered_map<Entity, size_t> entityToNodeMap;
 
-	unsigned int nodeCapacity;
-	unsigned int nodeCount;
-	unsigned int rootIndex;
+	size_t nodeCapacity;
+	size_t nodeCount;
+	size_t rootIndex;
 
-	unsigned int freeList;
+	size_t freeList;
 
-	explicit BoundingBoxTree(unsigned int initialCapacity = 1);
+	explicit BoundingBoxTree(size_t initialCapacity = 1);
 	~BoundingBoxTree();
 
+	void InsertEntity(Entity entity, BoundingBox box);
+	void RemoveEntity(Entity entity);
+
+	// Add all possible nodes to intersect test
+	void TreeQuery(size_t node);
+
+	const BoundingBox& GetBoundingBox(Entity entity) const;
+private:
 	// Allocates a space for a new node
-	unsigned int AllocateNode();
+	size_t AllocateNode();
 	// Frees a space for a new node
-	void FreeNode(unsigned int nodeIndex);
+	void FreeNode(size_t nodeIndex);
 	// Expand capacity
-	void ExpandCapacity(unsigned int newNodeCapacity);
+	void ExpandCapacity(size_t newNodeCapacity);
 
 	// Inserts a node into the tree
-	void InsertLeaf(unsigned int leafIndex);
+	void InsertLeaf(size_t leafIndex);
 
-	// Add all possible 
-	void TreeQuery(unsigned int node);
+	size_t FindBestSibling(size_t leafIndex) const;
 
 	// Balance
-	unsigned int Balance(unsigned int node);
-private:
-	bool IsLeaf(unsigned int index) const;
-	void ResetNodeData(unsigned int node);
+	size_t Balance(size_t node);
+
+	bool IsLeaf(size_t index) const;
+	bool IsRoot(size_t index) const;
+	void ResetNodeData(size_t node);
 };
