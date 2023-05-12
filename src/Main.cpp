@@ -44,7 +44,6 @@ int main()
 	ecsController.RegisterComponent<Components::RenderInfo>();
 	ecsController.RegisterComponent<Components::TextureInfo>();
 
-
 	// Create RenderSystem and add dependencies
 	auto renderSystem = ecsController.RegisterSystem<RenderSystem>();
 	renderSystem->SetWindow(windowManager.GetWindow());
@@ -71,8 +70,8 @@ int main()
 	bunny.ShaderID = flatShader.ID;
 	bunny.transform.scale = glm::vec3(0.01f);
 	bunny.transform.rotation = glm::vec3(-90, 0, 0);
+	bunny.transform.worldPos = glm::vec3(1.0f, 0.0f, 0.0f);
 	bunny.InitECS();
-	ecsController.GetComponent<Components::Transform>(bunny.mEntityID).worldPos = glm::vec3(1.0f, 0.0f, 0.0f);
 
 	// Wood floor setup
 	Vertex board_vertexes[] =
@@ -97,6 +96,7 @@ int main()
 	std::vector<Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
 	Mesh floor(verts, ind, tex);
 	floor.ShaderID = defaultShader.ID;
+	floor.transform.scale = glm::vec3(10.0f);
 	floor.InitECS();
 
 	// Manage Uniform Buffer

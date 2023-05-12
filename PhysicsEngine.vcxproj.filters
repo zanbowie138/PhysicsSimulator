@@ -106,9 +106,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\physics\BoundingBox.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\physics\BoundingBoxTree.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
@@ -222,6 +219,9 @@
     </ClInclude>
     <ClInclude Include="src\core\GUI.h">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics\BoundingBox.h">
+      <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
