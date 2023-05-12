@@ -1,6 +1,6 @@
 #include "BoundingBoxTree.h"
 
-BoundingBoxTree::BoundingBoxTree(unsigned int initialCapacity)
+BoundingBoxTree::BoundingBoxTree(size_t initialCapacity)
 {
 	rootIndex = NULL_NODE;
 	nodeCount = 0;
@@ -9,7 +9,28 @@ BoundingBoxTree::BoundingBoxTree(unsigned int initialCapacity)
 	ExpandCapacity(initialCapacity);
 }
 
-unsigned int BoundingBoxTree::AllocateNode()
+void BoundingBoxTree::InsertEntity(Entity entity, BoundingBox box)
+{
+	size_t newNodeIndex = AllocateNode();
+	nodes[newNodeIndex].box = box;
+	InsertLeaf(newNodeIndex);
+}
+
+void BoundingBoxTree::RemoveEntity(Entity entity)
+{
+	auto en_iterator = entityToNodeMap.find(entity);
+	assert(en_iterator != entityToNodeMap.end() && "Trying to remove entity not in map");
+
+	auto ne_iterator = nodeToEntityMap.find(en_iterator->second);
+	assert(ne_iterator != nodeToEntityMap.end() && "Trying to remove node not in map");
+
+	FreeNode(en_iterator->second);
+
+	entityToNodeMap.erase(en_iterator);
+	nodeToEntityMap.erase(ne_iterator);
+}
+
+size_t BoundingBoxTree::AllocateNode()
 {
     // If nodes array not big enough, resize
 	if (nodes[freeList].next == NULL_NODE)
@@ -18,7 +39,7 @@ unsigned int BoundingBoxTree::AllocateNode()
 	}
 
     // Pull node off of free list
-	unsigned int nodeIndex = freeList;
+	size_t nodeIndex = freeList;
 	freeList = nodes[nodeIndex].next;
 
     // Set all data members to NULL_NODE
@@ -30,7 +51,7 @@ unsigned int BoundingBoxTree::AllocateNode()
 	return nodeIndex;
 }
 
-void BoundingBoxTree::FreeNode(unsigned int nodeIndex)
+void BoundingBoxTree::FreeNode(size_t nodeIndex)
 {
     // Reset data
 	ResetNodeData(nodeIndex);
@@ -42,7 +63,7 @@ void BoundingBoxTree::FreeNode(unsigned int nodeIndex)
 	nodeCount--;
 }
 
-void BoundingBoxTree::InsertLeaf(unsigned int leafIndex)
+void BoundingBoxTree::InsertLeaf(size_t leafIndex)
 {
 	if (rootIndex == NULL_NODE)
 	{
@@ -53,7 +74,58 @@ void BoundingBoxTree::InsertLeaf(unsigned int leafIndex)
 	}
 
 	// Find best sibling
-	unsigned int sibling = rootIndex;
+	size_t sibling = FindBestSibling(leafIndex);
+
+	// Create new parent
+	size_t oldParent = nodes[sibling].parent;
+	size_t newParent = AllocateNode();
+
+	// Initialize new parent
+	nodes[newParent].parent = oldParent;
+	nodes[newParent].box.Merge(nodes[leafIndex].box, nodes[sibling].box);
+	nodes[newParent].height = nodes[sibling].height + 1;
+
+	nodes[newParent].left = sibling;
+	nodes[newParent].right = leafIndex;
+
+	// Set sibling and leaf to point to new parent
+	nodes[sibling].parent = newParent;
+	nodes[leafIndex].parent = newParent;
+
+	// TODO: Check this logic
+	// The sibling was not the root.
+	if (oldParent != NULL_NODE)
+	{
+		if (nodes[oldParent].left == sibling) nodes[oldParent].left = newParent;
+		else                                  nodes[oldParent].right = newParent;
+	}
+	// The sibling was the root.
+	else
+	{
+		rootIndex = newParent;
+	}
+
+	// Walk back up tree refitting boxes
+	size_t iter = nodes[leafIndex].parent;
+	while (iter != NULL_NODE)
+	{
+		iter = Balance(iter);
+
+		size_t left = nodes[iter].left;
+		size_t right = nodes[iter].right;
+
+
+		nodes[iter].height = 1 + std::max(nodes[left].height, nodes[right].height);
+		nodes[iter].box.Merge(nodes[left].box, nodes[right].box);
+
+		iter = nodes[iter].parent;
+	}
+	nodeCount++;
+}
+
+size_t BoundingBoxTree::FindBestSibling(size_t leafIndex) const
+{
+	size_t sibling = rootIndex;
 	BoundingBox leafBox = nodes[leafIndex].box;
 	while (IsLeaf(sibling))
 	{
@@ -74,8 +146,8 @@ void BoundingBoxTree::InsertLeaf(unsigned int leafIndex)
 		float inheritedCost = 2.0f * (combinedSurfaceArea - surfaceArea);
 
         // Get indexes of sibling's children bounding boxes
-		unsigned int left = nodes[sibling].left;
-		unsigned int right = nodes[sibling].right;
+		size_t left = nodes[sibling].left;
+		size_t right = nodes[sibling].right;
 
 		// Cost of descending to the left.
 		double costLeft;
@@ -119,53 +191,10 @@ void BoundingBoxTree::InsertLeaf(unsigned int leafIndex)
 		else                      sibling = right;
 	}
 
-	// Create new parent
-	unsigned int oldParent = nodes[sibling].parent;
-	unsigned int newParent = AllocateNode();
-
-	nodes[newParent].parent = oldParent;
-	nodes[newParent].box.Merge(leafBox, nodes[sibling].box);
-	nodes[newParent].height = nodes[sibling].height + 1;
-
-	// The sibling was not the root.
-	if (oldParent != NULL_NODE)
-	{
-		if (nodes[oldParent].left == sibling) nodes[oldParent].left = newParent;
-		else                                  nodes[oldParent].right = newParent;
-
-		nodes[newParent].left = sibling;
-		nodes[newParent].right = leafIndex;
-		nodes[sibling].parent = newParent;
-		nodes[leafIndex].parent = newParent;
-	}
-	// The sibling was the root.
-	else
-	{
-		nodes[newParent].left = sibling;
-		nodes[newParent].right = leafIndex;
-		nodes[sibling].parent = newParent;
-		nodes[leafIndex].parent = newParent;
-		rootIndex = newParent;
-	}
-
-	// Walk back up tree refitting boxes
-	unsigned int index = nodes[leafIndex].parent;
-	while (index != NULL_NODE)
-	{
-		index = Balance(index);
-
-		unsigned int left = nodes[index].left;
-		unsigned int right = nodes[index].right;
-
-		nodes[index].height = 1 + std::max(nodes[left].height, nodes[right].height);
-		nodes[index].box.Merge(nodes[left].box, nodes[right].box);
-
-		index = nodes[index].parent;
-	}
-	nodeCount++;
+	return sibling;
 }
 
-void BoundingBoxTree::TreeQuery(unsigned int node)
+void BoundingBoxTree::TreeQuery(size_t node)
 {
 	if (nodeCount == 0) return;
 
@@ -183,7 +212,7 @@ void BoundingBoxTree::TreeQuery(unsigned int node)
 	}
 }
 
-void BoundingBoxTree::ExpandCapacity(unsigned int newNodeCapacity) 
+void BoundingBoxTree::ExpandCapacity(size_t newNodeCapacity) 
 {
 
 	assert(newNodeCapacity > nodeCapacity);
@@ -194,7 +223,7 @@ void BoundingBoxTree::ExpandCapacity(unsigned int newNodeCapacity)
 	nodes.resize(nodeCapacity);
 
 	// Expand linked list of free nodes
-	for (unsigned int i = nodeCount; i < nodeCapacity; i++) {
+	for (size_t i = nodeCount; i < nodeCapacity; i++) {
 		nodes[i].next = i+1;
 		nodes[i].height = NULL_NODE;
 	}
@@ -206,39 +235,49 @@ void BoundingBoxTree::ExpandCapacity(unsigned int newNodeCapacity)
 	freeList = nodeCount;
 }
 
-bool BoundingBoxTree::IsLeaf(unsigned int index) const
+bool BoundingBoxTree::IsLeaf(size_t index) const
 {
 	return !(nodes[index].left == NULL_NODE && nodes[index].right == NULL_NODE);
 }
 
-unsigned int BoundingBoxTree::Balance(unsigned int node)
+bool BoundingBoxTree::IsRoot(size_t index) const
+{
+    return index == NULL_NODE;
+}
+
+size_t BoundingBoxTree::Balance(size_t node)
     {
-        if (IsLeaf(node) || (nodes[node].height <= 1))
+		// If node is a leaf or height = 0
+		// TODO: Check this
+        if (IsLeaf(node) || (nodes[node].height == 0))
             return node;
 
-        unsigned int left = nodes[node].left;
-        unsigned int right = nodes[node].right;
+        size_t left = nodes[node].left;
+        size_t right = nodes[node].right;
 
         int currentBalance = nodes[right].height - nodes[left].height;
 
         // Rotate right branch up.
         if (currentBalance > 1)
         {
-            unsigned int rightLeft = nodes[right].left;
-            unsigned int rightRight = nodes[right].right;
+			// Store these for later
+            size_t rightLeft = nodes[right].left;
+            size_t rightRight = nodes[right].right;
 
             // Swap node and its right-hand child.
             nodes[right].left = node;
             nodes[right].parent = nodes[node].parent;
             nodes[node].parent = right;
 
-            // The node's old parent should now point to its right-hand child.
-            if (nodes[right].parent != NULL_NODE)
+			size_t nodeOldParent = nodes[right].parent;
+
+            // Make node's old parent point to its right-hand child.
+            if (nodeOldParent != NULL_NODE) 
             {
-                if (nodes[nodes[right].parent].left == node) nodes[nodes[right].parent].left = right;
+                if (nodes[nodeOldParent].left == node) nodes[nodeOldParent].left = right;
                 else
                 {
-                    nodes[nodes[right].parent].right = right;
+                    nodes[nodeOldParent].right = right;
                 }
             }
             else rootIndex = right;
@@ -248,7 +287,9 @@ unsigned int BoundingBoxTree::Balance(unsigned int node)
             {
                 nodes[right].right = rightLeft;
                 nodes[node].right = rightRight;
+
                 nodes[rightRight].parent = node;
+				
                 nodes[node].box.Merge(nodes[left].box, nodes[rightRight].box);
                 nodes[right].box.Merge(nodes[node].box, nodes[rightLeft].box);
 
@@ -259,22 +300,23 @@ unsigned int BoundingBoxTree::Balance(unsigned int node)
             {
                 nodes[right].right = rightRight;
                 nodes[node].right = rightLeft;
+
                 nodes[rightLeft].parent = node;
+
                 nodes[node].box.Merge(nodes[left].box, nodes[rightLeft].box);
                 nodes[right].box.Merge(nodes[node].box, nodes[rightRight].box);
 
                 nodes[node].height = 1 + std::max(nodes[left].height, nodes[rightLeft].height);
                 nodes[right].height = 1 + std::max(nodes[node].height, nodes[rightRight].height);
             }
-
             return right;
         }
 
         // Rotate left branch up.
         if (currentBalance < -1)
         {
-            unsigned int leftLeft = nodes[left].left;
-            unsigned int leftRight = nodes[left].right;
+            size_t leftLeft = nodes[left].left;
+            size_t leftRight = nodes[left].right;
 
             assert(leftLeft < nodeCapacity);
             assert(leftRight < nodeCapacity);
@@ -326,7 +368,15 @@ unsigned int BoundingBoxTree::Balance(unsigned int node)
         return node;
     }
 
-    void BoundingBoxTree::ResetNodeData(unsigned int node)
+    const BoundingBox& BoundingBoxTree::GetBoundingBox(Entity entity) const
+    {
+		auto iterator = entityToNodeMap.find(entity);
+        assert(iterator != entityToNodeMap.end() && "Entity not added to tree");
+
+		return nodes[iterator->second].box;
+    }
+
+    void BoundingBoxTree::ResetNodeData(size_t node)
     {
         nodes[node].parent = NULL_NODE;
         nodes[node].next = NULL_NODE;
