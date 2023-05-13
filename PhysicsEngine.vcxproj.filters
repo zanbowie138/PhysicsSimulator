@@ -223,6 +223,9 @@
     <ClInclude Include="src\physics\BoundingBox.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="src\physics\PhysicsSystem.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\renderer\RenderSystem.cpp">

@@ -212,6 +212,7 @@
     <ClInclude Include="src\physics\BoundingBox.h" />
     <ClInclude Include="src\physics\BoundingBoxTree.h" />
     <ClInclude Include="src\physics\Collidable.h" />
+    <ClInclude Include="src\physics\PhysicsSystem.h" />
     <ClInclude Include="src\renderables\ChessModel.h" />
     <ClInclude Include="src\renderables\Lines.h" />
     <ClInclude Include="src\renderables\Mesh.h" />

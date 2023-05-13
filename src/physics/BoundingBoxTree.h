@@ -5,9 +5,10 @@
 #include "../core/GlobalTypes.h"
 #include "BoundingBox.h"
 
-constexpr int NULL_NODE = 0xffffffff;
+constexpr size_t NULL_NODE = 0xffffffff;
 
-struct Node {
+struct Node
+{
 	BoundingBox box;
 
 	//size_t index;
@@ -37,7 +38,6 @@ public:
 	size_t freeList;
 
 	explicit BoundingBoxTree(size_t initialCapacity = 1);
-	~BoundingBoxTree();
 
 	void InsertEntity(Entity entity, BoundingBox box);
 	void RemoveEntity(Entity entity);
@@ -46,6 +46,7 @@ public:
 	void TreeQuery(size_t node);
 
 	const BoundingBox& GetBoundingBox(Entity entity) const;
+
 private:
 	// Allocates a space for a new node
 	size_t AllocateNode();
@@ -63,6 +64,5 @@ private:
 	size_t Balance(size_t node);
 
 	bool IsLeaf(size_t index) const;
-	bool IsRoot(size_t index) const;
-	void ResetNodeData(size_t node);
+	void ResetNodeData(size_t nodeIndex);
 };

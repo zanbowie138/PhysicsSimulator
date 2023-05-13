@@ -14,7 +14,10 @@
 #include "renderer/RenderSystem.h"
 #include "renderer/Texture.h"
 
+#include "physics/PhysicsSystem.h"
+
 #include "renderables/ChessModel.h"
+#include "renderables/Lines.h"
 #include "renderables/Model.h"
 #include "renderables/Mesh.h"
 
@@ -50,6 +53,9 @@ int main()
 	renderSystem->SetCamera(&cam);
 	renderSystem->InitOpenGL();
 
+	// Create PhysicsSystem
+	auto physicsSystem = ecsController.RegisterSystem<PhysicsSystem>();
+
 	// Set RenderSystem signature
 	Signature signature;
 	signature.set(ecsController.GetComponentType<Components::Transform>());
@@ -72,6 +78,7 @@ int main()
 	bunny.transform.rotation = glm::vec3(-90, 0, 0);
 	bunny.transform.worldPos = glm::vec3(1.0f, 0.0f, 0.0f);
 	bunny.InitECS();
+	physicsSystem->tree.InsertEntity(bunny.mEntityID, bunny.CalcBoundingBox());
 
 	// Wood floor setup
 	Vertex board_vertexes[] =
@@ -98,6 +105,11 @@ int main()
 	floor.ShaderID = defaultShader.ID;
 	floor.transform.scale = glm::vec3(10.0f);
 	floor.InitECS();
+
+	Lines boxRenderer(100);
+	boxRenderer.ShaderID = flatShader.ID;
+	boxRenderer.InitECS();
+	boxRenderer.PushBack(physicsSystem->tree.GetBoundingBox(bunny.mEntityID));
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO; 

@@ -7,11 +7,15 @@
 #include "../renderer/EBO.h"
 #include "../physics/BoundingBox.h"
 
+extern ECSController ecsController;
+
 class Lines : public Renderable
 {
 public:
 	std::vector<glm::vec3> vertices;
 	std::vector<GLuint> indices;
+
+	const GLuint mCapacity;
 
 	VBO VBO;
 	EBO EBO;
@@ -23,13 +27,13 @@ public:
 private:
 	void InitVAO() override;
 	size_t GetSize() override;
+	void UpdateSize();
 };
 
-Lines::Lines(const GLuint indiceAmt)
+Lines::Lines(const GLuint indiceAmt): mCapacity(indiceAmt)
 {
 	vertices = std::vector<glm::vec3>();
 	indices = std::vector<unsigned int>();
-
 	primitiveType = GL_LINES;
 
 	InitVAO();
@@ -47,6 +51,8 @@ void Lines::PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsi
 
 	VBO.Unbind();
 	EBO.Unbind();
+
+	UpdateSize();
 }
 
 inline void Lines::PushBack(const BoundingBox& box)
@@ -88,14 +94,21 @@ inline void Lines::PushBack(const BoundingBox& box)
 
 	VBO.Unbind();
 	EBO.Unbind();
+
+	UpdateSize();
 }
 
-inline void Lines::InitVAO() 
+inline void Lines::UpdateSize()
+{
+	ecsController.GetComponent<Components::RenderInfo>(mEntityID).size = GetSize();
+}
+
+inline void Lines::InitVAO()
 {
 	mVAO.Bind();
 
-	VBO.AllocBuffer(indiceAmt * 2 * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
-	EBO.AllocBuffer(indiceAmt * sizeof(GLuint), GL_DYNAMIC_DRAW);
+	VBO.AllocBuffer(mCapacity * 2 * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
+	EBO.AllocBuffer(mCapacity * sizeof(GLuint), GL_DYNAMIC_DRAW);
 
 	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
 

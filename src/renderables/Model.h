@@ -32,6 +32,8 @@ public:
 	// Initializes the object
 	Model(const char* filename, bool is_stl);
 
+	BoundingBox CalcBoundingBox();
+
 private:
 	// Reads an stl file
 	void ReadSTL(const char* filepath);
@@ -56,6 +58,24 @@ inline Model::Model(const char* filename, const bool is_stl)
 	}
 
 	InitVAO();
+}
+
+inline BoundingBox Model::CalcBoundingBox()
+{
+	BoundingBox box;
+	transform.CalculateModelMat();
+	box.min = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
+	box.max = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
+	for (const auto& pt : vertices)
+	{
+		auto point = transform.modelMat * glm::vec4(pt.position, 1.0f);
+		for (unsigned int i = 0; i < 3; i++)
+		{
+			box.max[i] = std::max(box.max[i], point[i]);
+			box.min[i] = std::min(box.min[i], point[i]);
+		}
+	}
+	return box;
 }
 
 inline void Model::ReadSTL(const char* filepath)
