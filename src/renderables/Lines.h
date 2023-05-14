@@ -24,6 +24,7 @@ public:
 
 	inline void PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds);
 	inline void PushBack(const BoundingBox& box);
+	inline void Erase();
 	size_t GetSize() override;
 private:
 	void InitVAO() override;
@@ -100,6 +101,17 @@ inline void Lines::PushBack(const BoundingBox& box)
 
 	VBO.Unbind();
 	EBO.Unbind();
+
+	UpdateSize();
+}
+
+inline void Lines::Erase()
+{
+	vertices.erase(vertices.begin(), vertices.end());
+	indices.erase(indices.begin(), indices.end());
+
+	VBO.ClearData();
+	EBO.ClearData();
 
 	UpdateSize();
 }

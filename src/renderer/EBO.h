@@ -17,6 +17,8 @@ public:
 	inline void AllocBuffer(GLint size, GLenum type);
 	inline void PushData(const std::vector<GLuint>& indices);
 
+	inline void ClearData();
+
 	inline void Bind() const;
 	static inline void Unbind();
 	inline void Delete() const;
@@ -44,6 +46,11 @@ inline void EBO::PushData(const std::vector<GLuint>& indices)
 	}
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, currentBufSize, indices.size() * sizeof(GLuint), indices.data());
 	currentBufSize += indices.size() * sizeof(GLuint);
+}
+
+inline void EBO::ClearData()
+{
+	currentBufSize = 0;
 }
 
 inline void EBO::AllocBuffer(const GLint size, const GLenum type)

@@ -116,7 +116,7 @@ int main()
 	Lines boxRenderer(1000);
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
-	const auto boxes = physicsSystem->tree.GetAllBoxes(true);
+	const auto boxes = physicsSystem->tree.GetAllBoxes(false);
 	for (const auto& box : boxes)
 	{
 		boxRenderer.PushBack(box);

@@ -20,6 +20,7 @@ public:
 
 	inline void PushData(const std::vector<glm::vec3>& vertices);
 	inline void AllocBuffer(GLint size, GLenum type);
+	inline void ClearData();
 
 	inline void Bind() const;
 	static inline void Unbind();
@@ -45,6 +46,11 @@ inline void VBO::PushData(const std::vector<glm::vec3>& vertices)
 	assert(currentBufSize + vertices.size() * sizeof(glm::vec3) < bufSize && "VBO Overflow");
 	glBufferSubData(GL_ARRAY_BUFFER, currentBufSize, vertices.size() * sizeof(glm::vec3), vertices.data());
 	currentBufSize += vertices.size() * sizeof(glm::vec3);
+}
+
+inline void VBO::ClearData()
+{
+	currentBufSize = 0;
 }
 
 inline void VBO::AllocBuffer(const GLint size, const GLenum type)
