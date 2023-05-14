@@ -42,7 +42,7 @@ public:
 
 	const BoundingBox& GetBoundingBox(Entity entity) const;
 
-	std::vector<BoundingBox> GetAllBoxes() const;
+	std::vector<BoundingBox> GetAllBoxes(const bool onlyLeaf) const;
 
 private:
 	// Used to get entity

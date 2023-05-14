@@ -16,7 +16,6 @@
 
 #include "physics/PhysicsSystem.h"
 
-#include "renderables/ChessModel.h"
 #include "renderables/Lines.h"
 #include "renderables/Model.h"
 #include "renderables/Mesh.h"
@@ -72,6 +71,7 @@ int main()
 	piece.ShaderID = flatShader.ID; // TODO: Make this easier to initialize
 	piece.transform.scale = glm::vec3(0.01f);
 	piece.InitECS();
+	physicsSystem->tree.InsertEntity(piece.mEntityID, piece.CalcBoundingBox());
 
 	Model bunny("bunny.stl", true);
 	bunny.ShaderID = flatShader.ID;
@@ -116,11 +116,9 @@ int main()
 	Lines boxRenderer(1000);
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
-	const auto boxes = physicsSystem->tree.GetAllBoxes();
+	const auto boxes = physicsSystem->tree.GetAllBoxes(true);
 	for (const auto& box : boxes)
 	{
-		std::cout << glm::to_string(box.min) << std::endl;
-		std::cout << glm::to_string(box.max) << std::endl << std::endl;
 		boxRenderer.PushBack(box);
 	}
 

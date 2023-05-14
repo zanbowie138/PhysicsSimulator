@@ -133,7 +133,7 @@ size_t BoundingBoxTree::FindBestSibling(size_t leafIndex) const
 {
 	size_t sibling = rootIndex;
 	BoundingBox leafBox = nodes[leafIndex].box;
-	while (IsLeaf(sibling))
+	while (!IsLeaf(sibling))
 	{
 		// Surface area of sibling box
 		float surfaceArea = nodes[sibling].box.surfaceArea;
@@ -196,7 +196,6 @@ size_t BoundingBoxTree::FindBestSibling(size_t leafIndex) const
 		if (costLeft < costRight) sibling = left;
 		else sibling = right;
 	}
-
 	return sibling;
 }
 
@@ -243,7 +242,7 @@ void BoundingBoxTree::ExpandCapacity(size_t newNodeCapacity)
 
 bool BoundingBoxTree::IsLeaf(size_t index) const
 {
-	return !(nodes[index].left == NULL_NODE && nodes[index].right == NULL_NODE);
+	return nodes[index].left == NULL_NODE && nodes[index].right == NULL_NODE;
 }
 
 size_t BoundingBoxTree::Balance(size_t node)
@@ -377,15 +376,13 @@ const BoundingBox& BoundingBoxTree::GetBoundingBox(Entity entity) const
 	return nodes[iterator->second].box;
 }
 
-std::vector<BoundingBox> BoundingBoxTree::GetAllBoxes() const
+std::vector<BoundingBox> BoundingBoxTree::GetAllBoxes(const bool onlyLeaf) const
 {
 	std::vector<BoundingBox> output;
-	for (const auto& node : nodes)
+	for (size_t i = 0; i < nodes.size(); i++)
 	{
-		if (node.height != NULL_NODE)
-		{
-			output.emplace_back(node.box);
-		}
+		if (nodes[i].box.min != glm::vec3(0.0f) && nodes[i].box.max != glm::vec3(0.0f) && (!onlyLeaf || IsLeaf(i)))
+			output.emplace_back(nodes[i].box);
 	}
 	return output;
 }
@@ -396,5 +393,5 @@ void BoundingBoxTree::ResetNodeData(const size_t nodeIndex)
 	nodes[nodeIndex].next = NULL_NODE;
 	nodes[nodeIndex].left = NULL_NODE;
 	nodes[nodeIndex].right = NULL_NODE;
-	nodes[nodeIndex].height = NULL_NODE;
+	nodes[nodeIndex].height = 0;
 }
