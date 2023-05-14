@@ -14,33 +14,34 @@
 class Mesh: public Renderable
 {
 public:
-	std::vector<Vertex> vertices;
-	std::vector<GLuint> indices;
-	std::vector<Texture> textures;
+	const std::vector<Vertex>& vertices;
+	const std::vector<GLuint>& indices;
+	const std::vector<Texture>& textures;
+
+	bool hasTextures = false;
 
 	// Initializes the mesh
-	Mesh(std::vector<Vertex> vertices, const std::vector<GLuint>& indices, std::vector<Texture> textures);
-	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, const std::vector<Texture>& textures);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
 
 	void InitECS();
-
+	BoundingBox CalcBoundingBox();
 private:
 	void InitVAO() override;
 	size_t GetSize() override;
 };
 
-inline Mesh::Mesh(std::vector<Vertex> vertices, const std::vector<GLuint>& indices, std::vector<Texture> textures): indices(std::move(indices)), vertices(
-	std::move(
-		vertices)), textures(std::move(textures))
+inline Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, const std::vector<Texture>& textures): vertices(vertices), indices(indices), textures(textures)
 {
+	mSize = indices.size();
+	hasTextures = true;
 	InitVAO();
 }
 
-inline Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices): indices(
-	                                                                              std::move(indices)), vertices(std::move(vertices))
+inline Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices): vertices(vertices), indices(indices), textures(std::vector<Texture>{})
 {
+	mSize = indices.size();
 	InitVAO();
-
 }
 
 inline void Mesh::InitVAO()
@@ -61,19 +62,35 @@ inline void Mesh::InitVAO()
 
 inline void Mesh::InitECS()
 {
-	assert(!indices.empty() && "No indices");
-
 	// Initialize entity
 	mEntityID = ecsController.CreateEntity();
 
 	// Add components
 	ecsController.AddComponent(mEntityID, transform);
 	ecsController.AddComponent(mEntityID, Components::RenderInfo{ GL_TRIANGLES,mVAO.ID, ShaderID, indices.size() });
-	if (!textures.empty())
+	if (hasTextures)
 		ecsController.AddComponent(mEntityID, Components::TextureInfo{ textures[0].ID, textures[1].ID });
 }
 
 inline size_t Mesh::GetSize()
 {
-	return indices.size();
+	return mSize;
+}
+
+inline BoundingBox Mesh::CalcBoundingBox()
+{
+	BoundingBox box;
+	transform.CalculateModelMat();
+	box.min = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
+	box.max = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
+	for (const auto& pt : vertices)
+	{
+		auto point = transform.modelMat * glm::vec4(pt.position, 1.0f);
+		for (unsigned int i = 0; i < 3; i++)
+		{
+			box.max[i] = std::max(box.max[i], point[i]);
+			box.min[i] = std::min(box.min[i], point[i]);
+		}
+	}
+	return box;
 }

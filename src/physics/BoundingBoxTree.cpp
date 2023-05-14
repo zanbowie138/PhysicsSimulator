@@ -1,5 +1,7 @@
 #include "BoundingBoxTree.h"
 
+#include <iostream>
+
 BoundingBoxTree::BoundingBoxTree(size_t initialCapacity)
 {
 	rootIndex = NULL_NODE;
@@ -373,6 +375,19 @@ const BoundingBox& BoundingBoxTree::GetBoundingBox(Entity entity) const
 	assert(iterator != entityToNodeMap.end() && "Entity not added to tree");
 
 	return nodes[iterator->second].box;
+}
+
+std::vector<BoundingBox> BoundingBoxTree::GetAllBoxes() const
+{
+	std::vector<BoundingBox> output;
+	for (const auto& node : nodes)
+	{
+		if (node.height != NULL_NODE)
+		{
+			output.emplace_back(node.box);
+		}
+	}
+	return output;
 }
 
 void BoundingBoxTree::ResetNodeData(const size_t nodeIndex)

@@ -24,9 +24,9 @@ public:
 
 	inline void PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds);
 	inline void PushBack(const BoundingBox& box);
+	size_t GetSize() override;
 private:
 	void InitVAO() override;
-	size_t GetSize() override;
 	void UpdateSize();
 };
 
@@ -73,7 +73,7 @@ inline void Lines::PushBack(const BoundingBox& box)
 	VBO.PushData(verts);
 
 	EBO.Bind();
-	std::vector<unsigned int> inds =
+	const std::vector<GLuint> offset =
 	{
 		0,1,
 		1,2,
@@ -88,6 +88,12 @@ inline void Lines::PushBack(const BoundingBox& box)
 		2,6,
 		3,7
 	};
+
+	std::vector<GLuint> inds;
+	for (const auto& i : offset)
+	{
+		inds.push_back(static_cast<GLuint>(vertices.size()) - 8 + i);
+	}
 
 	indices.insert(indices.end(), inds.begin(), inds.end());
 	EBO.PushData(inds);

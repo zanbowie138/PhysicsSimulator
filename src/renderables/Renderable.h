@@ -25,6 +25,8 @@ public:
 	virtual void InitVAO() = 0;
 	virtual size_t GetSize() = 0;
 
+	size_t mSize = 0;
+
 	Components::Transform transform;
 };
 

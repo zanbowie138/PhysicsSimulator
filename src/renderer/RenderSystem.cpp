@@ -56,8 +56,13 @@ void RenderSystem::Update()
 		// Draw VAO
 		if (primitive_type == GL_POINTS)
 			glDrawArrays(primitive_type, 0, size);
-		else 
+		else
+		{
+			//if (primitive_type == GL_LINES)
+				//glClear(GL_DEPTH_BUFFER_BIT);
 			glDrawElements(primitive_type, size, GL_UNSIGNED_INT, nullptr);
+		}
+			
 	}
 }
 

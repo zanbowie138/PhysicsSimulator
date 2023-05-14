@@ -16,7 +16,7 @@ public:
 
 	void Init(GLFWwindow* window);
 	void NewFrame();
-	void Draw();
+	void Draw(const char* text);
 	void Render();
 
 	void Clean();
@@ -57,13 +57,10 @@ inline void GUI::NewFrame()
 	ImGui::NewFrame();
 }
 
-inline void GUI::Draw()
+inline void GUI::Draw(const char* text)
 {
 	ImGui::Begin("FPS Counter");
-	std::stringstream ss;
-	//ss << "FPS: " << fps << "\nMSPF: " << mspf;
-	std::string s = ss.str();
-	ImGui::Text(s.c_str());
+	ImGui::Text(text);
 	ImGui::End();
 }
 

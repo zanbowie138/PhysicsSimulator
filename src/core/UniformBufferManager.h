@@ -26,7 +26,7 @@ namespace Core {
         inline void DefineRanges();
         inline void BindShader(const Shader& shader);
 
-        inline void UpdateData(const Camera& cam);
+        inline void UpdateData(const Camera& cam, const glm::vec3& lightPos = glm::vec3(0.0f, 1.0f, 0.0f));
         inline void SetCamera(Camera* camera);
 
         inline void Clean();
@@ -71,13 +71,13 @@ namespace Core {
             glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Lighting"), 1);
     }
 
-    inline void UniformBufferManager::UpdateData(const Camera& cam)
+    inline void UniformBufferManager::UpdateData(const Camera& cam, const glm::vec3& lightPos)
     {
         BindBuffer();
         UniformBlock ub = {};
         ub.camMatrix = cam.cameraMatrix;
         ub.camPos = glm::vec4(cam.position, 1.0);
-        ub.lightPos = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+        ub.lightPos = glm::vec4(lightPos, 1.0f);
         ub.lightColor = glm::vec4(1.0, 1.0, 1.0, 1.0);
 
         char ub_char[sizeof(ub)];

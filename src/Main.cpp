@@ -21,13 +21,14 @@
 #include "renderables/Model.h"
 #include "renderables/Mesh.h"
 
+#include "utils/SimpleShapes.h"
+
 ECSController ecsController;
 
 int main()
 {
 	// TODO: Combine VBO, EBO into one class
 	// TODO: Remove hardcoding ranges from UBO
-	// TODO: lines & points
 	// Window creation
 	Core::WindowManager windowManager;
 	windowManager.Init("OpenGL Window", 800, 800);
@@ -62,17 +63,17 @@ int main()
 	signature.set(ecsController.GetComponentType<Components::RenderInfo>());
 	ecsController.SetSystemSignature<RenderSystem>(signature);
 
+	Shader basicShader("basic.vert", "basic.frag");
 	Shader flatShader("flat.vert", "flat.frag");
 	Shader defaultShader("default.vert", "default.frag");
-	Shader basicShader("basic.vert", "basic.frag");
 	basicShader.mUniforms.reset(static_cast<size_t>(UniformBlockConfig::LIGHTING));
 
-	ChessModel piece(king, glm::vec3(0.0f, 0.0f, 0.0f));
+	Model piece("chess_models/king.bin", false);
 	piece.ShaderID = flatShader.ID; // TODO: Make this easier to initialize
 	piece.transform.scale = glm::vec3(0.01f);
 	piece.InitECS();
 
-	Model bunny("bunny.dat", false);
+	Model bunny("bunny.stl", true);
 	bunny.ShaderID = flatShader.ID;
 	bunny.transform.scale = glm::vec3(0.01f);
 	bunny.transform.rotation = glm::vec3(-90, 0, 0);
@@ -81,35 +82,48 @@ int main()
 	physicsSystem->tree.InsertEntity(bunny.mEntityID, bunny.CalcBoundingBox());
 
 	// Wood floor setup
-	Vertex board_vertexes[] =
-	{
-		Vertex{glm::vec3(-1.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.0, 0.0)},
-		Vertex{glm::vec3(1.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(1.0, 0.0)},
-		Vertex{glm::vec3(1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(1.0, 1.0)},
-		Vertex{glm::vec3(-1.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.0, 1.0)}
-	};
-	GLuint board_indices[] =
-	{
-		0, 1, 2,
-		2, 3, 0
-	};
+	const auto [planeVerts, planeInds] = Utils::PlaneData();
 	Texture textures[]
 	{
 		Texture("planks.png", GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE),
 		Texture("planksSpec.png",  GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE)
 	};
-	std::vector<Vertex> verts(board_vertexes, board_vertexes + sizeof(board_vertexes) / sizeof(Vertex));
-	std::vector<GLuint> ind(board_indices, board_indices + sizeof(board_indices) / sizeof(GLuint));
 	std::vector<Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
-	Mesh floor(verts, ind, tex);
+	Mesh floor(planeVerts, planeInds, tex);
 	floor.ShaderID = defaultShader.ID;
 	floor.transform.scale = glm::vec3(10.0f);
 	floor.InitECS();
 
-	Lines boxRenderer(100);
-	boxRenderer.ShaderID = flatShader.ID;
+	const auto [cubeVerts, cubeInds] = Utils::CubeData(true);
+	Mesh light(cubeVerts, cubeInds);
+	light.transform.worldPos = glm::vec3(0.0f, 1.0f, 0.0f);
+	light.transform.scale = glm::vec3(0.1f);
+	light.ShaderID = basicShader.ID;
+	light.InitECS();
+	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
+
+
+	for (int i = 0; i < 5; i++)
+	{
+		Mesh cube(cubeVerts, cubeInds);
+		cube.transform.worldPos = glm::vec3(-1.0f, 1.0f, static_cast<float>(i));
+		cube.transform.scale = glm::vec3(0.3f);
+		cube.ShaderID = flatShader.ID;
+		cube.InitECS();
+		physicsSystem->tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
+	}
+
+	Lines boxRenderer(1000);
+	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
-	boxRenderer.PushBack(physicsSystem->tree.GetBoundingBox(bunny.mEntityID));
+	const auto boxes = physicsSystem->tree.GetAllBoxes();
+	for (const auto& box : boxes)
+	{
+		std::cout << glm::to_string(box.min) << std::endl;
+		std::cout << glm::to_string(box.max) << std::endl << std::endl;
+		boxRenderer.PushBack(box);
+	}
+
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO; 
@@ -123,10 +137,19 @@ int main()
 	UBO.BindShader(defaultShader);
 	UBO.BindShader(flatShader);
 
+	double lastTime = glfwGetTime();
+	double currentTime = 0.0;
+	unsigned int fpsFrameCount = 0;
+	float mspf = 0.0f;
+	float fps = 0.0f;
+	float time = 0;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		renderSystem->PreUpdate();
 		GUI.NewFrame();
+
+		lightPos = glm::vec3(glm::sin(glm::radians(time / 10.0f))/2.0f, 1.0f, glm::cos(glm::radians(time / 10.0f))/2.0f);
 
 		// Update window input bitset
 		windowManager.ProcessInputs(!GUI.MouseOver());
@@ -136,10 +159,27 @@ int main()
 		// Update camera matrix
 		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 		// Update uniform buffer
-		UBO.UpdateData(cam);
+		UBO.UpdateData(cam, ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos);
+
+		time += static_cast<float>((glfwGetTime() - currentTime) * 1000.0f);
+		currentTime = glfwGetTime();
+		fpsFrameCount++;
+		if (currentTime - lastTime >= 1.0)
+		{
+			// If last fps update() was more than 1 sec ago
+			mspf = 1000.0f / static_cast<float>(fpsFrameCount);
+			fps = static_cast<float>(fpsFrameCount);
+			fpsFrameCount = 0;
+			lastTime += 1.0;
+		}
+
+		std::stringstream ss;
+		ss << "FPS: " << fps << "\nMSPF: " << mspf;
+		std::string s = ss.str();
+
 
 		renderSystem->Update();
-		GUI.Draw();
+		GUI.Draw(s.c_str());
 
 		GUI.Render();
 		renderSystem->PostUpdate();

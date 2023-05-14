@@ -43,6 +43,9 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{afd4ad20-c701-4647-8c8c-d1010744d673}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{e38af5b7-43c4-4778-9a60-ebaccda323e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\flat.frag">
@@ -117,9 +120,6 @@
     </ClInclude>
     <ClInclude Include="src\components\Transform.h">
       <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="src\renderables\ChessModel.h">
-      <Filter>Header Files\Renderables</Filter>
     </ClInclude>
     <ClInclude Include="src\renderables\Model.h">
       <Filter>Header Files\Renderables</Filter>
@@ -225,6 +225,15 @@
     </ClInclude>
     <ClInclude Include="src\physics\PhysicsSystem.h">
       <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\SimpleShapes.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Utils.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ModelImport.h">
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

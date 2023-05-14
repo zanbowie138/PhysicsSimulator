@@ -11,7 +11,6 @@ struct Node
 {
 	BoundingBox box;
 
-	//size_t index;
 	size_t height;
 
 	size_t parent;
@@ -26,10 +25,6 @@ class BoundingBoxTree
 {
 public:
 	std::vector<Node> nodes;
-	// Used to get entity
-	std::unordered_map<size_t, Entity> nodeToEntityMap;
-	// Used to get node
-	std::unordered_map<Entity, size_t> entityToNodeMap;
 
 	size_t nodeCapacity;
 	size_t nodeCount;
@@ -47,7 +42,14 @@ public:
 
 	const BoundingBox& GetBoundingBox(Entity entity) const;
 
+	std::vector<BoundingBox> GetAllBoxes() const;
+
 private:
+	// Used to get entity
+	std::unordered_map<size_t, Entity> nodeToEntityMap;
+	// Used to get node
+	std::unordered_map<Entity, size_t> entityToNodeMap;
+
 	// Allocates a space for a new node
 	size_t AllocateNode();
 	// Frees a space for a new node

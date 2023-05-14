@@ -213,7 +213,6 @@
     <ClInclude Include="src\physics\BoundingBoxTree.h" />
     <ClInclude Include="src\physics\Collidable.h" />
     <ClInclude Include="src\physics\PhysicsSystem.h" />
-    <ClInclude Include="src\renderables\ChessModel.h" />
     <ClInclude Include="src\renderables\Lines.h" />
     <ClInclude Include="src\renderables\Mesh.h" />
     <ClInclude Include="src\renderables\Model.h" />
@@ -226,6 +225,9 @@
     <ClInclude Include="src\renderer\Texture.h" />
     <ClInclude Include="src\renderer\VAO.h" />
     <ClInclude Include="src\renderer\VBO.h" />
+    <ClInclude Include="src\utils\ModelImport.h" />
+    <ClInclude Include="src\utils\SimpleShapes.h" />
+    <ClInclude Include="src\utils\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp" />
