@@ -12,8 +12,6 @@
 #include "../core/System.h"
 #include "../core/ComponentManager.h"
 
-// https://github.com/maxbrundev/OpenGL-Modern-ECS-GameEngine/blob/master/Renderer/include/Systems/RenderSystem.h
-
 class RenderSystem: public System 
 {
 private:
@@ -21,8 +19,6 @@ private:
 public:
     explicit RenderSystem(): mWindow(nullptr){}
     ~RenderSystem() = default;
-
-    void InitOpenGL() const;
 
     void PreUpdate();
 

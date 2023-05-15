@@ -235,6 +235,9 @@
     <ClInclude Include="src\utils\ModelImport.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\components\Rigidbody.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\renderer\RenderSystem.cpp">
