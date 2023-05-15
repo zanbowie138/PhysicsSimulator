@@ -201,13 +201,18 @@ size_t BoundingBoxTree::FindBestSibling(size_t leafIndex) const
 
 void BoundingBoxTree::TreeQuery(size_t node)
 {
-	if (nodeCount == 0) return;
+	if (IsLeaf(node)) return;
+
+	auto& n = nodes[node];
 
 	if (nodes[node].box.IsColliding(nodes[node].box))
 	{
-		if (IsLeaf(node))
+		if (IsLeaf(n.left))
 		{
-			// TODO: ADD TO STACK
+			if (n.left.box.IsColliding(n.right.box))
+			{
+				
+			}
 		}
 		else
 		{
@@ -215,6 +220,15 @@ void BoundingBoxTree::TreeQuery(size_t node)
 			TreeQuery(nodes[node].right);
 		}
 	}
+}
+
+void BoundingBoxTree::ComputePairs()
+{
+	mCollisions.clear();
+
+	if (nodeCount <= 1) return;
+
+
 }
 
 void BoundingBoxTree::ExpandCapacity(size_t newNodeCapacity)
