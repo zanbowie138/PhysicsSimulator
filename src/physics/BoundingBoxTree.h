@@ -30,6 +30,8 @@ public:
 	size_t nodeCount;
 	size_t rootIndex;
 
+	std::vector<size_t> mCollisions;
+
 	size_t freeList;
 
 	explicit BoundingBoxTree(size_t initialCapacity = 1);
@@ -39,6 +41,8 @@ public:
 
 	// Add all possible nodes to intersect test
 	void TreeQuery(size_t node);
+
+	void ComputePairs();
 
 	const BoundingBox& GetBoundingBox(Entity entity) const;
 
