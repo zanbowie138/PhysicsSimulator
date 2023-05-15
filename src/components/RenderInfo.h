@@ -9,5 +9,6 @@ namespace Components
 		GLuint VAO_ID;
 		GLuint shader_ID;
 		size_t size;
+		glm::vec3 color;
 	};
 }

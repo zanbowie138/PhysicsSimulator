@@ -38,8 +38,6 @@ enum class UniformBlockConfig
 };
 using UBBitset = std::bitset<static_cast<size_t>(UniformBlockConfig::ENUM_LENGTH)>;
 
-
-
 enum ChessPiece
 {
 	empty,

@@ -10,13 +10,15 @@ layout(std140) uniform Camera
 {
 	mat4 camMatrix;
 };
+
 uniform mat4 model;
+uniform vec3 color;
 
 void main()
 {
 	Position = vec3(model * vec4(aPos, 1.0f));
 	Normal = aNormal;
-	Color = vec3(1.0f);
+	Color = color;
 
 	gl_Position = camMatrix * vec4(Position, 1.0f);
 }

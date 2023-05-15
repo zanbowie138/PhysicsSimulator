@@ -18,6 +18,7 @@ public:
 
 	GLuint ShaderID = 999;
 	GLenum primitiveType = GL_TRIANGLES;
+	glm::vec3 mColor = glm::vec3(1.0f);
 
 	void InitECS();
 	void UpdateECSTransform();
@@ -37,7 +38,7 @@ inline void Renderable::InitECS()
 
 	// Add components
 	ecsController.AddComponent(mEntityID, transform);
-	ecsController.AddComponent(mEntityID, Components::RenderInfo{ primitiveType, mVAO.ID, ShaderID, GetSize() });
+	ecsController.AddComponent(mEntityID, Components::RenderInfo{ primitiveType, mVAO.ID, ShaderID, GetSize(), mColor});
 }
 
 inline void Renderable::UpdateECSTransform()

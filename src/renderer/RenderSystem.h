@@ -18,9 +18,8 @@ class RenderSystem: public System
 {
 private:
     GLFWwindow* mWindow;
-    Camera* mCamera;
 public:
-    explicit RenderSystem(): mWindow(nullptr), mCamera(nullptr){}
+    explicit RenderSystem(): mWindow(nullptr){}
     ~RenderSystem() = default;
 
     void InitOpenGL() const;
@@ -32,7 +31,6 @@ public:
     void PostUpdate();
 
     void SetWindow(GLFWwindow* window);
-    void SetCamera(Camera* camera);
 
     void Clean() override;
 };

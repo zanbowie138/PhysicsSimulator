@@ -50,7 +50,6 @@ int main()
 	// Create RenderSystem and add dependencies
 	auto renderSystem = ecsController.RegisterSystem<RenderSystem>();
 	renderSystem->SetWindow(windowManager.GetWindow());
-	renderSystem->SetCamera(&cam);
 	renderSystem->InitOpenGL();
 
 	// Create PhysicsSystem
@@ -70,6 +69,7 @@ int main()
 	Model piece("chess_models/king.bin", false);
 	piece.ShaderID = flatShader.ID; // TODO: Make this easier to initialize
 	piece.transform.scale = glm::vec3(0.01f);
+	piece.mColor = glm::vec3(1.0f, 0.0f, 0.5f);
 	piece.InitECS();
 	physicsSystem->tree.InsertEntity(piece.mEntityID, piece.CalcBoundingBox());
 

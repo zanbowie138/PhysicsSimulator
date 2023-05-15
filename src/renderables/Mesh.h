@@ -67,7 +67,7 @@ inline void Mesh::InitECS()
 
 	// Add components
 	ecsController.AddComponent(mEntityID, transform);
-	ecsController.AddComponent(mEntityID, Components::RenderInfo{ GL_TRIANGLES,mVAO.ID, ShaderID, indices.size() });
+	ecsController.AddComponent(mEntityID, Components::RenderInfo{ GL_TRIANGLES,mVAO.ID, ShaderID, indices.size(), mColor});
 	if (hasTextures)
 		ecsController.AddComponent(mEntityID, Components::TextureInfo{ textures[0].ID, textures[1].ID });
 }

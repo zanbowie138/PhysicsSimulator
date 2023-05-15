@@ -18,11 +18,13 @@ void RenderSystem::Update()
 	//assert(mCamera && "Camera not set.");
 	assert(mWindow && "Window not set.");
 
+	auto tex = ecsController.GetComponentType<Components::TextureInfo>();
+
 
 	for (const auto& entity : mEntities)
 	{
 
-		const auto& [primitive_type, VAO_ID, shader_ID, size] = ecsController.GetComponent<Components::RenderInfo>(entity);
+		const auto& [primitive_type, VAO_ID, shader_ID, size, color] = ecsController.GetComponent<Components::RenderInfo>(entity);
 
 		// Update transform
 		auto transform = ecsController.GetComponent<Components::Transform>(entity);
@@ -34,9 +36,12 @@ void RenderSystem::Update()
 		// Bind shader
 		glUseProgram(shader_ID);
 
-		glUniformMatrix4fv(glGetUniformLocation(shader_ID, "model"), 1, GL_FALSE, value_ptr(transform.modelMat));
+		auto entitySignature = ecsController.GetEntitySignature(entity);
 
-		if (ecsController.GetEntitySignature(entity).test(ecsController.GetComponentType<Components::TextureInfo>()))
+		glUniformMatrix4fv(glGetUniformLocation(shader_ID, "model"), 1, GL_FALSE, value_ptr(transform.modelMat));
+		glUniform3fv(glGetUniformLocation(shader_ID, "color"), 1, value_ptr(color));
+
+		if (entitySignature.test(tex))
 		{
 			const auto& [diffuse_ID, specular_ID] = ecsController.GetComponent<Components::TextureInfo>(entity);
 			
@@ -69,11 +74,6 @@ void RenderSystem::Update()
 void RenderSystem::PostUpdate()
 {
 	glfwSwapBuffers(mWindow);
-}
-
-void RenderSystem::SetCamera(Camera* camera)
-{
-	mCamera = camera;
 }
 
 void RenderSystem::Clean()
