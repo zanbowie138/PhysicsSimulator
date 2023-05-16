@@ -22,6 +22,8 @@ struct Node
 	size_t next;
 };
 
+
+// Algorithm adapted from Box2D's dynamic tree
 class BoundingBoxTree
 {
 public:
@@ -57,6 +59,7 @@ public:
 	std::vector<BoundingBox> GetAllBoxes(const bool onlyLeaf) const;
 private:
 	// Allocates a space for a new node
+	// Returns the index position of the allocated node
 	size_t AllocateNode();
 	// Frees a space for a new node
 	void FreeNode(size_t nodeIndex);

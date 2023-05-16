@@ -44,7 +44,7 @@ void BoundingBoxTree::RemoveEntity(const Entity entity)
 
 	size_t oldParent = mNodes[node].parent;
 	size_t sibling = GetSibling(node);
-	
+
 	if (oldParent != rootIndex) // If oldParent isn't root
 	{
 		// Make oldParent's parent reference sibling as child
@@ -127,8 +127,7 @@ void BoundingBoxTree::InsertLeaf(const size_t leafIndex)
 	// Set sibling and leaf to point to new parent
 	mNodes[sibling].parent = newParent;
 	mNodes[leafIndex].parent = newParent;
-
-	// TODO: Check this logic
+	
 	// The sibling was not the root.
 	if (oldParent != NULL_NODE)
 	{

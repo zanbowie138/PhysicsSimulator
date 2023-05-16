@@ -145,11 +145,11 @@ int main()
 
 		physicsSystem->tree.RemoveEntity(light.mEntityID);
 		physicsSystem->tree.InsertEntity(light.mEntityID, light.CalcBoundingBox());
-		/*physicsSystem->tree.ComputePairs();
+		physicsSystem->tree.ComputePairs();
 		if (physicsSystem->tree.mCollisions.empty())
 		{
 			std::cout << physicsSystem->tree.mCollisions.size() << std::endl;
-		}*/
+		}
 
 		const auto boxes = physicsSystem->tree.GetAllBoxes(false);
 		boxRenderer.Clear();
