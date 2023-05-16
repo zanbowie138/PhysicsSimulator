@@ -43,13 +43,8 @@ void BoundingBoxTree::RemoveEntity(const Entity entity)
 	}
 
 	size_t oldParent = mNodes[node].parent;
-	size_t sibling;
-
-	// Find sibling
-	if (mNodes[oldParent].left == node)
-		sibling = mNodes[oldParent].right;
-	else sibling = mNodes[oldParent].left;
-
+	size_t sibling = GetSibling(node);
+	
 	if (oldParent != rootIndex) // If oldParent isn't root
 	{
 		// Make oldParent's parent reference sibling as child
@@ -162,6 +157,19 @@ void BoundingBoxTree::InsertLeaf(const size_t leafIndex)
 		iter = mNodes[iter].parent;
 	}
 	nodeCount++;
+}
+
+size_t BoundingBoxTree::GetSibling(size_t nodeIndex)
+{
+	const auto& parentNode = mNodes[mNodes[nodeIndex].parent];
+	size_t sibling;
+	if (parentNode.left == nodeIndex) sibling = parentNode.right;
+	else 
+	{
+		sibling = parentNode.left;
+		assert(parentNode.right == nodeIndex && "Sibling not found!");
+	}
+    return sibling;
 }
 
 size_t BoundingBoxTree::FindBestSibling(size_t leafIndex) const

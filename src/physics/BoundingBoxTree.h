@@ -71,7 +71,7 @@ private:
 	void InsertLeaf(size_t leafIndex);
 
 	// Gets sibling of node
-	size_t GetSibling();
+	size_t GetSibling(size_t nodeIndex);
 
 	// Returns the index of the best sibling
 	size_t FindBestSibling(size_t leafIndex) const;
