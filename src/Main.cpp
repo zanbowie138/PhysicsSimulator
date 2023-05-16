@@ -99,6 +99,7 @@ int main()
 	light.transform.scale = glm::vec3(0.1f);
 	light.ShaderID = basicShader.ID;
 	light.InitECS();
+	physicsSystem->tree.InsertEntity(light.mEntityID, light.CalcBoundingBox());
 	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
 
@@ -107,8 +108,7 @@ int main()
 	cube.transform.scale = glm::vec3(0.3f);
 	cube.ShaderID = flatShader.ID;
 	cube.InitECS();
-	physicsSystem->tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
-	auto& cubePos = ecsController.GetComponent<Components::Transform>(cube.mEntityID);
+	auto& cubePos = ecsController.GetComponent<Components::Transform>(light.mEntityID);
 
 	Lines boxRenderer(1000);
 	boxRenderer.ShaderID = basicShader.ID;
@@ -139,12 +139,11 @@ int main()
 		renderSystem->PreUpdate();
 		GUI.NewFrame();
 
-		lightPos = glm::vec3(glm::sin(glm::radians(time / 10.0f))/2.0f, 1.0f, glm::cos(glm::radians(time / 10.0f))/2.0f);
+		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.5f, 1.0f, glm::cos(glm::radians(time / 20.0f))/0.5f);
+		light.transform.worldPos = lightPos;
 
-		cubePos.worldPos = cam.position + glm::vec3(0.0f, 0.0f, -2.0f);
-		cube.transform.worldPos = cam.position + glm::vec3(0.0f, 0.0f, -2.0f);
-		physicsSystem->tree.RemoveEntity(cube.mEntityID);
-		physicsSystem->tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
+		physicsSystem->tree.RemoveEntity(light.mEntityID);
+		physicsSystem->tree.InsertEntity(light.mEntityID, light.CalcBoundingBox());
 		/*physicsSystem->tree.ComputePairs();
 		if (physicsSystem->tree.mCollisions.empty())
 		{
