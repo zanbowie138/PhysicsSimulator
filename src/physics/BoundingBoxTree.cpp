@@ -31,6 +31,17 @@ void BoundingBoxTree::RemoveEntity(const Entity entity)
 	assert(neIterator != nodeToEntityMap.end() && "Trying to remove node not in map");
 
 	size_t node = enIterator->second;
+
+	entityToNodeMap.erase(enIterator);
+	nodeToEntityMap.erase(neIterator);
+
+	if (node == rootIndex)
+	{
+		FreeNode(node);
+		rootIndex = NULL_NODE;
+		return;
+	}
+
 	size_t oldParent = mNodes[node].parent;
 	size_t sibling;
 
@@ -39,19 +50,25 @@ void BoundingBoxTree::RemoveEntity(const Entity entity)
 		sibling = mNodes[oldParent].right;
 	else sibling = mNodes[oldParent].left;
 
-	// Make oldParent's parent reference sibling as child
-	size_t grandfather = mNodes[oldParent].parent;
-	if (mNodes[grandfather].left == oldParent) mNodes[grandfather].left = sibling;
-	else mNodes[grandfather].right = sibling;
+	if (oldParent != rootIndex) // If oldParent isn't root
+	{
+		// Make oldParent's parent reference sibling as child
+		size_t grandfather = mNodes[oldParent].parent;
+		if (mNodes[grandfather].left == oldParent) mNodes[grandfather].left = sibling;
+		else mNodes[grandfather].right = sibling;
 
-	// Set sibling to oldParent's parent
-	mNodes[sibling].parent = grandfather;
+		// Set sibling to oldParent's parent
+		mNodes[sibling].parent = grandfather;
+	}
+	else // If oldParent is root
+	{
+		// Make sibling the root
+		rootIndex = sibling;
+		mNodes[sibling].parent = NULL_NODE;
+	}
 
 	FreeNode(oldParent);
-	FreeNode(enIterator->second);
-
-	entityToNodeMap.erase(enIterator);
-	nodeToEntityMap.erase(neIterator);
+	FreeNode(node);
 }
 
 size_t BoundingBoxTree::AllocateNode()
@@ -419,6 +436,7 @@ std::vector<BoundingBox> BoundingBoxTree::GetAllBoxes(const bool onlyLeaf) const
 
 void BoundingBoxTree::ResetNodeData(const size_t nodeIndex)
 {
+	mNodes[nodeIndex].box = BoundingBox{};
 	mNodes[nodeIndex].parent = NULL_NODE;
 	mNodes[nodeIndex].next = NULL_NODE;
 	mNodes[nodeIndex].left = NULL_NODE;

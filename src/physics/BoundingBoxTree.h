@@ -18,6 +18,7 @@ struct Node
 	size_t left;
 	size_t right;
 
+	// Used for linking to the next free node in the freeList stack
 	size_t next;
 };
 
@@ -32,43 +33,55 @@ public:
 
 	std::vector<size_t> mCollisions;
 
+	// Top of the stack
 	size_t freeList;
-
+private:
+	// Queried to get entity
+	std::unordered_map<size_t, Entity> nodeToEntityMap;
+	// Queried to get node
+	std::unordered_map<Entity, size_t> entityToNodeMap;
+public:
 	explicit BoundingBoxTree(size_t initialCapacity = 1);
 
 	void InsertEntity(Entity entity, BoundingBox box);
 	void RemoveEntity(Entity entity);
 
-	// Add all possible nodes to intersect test
-	void TreeQuery(size_t node);
-
+	// Uses TreeQuery to compute all box pairs
 	void ComputePairs();
 
+	// Returns reference to entity's bounding box
 	const BoundingBox& GetBoundingBox(Entity entity) const;
 
+	// Returns a vector of all active bounding boxes
+	// Bool decides whether non-leaf boxes are added
 	std::vector<BoundingBox> GetAllBoxes(const bool onlyLeaf) const;
-
 private:
-	// Used to get entity
-	std::unordered_map<size_t, Entity> nodeToEntityMap;
-	// Used to get node
-	std::unordered_map<Entity, size_t> entityToNodeMap;
-
 	// Allocates a space for a new node
 	size_t AllocateNode();
 	// Frees a space for a new node
 	void FreeNode(size_t nodeIndex);
+
 	// Expand capacity
 	void ExpandCapacity(size_t newNodeCapacity);
 
-	// Inserts a node into the tree
+	// Add all possible nodes to intersect test
+	void TreeQuery(size_t node);
+
+	// Inserts an allocated node into the tree
 	void InsertLeaf(size_t leafIndex);
 
+	// Gets sibling of node
+	size_t GetSibling();
+
+	// Returns the index of the best sibling
 	size_t FindBestSibling(size_t leafIndex) const;
 
 	// Balance
 	size_t Balance(size_t node);
 
+	// Returns true if the node at the given index is a leaf node
 	bool IsLeaf(size_t index) const;
+
+	// Resets the data in the node
 	void ResetNodeData(size_t nodeIndex);
 };

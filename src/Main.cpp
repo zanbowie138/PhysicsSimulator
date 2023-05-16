@@ -111,6 +111,7 @@ int main()
 	auto& cubePos = ecsController.GetComponent<Components::Transform>(light.mEntityID);
 
 	Lines boxRenderer(1000);
+	boxRenderer.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
 
@@ -154,7 +155,6 @@ int main()
 		boxRenderer.Clear();
 		for (const auto& box : boxes)
 		{
-
 			boxRenderer.PushBack(box);
 		}
 
