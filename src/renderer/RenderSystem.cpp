@@ -10,11 +10,9 @@ void RenderSystem::PreUpdate()
 
 void RenderSystem::Update()
 {
-	//assert(mCamera && "Camera not set.");
 	assert(mWindow && "Window not set.");
 
 	auto tex = ecsController.GetComponentType<Components::TextureInfo>();
-
 
 	for (const auto& entity : mEntities)
 	{
@@ -58,8 +56,8 @@ void RenderSystem::Update()
 			glDrawArrays(primitive_type, 0, size);
 		else
 		{
-			//if (primitive_type == GL_LINES)
-				//glClear(GL_DEPTH_BUFFER_BIT);
+			/*if (primitive_type == GL_LINES)
+				std::cout << shader_ID << std::endl;*/
 			glDrawElements(primitive_type, size, GL_UNSIGNED_INT, nullptr);
 		}
 			

@@ -46,6 +46,12 @@
     <Filter Include="Header Files\Utils">
       <UniqueIdentifier>{e38af5b7-43c4-4778-9a60-ebaccda323e6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Core\ECS">
+      <UniqueIdentifier>{da321628-a2cf-47f3-9375-55f666799639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\Basic">
+      <UniqueIdentifier>{a6438174-3b9a-469f-b2c6-9286a896ee82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\flat.frag">
@@ -136,43 +142,10 @@
     <ClInclude Include="src\core\WindowManager.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\SystemManager.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\System.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\EntityManager.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\ComponentManager.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\ComponentArray.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\renderer\EBO.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\renderer\VAO.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\renderer\VBO.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\renderer\Camera.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\ECS.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\renderer\RenderSystem.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\renderer\shaderClass.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\renderer\Texture.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\core\GlobalTypes.h">
@@ -237,6 +210,39 @@
     </ClInclude>
     <ClInclude Include="src\components\Rigidbody.h">
       <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\EntityManager.h">
+      <Filter>Header Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\ComponentArray.h">
+      <Filter>Header Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\ComponentManager.h">
+      <Filter>Header Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\ECS.h">
+      <Filter>Header Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\System.h">
+      <Filter>Header Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\SystemManager.h">
+      <Filter>Header Files\Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\EBO.h">
+      <Filter>Header Files\Renderer\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\VAO.h">
+      <Filter>Header Files\Renderer\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\VBO.h">
+      <Filter>Header Files\Renderer\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\shaderClass.h">
+      <Filter>Header Files\Renderer\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\Texture.h">
+      <Filter>Header Files\Renderer\Basic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

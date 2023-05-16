@@ -44,6 +44,7 @@ inline VBO::VBO(const std::vector<T>& vertices)
 inline void VBO::PushData(const std::vector<glm::vec3>& vertices)
 {
 	assert(currentBufSize + vertices.size() * sizeof(glm::vec3) < bufSize && "VBO Overflow");
+
 	glBufferSubData(GL_ARRAY_BUFFER, currentBufSize, vertices.size() * sizeof(glm::vec3), vertices.data());
 	currentBufSize += vertices.size() * sizeof(glm::vec3);
 }

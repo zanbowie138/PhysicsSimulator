@@ -50,7 +50,6 @@ int main()
 	// Create RenderSystem and add dependencies
 	auto renderSystem = ecsController.RegisterSystem<RenderSystem>();
 	renderSystem->SetWindow(windowManager.GetWindow());
-	renderSystem->InitOpenGL();
 
 	// Create PhysicsSystem
 	auto physicsSystem = ecsController.RegisterSystem<PhysicsSystem>();
@@ -103,25 +102,17 @@ int main()
 	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
 
-	for (int i = 0; i < 5; i++)
-	{
-		Mesh cube(cubeVerts, cubeInds);
-		cube.transform.worldPos = glm::vec3(-1.0f, 1.0f, static_cast<float>(i));
-		cube.transform.scale = glm::vec3(0.3f);
-		cube.ShaderID = flatShader.ID;
-		cube.InitECS();
-		physicsSystem->tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
-	}
+	Mesh cube(cubeVerts, cubeInds);
+	cube.transform.worldPos = glm::vec3(-1.0f, 1.0f, static_cast<float>(1));
+	cube.transform.scale = glm::vec3(0.3f);
+	cube.ShaderID = flatShader.ID;
+	cube.InitECS();
+	physicsSystem->tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
+	auto& cubePos = ecsController.GetComponent<Components::Transform>(cube.mEntityID);
 
 	Lines boxRenderer(1000);
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
-	const auto boxes = physicsSystem->tree.GetAllBoxes(false);
-	for (const auto& box : boxes)
-	{
-		boxRenderer.PushBack(box);
-	}
-
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO; 
@@ -141,6 +132,7 @@ int main()
 	float mspf = 0.0f;
 	float fps = 0.0f;
 	float time = 0;
+	unsigned int frame = 0;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -148,6 +140,25 @@ int main()
 		GUI.NewFrame();
 
 		lightPos = glm::vec3(glm::sin(glm::radians(time / 10.0f))/2.0f, 1.0f, glm::cos(glm::radians(time / 10.0f))/2.0f);
+
+		cubePos.worldPos = cam.position + glm::vec3(0.0f, 0.0f, -2.0f);
+		cube.transform.worldPos = cam.position + glm::vec3(0.0f, 0.0f, -2.0f);
+		physicsSystem->tree.RemoveEntity(cube.mEntityID);
+		physicsSystem->tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
+		/*physicsSystem->tree.ComputePairs();
+		if (physicsSystem->tree.mCollisions.empty())
+		{
+			std::cout << physicsSystem->tree.mCollisions.size() << std::endl;
+		}*/
+
+		const auto boxes = physicsSystem->tree.GetAllBoxes(false);
+		boxRenderer.Clear();
+		for (const auto& box : boxes)
+		{
+
+			boxRenderer.PushBack(box);
+		}
+
 
 		// Update window input bitset
 		windowManager.ProcessInputs(!GUI.MouseOver());
@@ -170,15 +181,14 @@ int main()
 			fpsFrameCount = 0;
 			lastTime += 1.0;
 		}
+		frame++;
 
 		std::stringstream ss;
 		ss << "FPS: " << fps << "\nMSPF: " << mspf;
 		std::string s = ss.str();
 
-
 		renderSystem->Update();
 		GUI.Draw(s.c_str());
-
 		GUI.Render();
 		renderSystem->PostUpdate();
 	}

@@ -24,7 +24,7 @@ struct Node
 class BoundingBoxTree
 {
 public:
-	std::vector<Node> nodes;
+	std::vector<Node> mNodes;
 
 	size_t nodeCapacity;
 	size_t nodeCount;

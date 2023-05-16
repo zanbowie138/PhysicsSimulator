@@ -24,7 +24,7 @@ public:
 
 	inline void PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds);
 	inline void PushBack(const BoundingBox& box);
-	inline void Erase();
+	inline void Clear();
 	size_t GetSize() override;
 private:
 	void InitVAO() override;
@@ -42,6 +42,8 @@ Lines::Lines(const GLuint indiceAmt): mCapacity(indiceAmt)
 
 void Lines::PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds)
 {
+	mVAO.Bind();
+
 	VBO.Bind();
 	vertices.insert(vertices.end(), verts.begin(), verts.end());
 	VBO.PushData(verts);
@@ -50,6 +52,7 @@ void Lines::PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsi
 	indices.insert(indices.end(), inds.begin(), inds.end());
 	EBO.PushData(inds);
 
+	mVAO.Unbind();
 	VBO.Unbind();
 	EBO.Unbind();
 
@@ -58,6 +61,7 @@ void Lines::PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsi
 
 inline void Lines::PushBack(const BoundingBox& box)
 {
+	mVAO.Bind();
 	VBO.Bind();
 	std::vector<glm::vec3> verts;
 	verts.emplace_back(box.max);
@@ -99,16 +103,17 @@ inline void Lines::PushBack(const BoundingBox& box)
 	indices.insert(indices.end(), inds.begin(), inds.end());
 	EBO.PushData(inds);
 
+	mVAO.Unbind();
 	VBO.Unbind();
 	EBO.Unbind();
 
 	UpdateSize();
 }
 
-inline void Lines::Erase()
+inline void Lines::Clear()
 {
-	vertices.erase(vertices.begin(), vertices.end());
-	indices.erase(indices.begin(), indices.end());
+	vertices.clear();
+	indices.clear();
 
 	VBO.ClearData();
 	EBO.ClearData();
