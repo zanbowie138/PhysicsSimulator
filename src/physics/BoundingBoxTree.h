@@ -69,7 +69,7 @@ private:
 	void ExpandCapacity(size_t newNodeCapacity);
 
 	// Add all possible nodes to intersect test
-	void TreeQuery(size_t node);
+	void TreeQuery(const size_t node1, const size_t node2);
 
 	// Inserts an allocated node into the tree
 	void InsertLeaf(size_t leafIndex);
@@ -85,6 +85,9 @@ private:
 
 	// Returns true if the node at the given index is a leaf node
 	bool IsLeaf(size_t index) const;
+
+	// Returns true if not a leaf node
+	bool IsInternal(size_t nodeIndex) const;
 
 	// Resets the data in the node
 	void ResetNodeData(size_t nodeIndex);

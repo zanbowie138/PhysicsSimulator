@@ -247,25 +247,43 @@ size_t BoundingBoxTree::FindBestSibling(size_t leafIndex) const
 	return sibling;
 }
 
-void BoundingBoxTree::TreeQuery(const size_t node)
+void BoundingBoxTree::TreeQuery(const size_t node1, const size_t node2)
 {
-	const auto& n = mNodes[node];
-	const auto& leftNode = mNodes[n.left];
-	const auto& rightNode = mNodes[n.right];
+	const auto& n1 = mNodes[node1];
+	const auto& n2 = mNodes[node2];
 
-	if (IsLeaf(n.left) && IsLeaf(n.right)) // Checks if children are leaves
+	if (n1.box.IsColliding(n2.box))
 	{
-		if (leftNode.box.IsColliding(rightNode.box))
+		if (IsInternal(node1) && IsInternal(node2))
 		{
-			mCollisions.push_back(n.left);
-			mCollisions.push_back(n.right);
+			if (n1.box.surfaceArea > n2.box.surfaceArea)
+			{
+				TreeQuery(n1.left, node2);
+				TreeQuery(n1.right, node2);
+			}
+			else 
+			{
+				TreeQuery(node1, n2.left);
+				TreeQuery(node1, n2.right);
+			}
+		}
+		if (IsInternal(node1)) // Checks if has children
+		{
+			TreeQuery(n1.left, node2);
+			TreeQuery(n1.right, node2);
+		}
+		else if (IsInternal(node2))
+		{
+			TreeQuery(node1, n2.left);
+			TreeQuery(node1, n2.right);
+		}
+		else
+		{
+			mCollisions.emplace_back(n1.box);
+			mCollisions.emplace_back(n2.box);
 		}
 	}
-	else
-	{
-		TreeQuery(mNodes[node].left);
-		TreeQuery(mNodes[node].right);
-	}
+	
 }
 
 void BoundingBoxTree::ComputePairs()
@@ -274,7 +292,7 @@ void BoundingBoxTree::ComputePairs()
 
 	if (nodeCount <= 1) return;
 
-	TreeQuery(rootIndex);
+	TreeQuery(mNodes[rootIndex].left, mNodes[rootIndex].right);
 }
 
 void BoundingBoxTree::ExpandCapacity(const size_t newNodeCapacity)
@@ -303,6 +321,11 @@ void BoundingBoxTree::ExpandCapacity(const size_t newNodeCapacity)
 bool BoundingBoxTree::IsLeaf(const size_t index) const
 {
 	return mNodes[index].left == NULL_NODE && mNodes[index].right == NULL_NODE;
+}
+
+bool BoundingBoxTree::IsInternal(size_t nodeIndex) const
+{
+    return !IsLeaf(nodeIndex);
 }
 
 size_t BoundingBoxTree::Balance(const size_t node)
