@@ -66,6 +66,12 @@ void BoundingBoxTree::RemoveEntity(const Entity entity)
 	FreeNode(node);
 }
 
+void BoundingBoxTree::UpdateEntity(Entity entity, BoundingBox box)
+{
+	RemoveEntity(entity);
+	InsertEntity(entity, box);
+}
+
 size_t BoundingBoxTree::AllocateNode()
 {
 	// If nodes array not big enough, resize
@@ -127,7 +133,7 @@ void BoundingBoxTree::InsertLeaf(const size_t leafIndex)
 	// Set sibling and leaf to point to new parent
 	mNodes[sibling].parent = newParent;
 	mNodes[leafIndex].parent = newParent;
-	
+
 	// The sibling was not the root.
 	if (oldParent != NULL_NODE)
 	{

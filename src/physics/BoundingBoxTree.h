@@ -47,6 +47,7 @@ public:
 
 	void InsertEntity(Entity entity, BoundingBox box);
 	void RemoveEntity(Entity entity);
+	void UpdateEntity(Entity entity, BoundingBox box);
 
 	// Uses TreeQuery to compute all box pairs
 	void ComputePairs();

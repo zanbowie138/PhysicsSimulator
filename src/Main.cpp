@@ -27,7 +27,6 @@ ECSController ecsController;
 int main()
 {
 	// TODO: Combine VBO, EBO into one class
-	// TODO: Remove hardcoding ranges from UBO
 	// Window creation
 	Core::WindowManager windowManager;
 	windowManager.Init("OpenGL Window", 800, 800);
@@ -143,15 +142,14 @@ int main()
 		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.5f, 1.0f, glm::cos(glm::radians(time / 20.0f))/0.5f);
 		light.transform.worldPos = lightPos;
 
-		physicsSystem->tree.RemoveEntity(light.mEntityID);
-		physicsSystem->tree.InsertEntity(light.mEntityID, light.CalcBoundingBox());
+		physicsSystem->tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
 		physicsSystem->tree.ComputePairs();
 		if (physicsSystem->tree.mCollisions.empty())
 		{
 			std::cout << physicsSystem->tree.mCollisions.size() << std::endl;
 		}
 
-		const auto boxes = physicsSystem->tree.GetAllBoxes(false);
+		const auto boxes = physicsSystem->tree.GetAllBoxes(true);
 		boxRenderer.Clear();
 		for (const auto& box : boxes)
 		{

@@ -19,6 +19,8 @@ public:
     void Update();
 
     void Clean() override;
+private:
+    void ResolveCollisions();
 };
 
 inline PhysicsSystem::PhysicsSystem()
