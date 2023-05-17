@@ -279,8 +279,8 @@ void BoundingBoxTree::TreeQuery(const size_t node1, const size_t node2)
 		}
 		else
 		{
-			mCollisions.emplace_back(n1.box);
-			mCollisions.emplace_back(n2.box);
+			mCollisions.emplace_back(node1);
+			mCollisions.emplace_back(node2);
 		}
 	}
 	

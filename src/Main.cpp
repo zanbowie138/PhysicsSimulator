@@ -139,17 +139,17 @@ int main()
 		renderSystem->PreUpdate();
 		GUI.NewFrame();
 
-		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.5f, 1.0f, glm::cos(glm::radians(time / 20.0f))/0.5f);
+		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 1.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
 		light.transform.worldPos = lightPos;
 
 		physicsSystem->tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
 		physicsSystem->tree.ComputePairs();
-		if (physicsSystem->tree.mCollisions.empty())
+		if (!physicsSystem->tree.mCollisions.empty())
 		{
 			std::cout << physicsSystem->tree.mCollisions.size() << std::endl;
 		}
 
-		const auto boxes = physicsSystem->tree.GetAllBoxes(true);
+		const auto boxes = physicsSystem->tree.GetAllBoxes(false);
 		boxRenderer.Clear();
 		for (const auto& box : boxes)
 		{
