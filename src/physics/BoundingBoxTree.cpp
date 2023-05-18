@@ -75,15 +75,22 @@ void BoundingBoxTree::UpdateEntity(Entity entity, BoundingBox box)
 
 size_t BoundingBoxTree::AllocateNode()
 {
+	size_t nodeIndex;
 	// If nodes array not big enough, resize
-	if (mNodes[freeList].next == NULL_NODE)
+	if (mFreeList.empty())
 	{
-		ExpandCapacity(nodeCapacity * 2);
+		// If there are no holes, either resize capacity or set nodeIndex to next free node.
+		if (nodeCount == nodeCapacity) 
+			ExpandCapacity(nodeCapacity * 2);
+		else nodeIndex = nodeCount;
 	}
-
-	// Pull node off of free list
-	const size_t nodeIndex = freeList;
-	freeList = mNodes[nodeIndex].next;
+	else 
+	{
+		// If there are "holes" in the mNodes vector caused by removing nodes, fill it.
+		// Pulls node off of free list
+		nodeIndex = mFreeList.top();
+		mFreeList.pop();
+	}
 
 	// Set all data members to NULL_NODE
 	ResetNodeData(nodeIndex);
@@ -100,8 +107,7 @@ void BoundingBoxTree::FreeNode(const size_t nodeIndex)
 	ResetNodeData(nodeIndex);
 
 	// Add node to freeList
-	mNodes[nodeIndex].next = freeList;
-	freeList = nodeIndex;
+	mFreeList.push(nodeIndex);
 
 	nodeCount--;
 }
@@ -320,13 +326,8 @@ void BoundingBoxTree::ExpandCapacity(const size_t newNodeCapacity)
 	// Expand linked list of free nodes
 	for (size_t i = nodeCount; i < nodeCapacity; i++)
 	{
-		mNodes[i].next = i + 1;
+		mFreeList.push(i);
 	}
-
-	// Create end of list
-	mNodes[nodeCapacity - 1].next = NULL_NODE;
-
-	freeList = nodeCount;
 }
 
 bool BoundingBoxTree::IsLeaf(const size_t index) const
@@ -485,7 +486,6 @@ void BoundingBoxTree::ResetNodeData(const size_t nodeIndex)
 {
 	mNodes[nodeIndex].box = BoundingBox{};
 	mNodes[nodeIndex].parent = NULL_NODE;
-	mNodes[nodeIndex].next = NULL_NODE;
 	mNodes[nodeIndex].left = NULL_NODE;
 	mNodes[nodeIndex].right = NULL_NODE;
 	mNodes[nodeIndex].height = 0;

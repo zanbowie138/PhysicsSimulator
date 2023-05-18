@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
+#include <stack>
 
 #include "../core/GlobalTypes.h"
 #include "BoundingBox.h"
@@ -17,9 +18,6 @@ struct Node
 
 	size_t left;
 	size_t right;
-
-	// Used for linking to the next free node in the freeList stack
-	size_t next;
 };
 
 
@@ -35,13 +33,14 @@ public:
 
 	std::vector<size_t> mCollisions;
 
-	// Top of the stack
-	size_t freeList;
 public:
 	// Queried to get entity
 	std::unordered_map<size_t, Entity> nodeToEntityMap;
 	// Queried to get node
 	std::unordered_map<Entity, size_t> entityToNodeMap;
+
+	// Stack of free nodes
+	std::stack<size_t> mFreeList;
 public:
 	explicit BoundingBoxTree(size_t initialCapacity = 1);
 
