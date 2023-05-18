@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "BoundingBoxTree.h"
+#include "DynamicTree.h"
 
 #include "../core/ECS.h"
 #include "../core/System.h"
@@ -11,7 +11,7 @@
 class PhysicsSystem : public System
 {
 public:
-    BoundingBoxTree tree;
+    Physics::DynamicBBTree<Entity> tree;
 
     explicit PhysicsSystem();
     ~PhysicsSystem() = default;
@@ -25,7 +25,7 @@ private:
 
 inline PhysicsSystem::PhysicsSystem()
 {
-    tree = BoundingBoxTree(1);
+    tree = Physics::DynamicBBTree<Entity>(1);
 }
 
 inline void PhysicsSystem::Clean()

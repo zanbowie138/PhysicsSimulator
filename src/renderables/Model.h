@@ -12,7 +12,7 @@
 #include "Renderable.h"
 #include "../physics/Collidable.h"
 #include "../utils/ModelImport.h"
-#include "physics/BoundingBoxTree.h"
+#include "physics/DynamicTree.h"
 
 class Model: public Renderable
 {
@@ -20,7 +20,7 @@ public:
 	std::vector<ModelPt> vertices;
 	std::vector<GLuint> indices;
 
-	BoundingBoxTree mTree;
+	Physics::DynamicBBTree<GLuint> mTree;
 
 	// Initializes the object
 	Model(const char* filename, bool is_stl);
@@ -73,7 +73,7 @@ inline BoundingBox Model::CalcBoundingBox()
 inline void Model::InitTree()
 {
 	std::cout << "Starting init" << std::endl;
-	mTree = BoundingBoxTree{ indices.size() / 3 };
+	mTree = Physics::DynamicBBTree<GLuint>{ indices.size() / 3 };
 	Entity triID = 0;
 	transform.CalculateModelMat();
 	for (size_t t = 0; t < indices.size()/3; t++)
