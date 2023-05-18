@@ -18,7 +18,6 @@ private:
     GLFWwindow* mWindow;
 public:
     explicit RenderSystem(): mWindow(nullptr){}
-    ~RenderSystem() = default;
 
     void PreUpdate();
 

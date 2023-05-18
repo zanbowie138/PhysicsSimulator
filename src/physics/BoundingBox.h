@@ -11,7 +11,7 @@ public:
 
 	float surfaceArea;
 
-	BoundingBox(): max(glm::vec3(0.0f)), min(glm::vec3(0.0f)){}
+	BoundingBox(): max(glm::vec3(0.0f)), min(glm::vec3(0.0f)), surfaceArea(0.0f){}
 	BoundingBox(const glm::vec3 max, const glm::vec3 min);
 
 	void Merge(const BoundingBox& box1, const BoundingBox& box2);

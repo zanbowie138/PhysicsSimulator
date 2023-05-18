@@ -25,7 +25,7 @@ private:
 
 inline PhysicsSystem::PhysicsSystem()
 {
-    tree = Physics::DynamicBBTree<Entity>(1);
+    tree = Physics::DynamicBBTree<Entity>{ 1 };
 }
 
 inline void PhysicsSystem::Clean()

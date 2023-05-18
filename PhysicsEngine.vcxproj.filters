@@ -244,6 +244,15 @@
     <ClInclude Include="src\renderer\Texture.h">
       <Filter>Header Files\Renderer\Basic</Filter>
     </ClInclude>
+    <ClInclude Include="src\physics\Cluster.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics\DynamicTree.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics\StaticTree.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\renderer\RenderSystem.cpp">
@@ -257,9 +266,6 @@
     </ClCompile>
     <ClCompile Include="src\stb.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physics\BoundingBoxTree.cpp">
-      <Filter>Source Files\Physics</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>Source Files\imgui</Filter>
