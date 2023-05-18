@@ -37,9 +37,9 @@ namespace Physics {
 
 	public:
 		// Queried to get object
-		std::unordered_map<size_t, T> nodeToEntityMap;
+		std::unordered_map<size_t, T> nodeToObjectMap;
 		// Queried to get node
-		std::unordered_map<T, size_t> entityToNodeMap;
+		std::unordered_map<T, size_t> objectToNodeMap;
 
 		// Stack of free nodes
 		std::stack<size_t> mFreeList;

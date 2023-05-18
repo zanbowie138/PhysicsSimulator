@@ -20,8 +20,8 @@ namespace Physics {
 
 		mNodes[newNodeIndex].box = box;
 
-		nodeToEntityMap.emplace(newNodeIndex, object);
-		entityToNodeMap.emplace(object, newNodeIndex);
+		nodeToObjectMap.emplace(newNodeIndex, object);
+		objectToNodeMap.emplace(object, newNodeIndex);
 
 		InsertLeaf(newNodeIndex);
 	}
@@ -29,16 +29,16 @@ namespace Physics {
 	template <typename T>
 	void DynamicBBTree<T>::RemoveEntity(const T object)
 	{
-		const auto enIterator = entityToNodeMap.find(object);
-		assert(enIterator != entityToNodeMap.end() && "Trying to remove object not in map");
+		const auto enIterator = objectToNodeMap.find(object);
+		assert(enIterator != objectToNodeMap.end() && "Trying to remove object not in map");
 
-		const auto neIterator = nodeToEntityMap.find(enIterator->second);
-		assert(neIterator != nodeToEntityMap.end() && "Trying to remove node not in map");
+		const auto neIterator = nodeToObjectMap.find(enIterator->second);
+		assert(neIterator != nodeToObjectMap.end() && "Trying to remove node not in map");
 
 		size_t node = enIterator->second;
 
-		entityToNodeMap.erase(enIterator);
-		nodeToEntityMap.erase(neIterator);
+		objectToNodeMap.erase(enIterator);
+		nodeToObjectMap.erase(neIterator);
 
 		if (node == rootIndex)
 		{
@@ -182,8 +182,8 @@ namespace Physics {
 	template <typename T>
 	T DynamicBBTree<T>::GetEntity(size_t nodeIndex)
 	{
-		const auto iterator = nodeToEntityMap.find(nodeIndex);
-		assert(iterator != nodeToEntityMap.end() && "Trying to get node not in map");
+		const auto iterator = nodeToObjectMap.find(nodeIndex);
+		assert(iterator != nodeToObjectMap.end() && "Trying to get node not in map");
 
 		return iterator->second;
 	}
@@ -483,8 +483,8 @@ namespace Physics {
 	template <typename T>
 	const BoundingBox& DynamicBBTree<T>::GetBoundingBox(const T object) const
 	{
-		const auto enIterator = entityToNodeMap.find(object);
-		assert(enIterator != entityToNodeMap.end() && "Trying to get object not in map");
+		const auto enIterator = objectToNodeMap.find(object);
+		assert(enIterator != objectToNodeMap.end() && "Trying to get object not in map");
 
 		return mNodes[enIterator->second].box;
 	}
