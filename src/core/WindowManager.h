@@ -15,10 +15,10 @@ namespace Core {
 	class WindowManager
 	{
 	private:
-		const unsigned int screen_width = 800;
-		const unsigned int screen_height = 800;
+		unsigned int screenWidth;
+		unsigned int screenHeight;
 
-		const unsigned int aliasing_samples = 2;
+		const unsigned int aliasingSamples = 5;
 
 		GLFWwindow* mWindow = nullptr;
 
@@ -29,6 +29,7 @@ namespace Core {
 	public:
 		const InputBitset& GetInputs() const;
 		const glm::vec2& GetMousePos() const;
+		std::pair<unsigned int, unsigned int> GetWindowDimensions() const;
 
 		bool mouseShown = true;
 
@@ -52,19 +53,27 @@ namespace Core {
 		return mMousePos;
 	}
 
+	inline std::pair<unsigned, unsigned> WindowManager::GetWindowDimensions() const
+	{
+		return std::make_pair(screenWidth, screenHeight);
+	}
+
 	inline void WindowManager::Init(const char* windowTitle, unsigned windowWidth, unsigned windowHeight)
 	{
+		screenHeight = windowHeight;
+		screenWidth = windowWidth;
+
 		// Initialize GLFW
 		glfwInit();
 
 		// Set GLFW version to 3.3 and use core profile (uses modern OpenGL functions)
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_SAMPLES, aliasing_samples);
+		glfwWindowHint(GLFW_SAMPLES, aliasingSamples);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		// Creates window, if window is null, throw error
-		mWindow = glfwCreateWindow(screen_width, screen_height, "OpenGLWindow", nullptr, nullptr);
+		mWindow = glfwCreateWindow(screenWidth, screenHeight, "OpenGLWindow", nullptr, nullptr);
 		assert(mWindow != nullptr && "GLFW window failed to initialize");
 
 		// Creates object that stores the state of this instance of OpenGL (i think)
@@ -73,7 +82,7 @@ namespace Core {
 		gladLoadGL();
 
 		//Specifies the transformation from normalized coordinates (0-1) to screen coordinates
-		glViewport(0, 0, screen_width, screen_height);
+		glViewport(0, 0, screenWidth, screenHeight);
 
 		glEnable(GL_DEPTH_TEST);
 
@@ -105,14 +114,14 @@ namespace Core {
 				if (firstClick)
 				{
 					glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-					mMousePos = glm::vec2(screen_width / 2, screen_height / 2);
+					mMousePos = glm::vec2(screenWidth / 2, screenHeight / 2);
 				}
 
 				mouseShown = false;
 				firstClick = false;
 
 				// Center mouse to prevent drifting
-				glfwSetCursorPos(mWindow, (screen_width / 2), (screen_height / 2));
+				glfwSetCursorPos(mWindow, (screenWidth / 2), (screenHeight / 2));
 			}
 			else if (!firstClick)
 			{

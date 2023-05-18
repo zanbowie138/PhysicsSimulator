@@ -18,24 +18,24 @@ public:
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::mat4 cameraMatrix = glm::mat4(1.0f);
 
-	int width;
-	int height;
+	unsigned int width;
+	unsigned int height;
 
 	float baseSpeed = 0.001f;
 	float speed = 0.0001f;
 	float sensitivity = 100.0f;
 
-	Camera(int width, int height, glm::vec3 position);
+	Camera(unsigned int width, unsigned int height, glm::vec3 position);
 
 	void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
 
-	void MoveCam(const InputBitset& buttons, const glm::vec2& mousePos);
+	void MoveCam(const InputBitset& buttons, const glm::vec2& mousePos, const float dt);
 
 	//Sends camera matrix to inputted shader to update position
 	void Matrix(const Shader& shader, const char* uniform) const;
 };
 
-inline Camera::Camera(const int width, const int height, const glm::vec3 position)
+inline Camera::Camera(const unsigned int width, const unsigned int height, const glm::vec3 position)
 {
 	Camera::width = width;
 	Camera::height = height;
@@ -53,20 +53,20 @@ inline void Camera::UpdateMatrix(const float FOVdeg, const float nearPlane, cons
 	cameraMatrix = proj * view;
 }
 
-inline void Camera::MoveCam(const InputBitset& buttons, const glm::vec2& mousePos)
+inline void Camera::MoveCam(const InputBitset& buttons, const glm::vec2& mousePos, const float dt)
 {
 	if (buttons.test((static_cast<std::size_t>(InputButtons::W))))
-		position += speed * orientation;
+		position += speed * orientation * dt;
 	if (buttons.test((static_cast<std::size_t>(InputButtons::A))))
-		position += speed * -normalize(cross(orientation, up));
+		position += speed * -normalize(cross(orientation, up)) * dt;
 	if (buttons.test((static_cast<std::size_t>(InputButtons::S))))
-		position += speed * -orientation;
+		position += speed * -orientation * dt;
 	if (buttons.test((static_cast<std::size_t>(InputButtons::D))))
-		position += speed * normalize(cross(orientation, up));
+		position += speed * normalize(cross(orientation, up)) * dt;
 	if (buttons.test((static_cast<std::size_t>(InputButtons::SPACE))))
-		position += speed * up;
+		position += speed * up * dt;
 	if (buttons.test((static_cast<std::size_t>(InputButtons::CONTROL))))
-		position += speed * -up;
+		position += speed * -up * dt;
 	if (buttons.test((static_cast<std::size_t>(InputButtons::SHIFT))))
 		speed = baseSpeed * 5;
 	else

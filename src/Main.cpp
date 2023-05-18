@@ -29,14 +29,15 @@ int main()
 	// TODO: Combine VBO, EBO into one class
 	// Window creation
 	Core::WindowManager windowManager;
-	windowManager.Init("OpenGL Window", 800, 800);
+	windowManager.Init("OpenGL Window", 900, 900);
+	const auto& windowDimensions = windowManager.GetWindowDimensions();
 	GLFWwindow* window = windowManager.GetWindow();
 
 	GUI GUI;
 	GUI.Init(window);
 
 	// Camera creation
-	Camera cam{800,800, glm::vec3(0.0f, 1.0f, 7.0f)};
+	Camera cam{windowDimensions.first,windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f)};
 
 	// Initialize ECS
 	ecsController.Init();
@@ -138,6 +139,7 @@ int main()
 	float mspf = 0.0f;
 	float fps = 0.0f;
 	float time = 0;
+	float dt = 0;
 	unsigned int frame = 0;
 
 	while (!glfwWindowShouldClose(window))
@@ -165,17 +167,8 @@ int main()
 		}
 
 
-		// Update window input bitset
-		windowManager.ProcessInputs(!GUI.MouseOver());
-		GUI.SetMouse(windowManager.mouseShown);
-		// Move camera based on window inputs
-		cam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos());
-		// Update camera matrix
-		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
-		// Update uniform buffer
-		UBO.UpdateData(cam, ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos);
-
-		time += static_cast<float>((glfwGetTime() - currentTime) * 1000.0f);
+		dt = static_cast<float>(glfwGetTime() - currentTime) * 1000.0f;
+		time += dt;
 		currentTime = glfwGetTime();
 		fpsFrameCount++;
 		if (currentTime - lastTime >= 1.0)
@@ -187,6 +180,16 @@ int main()
 			lastTime += 1.0;
 		}
 		frame++;
+
+		// Update window input bitset
+		windowManager.ProcessInputs(!GUI.MouseOver());
+		GUI.SetMouse(windowManager.mouseShown);
+		// Move camera based on window inputs
+		cam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos(), dt);
+		// Update camera matrix
+		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
+		// Update uniform buffer
+		UBO.UpdateData(cam, ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos);
 
 		std::stringstream ss;
 		ss << "FPS: " << fps << "\nMSPF: " << mspf;
