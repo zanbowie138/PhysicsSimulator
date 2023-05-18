@@ -16,7 +16,7 @@ public:
 
 	void Init(GLFWwindow* window);
 	void NewFrame();
-	void Draw(const char* text);
+	void Write(const char* windowName, const char* text);
 	void Render();
 
 	void Clean();
@@ -57,9 +57,9 @@ inline void GUI::NewFrame()
 	ImGui::NewFrame();
 }
 
-inline void GUI::Draw(const char* text)
+inline void GUI::Write(const char* windowName, const char* text)
 {
-	ImGui::Begin("FPS Counter");
+	ImGui::Begin(windowName);
 	ImGui::Text(text);
 	ImGui::End();
 }

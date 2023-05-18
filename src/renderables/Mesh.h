@@ -92,5 +92,6 @@ inline BoundingBox Mesh::CalcBoundingBox()
 			box.min[i] = std::min(box.min[i], point[i]);
 		}
 	}
+	box.UpdateSurfaceArea();
 	return box;
 }

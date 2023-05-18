@@ -37,7 +37,7 @@ public:
 
 	// Top of the stack
 	size_t freeList;
-private:
+public:
 	// Queried to get entity
 	std::unordered_map<size_t, Entity> nodeToEntityMap;
 	// Queried to get node
@@ -73,6 +73,9 @@ private:
 
 	// Inserts an allocated node into the tree
 	void InsertLeaf(size_t leafIndex);
+
+	// Returns entity given node index
+	Entity GetEntity(size_t nodeIndex);
 
 	// Gets sibling of node
 	size_t GetSibling(size_t nodeIndex);

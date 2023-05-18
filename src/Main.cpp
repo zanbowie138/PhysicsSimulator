@@ -52,6 +52,7 @@ int main()
 
 	// Create PhysicsSystem
 	auto physicsSystem = ecsController.RegisterSystem<PhysicsSystem>();
+	auto& tree = physicsSystem->tree;
 
 	// Set RenderSystem signature
 	Signature signature;
@@ -69,7 +70,7 @@ int main()
 	piece.transform.scale = glm::vec3(0.01f);
 	piece.mColor = glm::vec3(1.0f, 0.0f, 0.5f);
 	piece.InitECS();
-	physicsSystem->tree.InsertEntity(piece.mEntityID, piece.CalcBoundingBox());
+	tree.InsertEntity(piece.mEntityID, piece.CalcBoundingBox());
 
 	Model bunny("bunny.stl", true);
 	bunny.ShaderID = flatShader.ID;
@@ -77,7 +78,7 @@ int main()
 	bunny.transform.rotation = glm::vec3(-90, 0, 0);
 	bunny.transform.worldPos = glm::vec3(1.0f, 0.0f, 0.0f);
 	bunny.InitECS();
-	physicsSystem->tree.InsertEntity(bunny.mEntityID, bunny.CalcBoundingBox());
+	tree.InsertEntity(bunny.mEntityID, bunny.CalcBoundingBox());
 
 	// Wood floor setup
 	const auto [planeVerts, planeInds] = Utils::PlaneData();
@@ -98,7 +99,7 @@ int main()
 	light.transform.scale = glm::vec3(0.1f);
 	light.ShaderID = basicShader.ID;
 	light.InitECS();
-	physicsSystem->tree.InsertEntity(light.mEntityID, light.CalcBoundingBox());
+	tree.InsertEntity(light.mEntityID, light.CalcBoundingBox());
 	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
 
@@ -108,9 +109,14 @@ int main()
 	cube.ShaderID = flatShader.ID;
 	cube.InitECS();
 	auto& cubePos = ecsController.GetComponent<Components::Transform>(light.mEntityID);
+	tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
+
+	Lines collideBox(1000);
+	collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
+	collideBox.ShaderID = basicShader.ID;
+	collideBox.InitECS();
 
 	Lines boxRenderer(1000);
-	boxRenderer.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
 
@@ -137,23 +143,25 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		renderSystem->PreUpdate();
-		GUI.NewFrame();
 
-		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 1.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
+		lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f))/0.7f, 1.0f, glm::cos(glm::radians(time / 30.0f))/0.7f);
 		light.transform.worldPos = lightPos;
+		
+		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
+		tree.ComputePairs();
 
-		physicsSystem->tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
-		physicsSystem->tree.ComputePairs();
-		if (!physicsSystem->tree.mCollisions.empty())
-		{
-			std::cout << physicsSystem->tree.mCollisions.size() << std::endl;
-		}
+		const auto boxes = tree.GetAllBoxes(false);
 
-		const auto boxes = physicsSystem->tree.GetAllBoxes(false);
 		boxRenderer.Clear();
 		for (const auto& box : boxes)
 		{
 			boxRenderer.PushBack(box);
+		}
+
+		collideBox.Clear();
+		for (const auto entity : tree.mCollisions)
+		{
+			collideBox.PushBack(tree.GetBoundingBox(entity));
 		}
 
 
@@ -182,10 +190,12 @@ int main()
 
 		std::stringstream ss;
 		ss << "FPS: " << fps << "\nMSPF: " << mspf;
-		std::string s = ss.str();
 
 		renderSystem->Update();
-		GUI.Draw(s.c_str());
+		GUI.NewFrame();
+		GUI.Write("FPSCounter", ss.str().c_str());
+		GUI.Write("Collisions", std::to_string(tree.mCollisions.size()).c_str());
+		GUI.Write("Box Amount", std::to_string(tree.GetBoundingBox(cube.mEntityID).IsColliding(tree.GetBoundingBox(light.mEntityID))).c_str());
 		GUI.Render();
 		renderSystem->PostUpdate();
 	}

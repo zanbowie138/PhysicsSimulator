@@ -57,7 +57,7 @@ void RenderSystem::Update()
 		else
 		{
 			/*if (primitive_type == GL_LINES)
-				std::cout << shader_ID << std::endl;*/
+				glClear(GL_DEPTH_BUFFER_BIT);*/
 			glDrawElements(primitive_type, size, GL_UNSIGNED_INT, nullptr);
 		}
 			

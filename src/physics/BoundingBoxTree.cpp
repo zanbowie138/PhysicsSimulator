@@ -14,6 +14,7 @@ BoundingBoxTree::BoundingBoxTree(const size_t initialCapacity)
 void BoundingBoxTree::InsertEntity(Entity entity, BoundingBox box)
 {
 	size_t newNodeIndex = AllocateNode();
+
 	mNodes[newNodeIndex].box = box;
 
 	nodeToEntityMap.emplace(newNodeIndex, entity);
@@ -81,7 +82,7 @@ size_t BoundingBoxTree::AllocateNode()
 	}
 
 	// Pull node off of free list
-	size_t nodeIndex = freeList;
+	const size_t nodeIndex = freeList;
 	freeList = mNodes[nodeIndex].next;
 
 	// Set all data members to NULL_NODE
@@ -156,12 +157,20 @@ void BoundingBoxTree::InsertLeaf(const size_t leafIndex)
 		size_t right = mNodes[iter].right;
 
 
-		mNodes[iter].height = 1 + std::max(mNodes[left].height, mNodes[right].height);
+		mNodes[iter].height = std::max(mNodes[left].height, mNodes[right].height);
 		mNodes[iter].box.Merge(mNodes[left].box, mNodes[right].box);
 
 		iter = mNodes[iter].parent;
 	}
 	nodeCount++;
+}
+
+Entity BoundingBoxTree::GetEntity(size_t nodeIndex)
+{
+	const auto iterator = nodeToEntityMap.find(nodeIndex);
+	assert(iterator != nodeToEntityMap.end() && "Trying to get node not in map");
+
+	return iterator->second;
 }
 
 size_t BoundingBoxTree::GetSibling(size_t nodeIndex)
@@ -204,7 +213,7 @@ size_t BoundingBoxTree::FindBestSibling(size_t leafIndex) const
 		size_t right = mNodes[sibling].right;
 
 		// Cost of descending to the left.
-		double costLeft;
+		float costLeft;
 		if (IsLeaf(left))
 		{
 			BoundingBox aabb;
@@ -215,13 +224,13 @@ size_t BoundingBoxTree::FindBestSibling(size_t leafIndex) const
 		{
 			BoundingBox aabb;
 			aabb.Merge(leafBox, mNodes[left].box);
-			double oldArea = mNodes[left].box.surfaceArea;
-			double newArea = aabb.surfaceArea;
+			float oldArea = mNodes[left].box.surfaceArea;
+			float newArea = aabb.surfaceArea;
 			costLeft = (newArea - oldArea) + inheritedCost;
 		}
 
 		// Cost of descending to the right.
-		double costRight;
+		float costRight;
 		if (IsLeaf(right))
 		{
 			BoundingBox aabb;
@@ -232,8 +241,8 @@ size_t BoundingBoxTree::FindBestSibling(size_t leafIndex) const
 		{
 			BoundingBox aabb;
 			aabb.Merge(leafBox, mNodes[right].box);
-			double oldArea = mNodes[right].box.surfaceArea;
-			double newArea = aabb.surfaceArea;
+			float oldArea = mNodes[right].box.surfaceArea;
+			float newArea = aabb.surfaceArea;
 			costRight = (newArea - oldArea) + inheritedCost;
 		}
 
@@ -252,38 +261,42 @@ void BoundingBoxTree::TreeQuery(const size_t node1, const size_t node2)
 	const auto& n1 = mNodes[node1];
 	const auto& n2 = mNodes[node2];
 
-	if (n1.box.IsColliding(n2.box))
+	if (IsInternal(node1) && IsInternal(node2))
 	{
-		if (IsInternal(node1) && IsInternal(node2))
+		TreeQuery(n1.left, n1.right);
+		TreeQuery(n2.left, n2.right);
+
+		if (n1.box.IsColliding(n2.box))
 		{
-			if (n1.box.surfaceArea > n2.box.surfaceArea)
-			{
-				TreeQuery(n1.left, node2);
-				TreeQuery(n1.right, node2);
-			}
-			else 
-			{
-				TreeQuery(node1, n2.left);
-				TreeQuery(node1, n2.right);
-			}
+			TreeQuery(n1.left, n2.left);
+			TreeQuery(n1.left, n2.right);
+			TreeQuery(n1.right, n2.left);
+			TreeQuery(n1.right, n2.right);
 		}
-		if (IsInternal(node1)) // Checks if has children
+	}
+	else if (IsInternal(node1))
+	{
+		TreeQuery(n1.left, n1.right);
+		if (n1.box.IsColliding(n2.box))
 		{
 			TreeQuery(n1.left, node2);
 			TreeQuery(n1.right, node2);
 		}
-		else if (IsInternal(node2))
+	}
+	else if (IsInternal(node2))
+	{
+		TreeQuery(n2.left, n2.right);
+		if (n1.box.IsColliding(n2.box))
 		{
 			TreeQuery(node1, n2.left);
 			TreeQuery(node1, n2.right);
 		}
-		else
-		{
-			mCollisions.emplace_back(node1);
-			mCollisions.emplace_back(node2);
-		}
 	}
-	
+	else if (n1.box.IsColliding(n2.box))
+	{
+		mCollisions.push_back(GetEntity(node1));
+		mCollisions.push_back(GetEntity(node2));
+	}
 }
 
 void BoundingBoxTree::ComputePairs()
@@ -308,18 +321,17 @@ void BoundingBoxTree::ExpandCapacity(const size_t newNodeCapacity)
 	for (size_t i = nodeCount; i < nodeCapacity; i++)
 	{
 		mNodes[i].next = i + 1;
-		mNodes[i].height = NULL_NODE;
 	}
 
 	// Create end of list
 	mNodes[nodeCapacity - 1].next = NULL_NODE;
-	mNodes[nodeCapacity - 1].height = NULL_NODE;
 
 	freeList = nodeCount;
 }
 
 bool BoundingBoxTree::IsLeaf(const size_t index) const
 {
+	if (mNodes[index].left == NULL_NODE && mNodes[index].right == NULL_NODE) assert(mNodes[index].height == 0 && "Leaf");
 	return mNodes[index].left == NULL_NODE && mNodes[index].right == NULL_NODE;
 }
 
@@ -331,8 +343,7 @@ bool BoundingBoxTree::IsInternal(size_t nodeIndex) const
 size_t BoundingBoxTree::Balance(const size_t node)
 {
 	// If node is a leaf or height = 0
-	// TODO: Check this
-	if (IsLeaf(node) || (mNodes[node].height == 0))
+	if (IsLeaf(node))
 		return node;
 
 	size_t left = mNodes[node].left;
@@ -376,8 +387,8 @@ size_t BoundingBoxTree::Balance(const size_t node)
 			mNodes[node].box.Merge(mNodes[left].box, mNodes[rightRight].box);
 			mNodes[right].box.Merge(mNodes[node].box, mNodes[rightLeft].box);
 
-			mNodes[node].height = 1 + std::max(mNodes[left].height, mNodes[rightRight].height);
-			mNodes[right].height = 1 + std::max(mNodes[node].height, mNodes[rightLeft].height);
+			mNodes[node].height = std::max(mNodes[left].height, mNodes[rightRight].height);
+			mNodes[right].height = std::max(mNodes[node].height, mNodes[rightLeft].height);
 		}
 		else
 		{
@@ -389,8 +400,8 @@ size_t BoundingBoxTree::Balance(const size_t node)
 			mNodes[node].box.Merge(mNodes[left].box, mNodes[rightLeft].box);
 			mNodes[right].box.Merge(mNodes[node].box, mNodes[rightRight].box);
 
-			mNodes[node].height = 1 + std::max(mNodes[left].height, mNodes[rightLeft].height);
-			mNodes[right].height = 1 + std::max(mNodes[node].height, mNodes[rightRight].height);
+			mNodes[node].height = std::max(mNodes[left].height, mNodes[rightLeft].height);
+			mNodes[right].height = std::max(mNodes[node].height, mNodes[rightRight].height);
 		}
 		return right;
 	}
@@ -430,8 +441,8 @@ size_t BoundingBoxTree::Balance(const size_t node)
 			mNodes[node].box.Merge(mNodes[right].box, mNodes[leftRight].box);
 			mNodes[left].box.Merge(mNodes[node].box, mNodes[leftLeft].box);
 
-			mNodes[node].height = 1 + std::max(mNodes[right].height, mNodes[leftRight].height);
-			mNodes[left].height = 1 + std::max(mNodes[node].height, mNodes[leftLeft].height);
+			mNodes[node].height = std::max(mNodes[right].height, mNodes[leftRight].height);
+			mNodes[left].height = std::max(mNodes[node].height, mNodes[leftLeft].height);
 		}
 		else
 		{
@@ -441,8 +452,8 @@ size_t BoundingBoxTree::Balance(const size_t node)
 			mNodes[node].box.Merge(mNodes[right].box, mNodes[leftLeft].box);
 			mNodes[left].box.Merge(mNodes[node].box, mNodes[leftRight].box);
 
-			mNodes[node].height = 1 + std::max(mNodes[right].height, mNodes[leftLeft].height);
-			mNodes[left].height = 1 + std::max(mNodes[node].height, mNodes[leftRight].height);
+			mNodes[node].height = std::max(mNodes[right].height, mNodes[leftLeft].height);
+			mNodes[left].height = std::max(mNodes[node].height, mNodes[leftRight].height);
 		}
 
 		return left;
@@ -453,10 +464,10 @@ size_t BoundingBoxTree::Balance(const size_t node)
 
 const BoundingBox& BoundingBoxTree::GetBoundingBox(const Entity entity) const
 {
-	const auto iterator = entityToNodeMap.find(entity);
-	assert(iterator != entityToNodeMap.end() && "Entity not added to tree");
+	const auto enIterator = entityToNodeMap.find(entity);
+	assert(enIterator != entityToNodeMap.end() && "Trying to get entity not in map");
 
-	return mNodes[iterator->second].box;
+	return mNodes[enIterator->second].box;
 }
 
 std::vector<BoundingBox> BoundingBoxTree::GetAllBoxes(const bool onlyLeaf) const
