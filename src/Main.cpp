@@ -152,7 +152,7 @@ int main()
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
 		tree.ComputePairs();
 
-		const auto boxes = tree.GetAllBoxes(true);
+		const auto boxes = tree.GetAllBoxes(false);
 
 		boxRenderer.Clear();
 		for (const auto& box : boxes)
