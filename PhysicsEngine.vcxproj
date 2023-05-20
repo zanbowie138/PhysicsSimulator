@@ -215,6 +215,7 @@
     <ClInclude Include="src\physics\Cluster.h" />
     <ClInclude Include="src\physics\Collidable.h" />
     <ClInclude Include="src\physics\DynamicTree.h" />
+    <ClInclude Include="src\physics\KDTree.h" />
     <ClInclude Include="src\physics\PhysicsSystem.h" />
     <ClInclude Include="src\physics\StaticTree.h" />
     <ClInclude Include="src\renderables\Lines.h" />
