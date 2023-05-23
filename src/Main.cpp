@@ -72,6 +72,7 @@ int main()
 	piece.mColor = glm::vec3(1.0f, 0.0f, 0.5f);
 	piece.InitECS();
 	tree.InsertEntity(piece.mEntityID, piece.CalcBoundingBox());
+	piece.InitTree();
 
 	Model bunny("bunny.stl", true);
 	bunny.ShaderID = flatShader.ID;
@@ -117,9 +118,15 @@ int main()
 	collideBox.ShaderID = basicShader.ID;
 	collideBox.InitECS();
 
-	Lines boxRenderer(1000);
+	Lines boxRenderer(1000000);
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
+
+	boxRenderer.Clear();
+	for (const auto& box : piece.mTree.GetBoxes())
+	{
+		boxRenderer.PushBack(box);
+	}
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO; 
@@ -153,12 +160,6 @@ int main()
 		tree.ComputePairs();
 
 		const auto boxes = tree.GetAllBoxes(false);
-
-		boxRenderer.Clear();
-		for (const auto& box : boxes)
-		{
-			boxRenderer.PushBack(box);
-		}
 
 		collideBox.Clear();
 		for (const auto entity : tree.mCollisions)

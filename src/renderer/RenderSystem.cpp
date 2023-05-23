@@ -20,7 +20,7 @@ void RenderSystem::Update()
 		const auto& [primitive_type, VAO_ID, shader_ID, size, color] = ecsController.GetComponent<Components::RenderInfo>(entity);
 
 		// Update transform
-		auto transform = ecsController.GetComponent<Components::Transform>(entity);
+		auto& transform = ecsController.GetComponent<Components::Transform>(entity);
 		transform.CalculateModelMat();
 
 		// Bind vertex array

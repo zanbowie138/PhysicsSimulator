@@ -6,9 +6,10 @@
 #include "../core/GlobalTypes.h"
 namespace Physics 
 {
+    //https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
     struct KDBoundingBox
     {
-	    
+
     };
     constexpr size_t k = 3;
 
@@ -18,7 +19,10 @@ namespace Physics
         struct Node
         {
             int point[k]; // To store k dimensional point
-            Node* left, * right;
+            glm::vec3 BBcenter;
+            float BBsize[3];
+            Node* left;
+        	Node* right;
         };
 
         // A method to create a node of K D tree

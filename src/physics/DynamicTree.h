@@ -7,17 +7,6 @@
 #include "BoundingBox.h"
 
 namespace Physics {
-	struct Node
-	{
-		BoundingBox box;
-
-		size_t height;
-
-		size_t parent;
-
-		size_t left;
-		size_t right;
-	};
 
 	constexpr size_t NULL_NODE = 0xffffffff;
 
@@ -25,6 +14,18 @@ namespace Physics {
 	template <typename T>
 	class DynamicBBTree
 	{
+	private:
+		struct Node
+		{
+			BoundingBox box;
+
+			size_t height;
+
+			size_t parent;
+
+			size_t left;
+			size_t right;
+		};
 	public:
 		std::vector<Node> mNodes;
 
