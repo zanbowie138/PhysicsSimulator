@@ -123,7 +123,7 @@ int main()
 	boxRenderer.InitECS();
 
 	boxRenderer.Clear();
-	for (const auto& box : piece.mTree.GetBoxes())
+	for (const auto& box : piece.mTree.GetBoxes(piece.transform.modelMat))
 	{
 		boxRenderer.PushBack(box);
 	}

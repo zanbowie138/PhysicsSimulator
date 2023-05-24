@@ -9,6 +9,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 // https://iss.oden.utexas.edu/Publications/Papers/RT2008.pdf
+// https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
 
 namespace Physics
 {
@@ -44,7 +45,8 @@ namespace Physics
 
 		void CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned int>& indices);
 
-		std::vector<BoundingBox> GetBoxes();
+		std::vector<BoundingBox> GetBoxes() const;
+		std::vector<BoundingBox> GetBoxes(glm::mat4 modelMat) const;
 
 	private:
 		void Subdivide(size_t nodeIndex);
@@ -99,13 +101,28 @@ namespace Physics
 	}
 
 	template <typename T>
-	std::vector<BoundingBox> StaticTree<T>::GetBoxes()
+	std::vector<BoundingBox> StaticTree<T>::GetBoxes() const
 	{
 		std::vector<BoundingBox> output;
 		output.resize(mNodes.size());
-		for (auto& node : mNodes)
+		for (const auto& node : mNodes)
 		{
 			output.emplace_back(node.box);
+		}
+		return output;
+	}
+
+	template <typename T>
+	std::vector<BoundingBox> StaticTree<T>::GetBoxes(glm::mat4 modelMat) const
+	{
+		std::vector<BoundingBox> output;
+		output.resize(mNodes.size());
+		for (const auto& node : mNodes)
+		{
+			BoundingBox temp;
+			temp.min = modelMat * node.box.min;
+			temp.max = modelMat * node.box.max;
+			output.emplace_back(temp);
 		}
 		return output;
 	}
@@ -181,6 +198,7 @@ namespace Physics
 				unsigned binIdx = std::min(static_cast<unsigned>(BINS_AMT - 1), static_cast<unsigned>((triangle.centroid[currentAxis] - node.box.min[currentAxis]) * scale));
 
 				++bins[binIdx].triCount;
+
 				// Expand bin bounding box based on triangle vertices
 				bins[binIdx].bounds.IncludePoint(triangle.v1);
 				bins[binIdx].bounds.IncludePoint(triangle.v2);
@@ -234,7 +252,7 @@ namespace Physics
 	}
 
 	template <typename T>
-	typename StaticTree<T>::Triangle& StaticTree<T>::GetTriangle(const size_t nodeIndex)
+	StaticTree<T>::Triangle& StaticTree<T>::GetTriangle(const size_t nodeIndex)
 	{
 		return mTriangles[mTriIdx[nodeIndex]];
 	}
@@ -245,6 +263,7 @@ namespace Physics
 		BVHNode& node = mNodes[nodeIndex];
 		node.box.max = GetTriangle(node.first).centroid;
 		node.box.min = node.box.max;
+
 		// Update bounds
 		for (int t = node.first; t < node.first + node.triCount; ++t)
 			node.box.IncludePoint(GetTriangle(t).centroid);
