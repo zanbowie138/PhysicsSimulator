@@ -72,7 +72,6 @@ int main()
 	piece.mColor = glm::vec3(1.0f, 0.0f, 0.5f);
 	piece.InitECS();
 	tree.InsertEntity(piece.mEntityID, piece.CalcBoundingBox());
-	piece.InitTree();
 
 	Model bunny("bunny.stl", true);
 	bunny.ShaderID = flatShader.ID;
@@ -123,8 +122,10 @@ int main()
 	boxRenderer.InitECS();
 
 	boxRenderer.Clear();
+	piece.InitTree();
 	for (const auto& box : piece.mTree.GetBoxes(piece.transform.modelMat))
 	{
+		//std::cout << box.String() << std::endl;
 		boxRenderer.PushBack(box);
 	}
 

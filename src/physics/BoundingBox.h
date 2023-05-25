@@ -70,13 +70,13 @@ inline void BoundingBox::IncludePoint(const glm::vec3& point)
 
 inline std::string BoundingBox::String() const 
 {
-	return "min: " + glm::to_string(max) + "\n" + "max: " + glm::to_string(min) + "\n";
+	return "min: " + glm::to_string(min) + "\n" + "max: " + glm::to_string(max) + "\n";
 }
 
 inline void BoundingBox::SetToLimit()
 {
-	max = glm::vec3(FLT_MAX);
-	min = glm::vec3(-FLT_MAX);
+	max = glm::vec3(-FLT_MAX);
+	min = glm::vec3(FLT_MAX);
 }
 
 inline void BoundingBox::UpdateSurfaceArea()

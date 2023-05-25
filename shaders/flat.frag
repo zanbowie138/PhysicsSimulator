@@ -3,7 +3,7 @@ out vec4 o_Color;
 
 in vec3 Position;
 in vec3 Color;
-in vec3 Normal;
+flat in vec3 Normal;
 
 layout(std140) uniform Lighting 
 {
@@ -38,6 +38,7 @@ vec4 pointLight()
 		float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
 		specular = specAmount * specularLight;
 	};
+	return vec4(normal, 1.0);
 	return vec4(Color, 1.0f) * (diffuse * intensity + ambient + specular * intensity) * lightColor;
 }
 

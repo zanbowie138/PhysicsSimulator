@@ -1,5 +1,5 @@
 #pragma once
-#define BINS_AMT 20
+#define BINS_AMT 5
 #include <unordered_map>
 #include <vector>
 #include <array>
@@ -45,8 +45,8 @@ namespace Physics
 
 		void CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned int>& indices);
 
-		std::vector<BoundingBox> GetBoxes() const;
-		std::vector<BoundingBox> GetBoxes(glm::mat4 modelMat) const;
+		std::vector<BoundingBox> GetBoxes();
+		std::vector<BoundingBox> GetBoxes(const glm::mat4& modelMat);
 
 	private:
 		void Subdivide(size_t nodeIndex);
@@ -96,32 +96,33 @@ namespace Physics
 		BVHNode& root = mNodes[rootNodeIdx];
 		root.first = 0;
 		root.triCount = leafNodeAmount;
+		mNodesUsed = 1;
 
 		Subdivide(rootNodeIdx);
 	}
 
 	template <typename T>
-	std::vector<BoundingBox> StaticTree<T>::GetBoxes() const
+	std::vector<BoundingBox> StaticTree<T>::GetBoxes() 
 	{
 		std::vector<BoundingBox> output;
-		output.resize(mNodes.size());
-		for (const auto& node : mNodes)
+		output.resize(mNodesUsed);
+		for (size_t i = 0; i < mNodesUsed; ++i)
 		{
-			output.emplace_back(node.box);
+			output.emplace_back(mNodes[i].box);
 		}
 		return output;
 	}
 
 	template <typename T>
-	std::vector<BoundingBox> StaticTree<T>::GetBoxes(glm::mat4 modelMat) const
+	std::vector<BoundingBox> StaticTree<T>::GetBoxes(const glm::mat4& modelMat)
 	{
 		std::vector<BoundingBox> output;
-		output.resize(mNodes.size());
-		for (const auto& node : mNodes)
+		output.resize(mNodesUsed);
+		for (size_t i = 0; i < mNodesUsed; ++i)
 		{
 			BoundingBox temp;
-			temp.min = modelMat * node.box.min;
-			temp.max = modelMat * node.box.max;
+			temp.min = modelMat * glm::vec4(mNodes[i].box.min, 1.0);
+			temp.max = modelMat * glm::vec4(mNodes[i].box.max,1.0);
 			output.emplace_back(temp);
 		}
 		return output;
@@ -130,6 +131,7 @@ namespace Physics
 	template <typename T>
 	void StaticTree<T>::Subdivide(size_t nodeIndex)
 	{
+		//std::cout << "subdividing " << nodeIndex << std::endl;
 		BVHNode& node = mNodes[nodeIndex];
 		if (node.triCount <= 1) return;
 
@@ -138,20 +140,19 @@ namespace Physics
 
 		// Find axis, split position, and split cost
 		float splitCost = FindBestSplitPlane(nodeIndex, axis, splitPos);
-
 		node.box.UpdateSurfaceArea();
-		if (splitCost >= node.box.surfaceArea) return;
+		if (splitCost >= node.box.surfaceArea * node.triCount) return;
 
 		size_t beginIter = node.first;
 		size_t endIter = node.first + (node.triCount - 1);
-		while (beginIter < endIter)
+		while (beginIter <= endIter)
 		{
 			if (GetTriangle(beginIter).centroid[axis] < splitPos)
 				++beginIter;
 			else
 				std::swap(mTriIdx[beginIter], mTriIdx[endIter--]);
 		}
-
+		
 		// Stop split if one side is empty
 		size_t leftCount = beginIter - node.first;
 		if (leftCount == 0 || leftCount == node.triCount) return;
@@ -162,14 +163,13 @@ namespace Physics
 
 		mNodes[leftChildIdx].first = node.first;
 		mNodes[leftChildIdx].triCount = leftCount;
+
 		mNodes[rightChildIdx].first = beginIter;
 		mNodes[rightChildIdx].triCount = node.triCount - leftCount;
+		std::cout << leftCount << " " << node.triCount - leftCount << std::endl;
 
 		node.first = leftChildIdx;
 		node.triCount = 0;
-
-		UpdateNodeBoundingBox(leftChildIdx);
-		UpdateNodeBoundingBox(rightChildIdx);
 
 		// recurse
 		Subdivide(leftChildIdx);
@@ -185,7 +185,7 @@ namespace Physics
 		float bestCost = 0;
 		for (uint8_t currentAxis = 0; currentAxis < 3; ++currentAxis)
 		{
-			Bin bins[BINS_AMT];
+			Bin bins[BINS_AMT] = {};
 
 			float scale = static_cast<float>(BINS_AMT) / (node.box.max[currentAxis] - node.box.min[currentAxis]);
 
@@ -197,6 +197,11 @@ namespace Physics
 				// Determine which bin based on triangle centroid position
 				unsigned binIdx = std::min(static_cast<unsigned>(BINS_AMT - 1), static_cast<unsigned>((triangle.centroid[currentAxis] - node.box.min[currentAxis]) * scale));
 
+				if (bins[binIdx].triCount == 0)
+				{
+					bins[binIdx].bounds.min = triangle.v1;
+					bins[binIdx].bounds.max = triangle.v1;
+				}
 				++bins[binIdx].triCount;
 
 				// Expand bin bounding box based on triangle vertices
@@ -205,36 +210,33 @@ namespace Physics
 				bins[binIdx].bounds.IncludePoint(triangle.v3);
 			}
 
-			// Keeps track of each bin's 
-			float leftArea[BINS_AMT], rightArea[BINS_AMT];
-			size_t leftCount[BINS_AMT], rightCount[BINS_AMT];
+			// Keeps track of each split plane candidate's bounding box area and triangle count
+			float leftArea[BINS_AMT - 1], rightArea[BINS_AMT - 1];
+			size_t leftCount[BINS_AMT - 1], rightCount[BINS_AMT - 1];
 			size_t leftSum = 0, rightSum = 0;
+
 			BoundingBox leftBox;
 			BoundingBox rightBox;
 
-			for (size_t i = 0; i < BINS_AMT; ++i)
+			leftBox.SetToLimit();
+			rightBox.SetToLimit();
+
+			for (size_t i = 0; i < BINS_AMT - 1; ++i)
 			{
 				leftSum += bins[i].triCount;
 				leftCount[i] = leftSum;
-				if (bins[i].triCount > 0)
-				{
-					leftBox.Merge(bins[i].bounds);
-					leftArea[i] = leftBox.surfaceArea;
-				}
+				leftBox.Merge(bins[i].bounds);
 				leftArea[i] = leftBox.surfaceArea;
 
-				rightSum += bins[BINS_AMT - i - 1].triCount;
-				rightCount[BINS_AMT - i - 1] = rightSum;
-				if (bins[BINS_AMT - i - 1].triCount > 0)
-				{
-					rightBox.Merge(bins[BINS_AMT - i - 1].bounds);
-				}
-				rightArea[BINS_AMT - i - 1] = rightBox.surfaceArea;
+				rightSum += bins[BINS_AMT - i - 2].triCount;
+				rightCount[BINS_AMT - i - 2] = rightSum;
+				rightBox.Merge(bins[BINS_AMT - i - 2].bounds);
+				rightArea[BINS_AMT - i - 2] = rightBox.surfaceArea;
 			}
 
-			// calculate SAH cost for the 7 planes
+			// calculate SAH cost for each split plane candidate
 			scale = (node.box.max[currentAxis] - node.box.min[currentAxis]) / BINS_AMT;
-			for (int i = 0; i < BINS_AMT; i++)
+			for (int i = 0; i < BINS_AMT - 1; i++)
 			{
 				float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
 
@@ -244,7 +246,7 @@ namespace Physics
 
 					// Update parameters
 					axis = currentAxis;
-					splitPos = node.box.min[currentAxis] + scale * (i + 1);
+					splitPos = node.box.min[currentAxis] + scale * (static_cast<int>(i) + 1.0f);
 				}
 			}
 		}
@@ -252,7 +254,7 @@ namespace Physics
 	}
 
 	template <typename T>
-	StaticTree<T>::Triangle& StaticTree<T>::GetTriangle(const size_t nodeIndex)
+	typename StaticTree<T>::Triangle& StaticTree<T>::GetTriangle(const size_t nodeIndex)
 	{
 		return mTriangles[mTriIdx[nodeIndex]];
 	}

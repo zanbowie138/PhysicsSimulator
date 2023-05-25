@@ -4,7 +4,7 @@ layout (location = 1) in vec3 aNormal;
 
 out vec3 Position;
 out vec3 Color;
-out vec3 Normal;
+flat out vec3 Normal;
 
 layout(std140) uniform Camera 
 {
