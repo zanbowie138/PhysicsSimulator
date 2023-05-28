@@ -253,9 +253,6 @@
     <ClInclude Include="src\physics\StaticTree.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="src\physics\KDTree.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\renderer\RenderSystem.cpp">

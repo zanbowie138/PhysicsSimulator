@@ -81,5 +81,5 @@ inline void BoundingBox::SetToLimit()
 
 inline void BoundingBox::UpdateSurfaceArea()
 {
-	surfaceArea = 2.0f*(max.x-min.x)*(max.y-min.y) + 2.0f*(max.y-min.y)*(max.z-min.z) + 2.0f*(max.x-min.x)*(max.z-min.z);
+	surfaceArea = (max.x-min.x)*(max.y-min.y) + (max.y-min.y)*(max.z-min.z) + (max.x-min.x)*(max.z-min.z);
 }

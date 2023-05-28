@@ -122,8 +122,8 @@ int main()
 	boxRenderer.InitECS();
 
 	boxRenderer.Clear();
-	piece.InitTree();
-	for (const auto& box : piece.mTree.GetBoxes(piece.transform.modelMat))
+	bunny.InitTree();
+	for (const auto& box : bunny.mTree.GetBoxes(bunny.transform.modelMat))
 	{
 		//std::cout << box.String() << std::endl;
 		boxRenderer.PushBack(box);
