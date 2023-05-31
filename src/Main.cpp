@@ -117,7 +117,7 @@ int main()
 	collideBox.ShaderID = basicShader.ID;
 	collideBox.InitECS();
 
-	Lines boxRenderer(1000000);
+	Lines boxRenderer(20000000);
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
 
@@ -125,7 +125,6 @@ int main()
 	bunny.InitTree();
 	for (const auto& box : bunny.mTree.GetBoxes(bunny.transform.modelMat))
 	{
-		//std::cout << box.String() << std::endl;
 		boxRenderer.PushBack(box);
 	}
 

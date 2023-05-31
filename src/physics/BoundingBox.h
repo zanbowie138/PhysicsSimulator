@@ -6,14 +6,14 @@ class BoundingBox
 {
 public:
 	// Corner points
-	glm::vec3 max;
 	glm::vec3 min;
+	glm::vec3 max;
 
 	float surfaceArea;
 
 public:
-	BoundingBox(): max(glm::vec3(0.0f)), min(glm::vec3(0.0f)), surfaceArea(0.0f){}
-	BoundingBox(const glm::vec3 max, const glm::vec3 min);
+	BoundingBox();
+	BoundingBox(const glm::vec3 min, const glm::vec3 max);
 
 	void Merge(const BoundingBox& box1, const BoundingBox& box2);
 	void Merge(const BoundingBox& other);
@@ -21,13 +21,19 @@ public:
 
 	std::string String() const;
 
+	void Reset();
 	void SetToLimit();
 
 	bool IsColliding(const BoundingBox& other) const;
 	void UpdateSurfaceArea();
 };
 
-inline BoundingBox::BoundingBox(const glm::vec3 max, const glm::vec3 min): max(max), min(min)
+inline BoundingBox::BoundingBox()
+{
+	SetToLimit();
+}
+
+inline BoundingBox::BoundingBox(const glm::vec3 min, const glm::vec3 max): min(min), max(max)
 {
 	UpdateSurfaceArea();
 }
@@ -73,10 +79,18 @@ inline std::string BoundingBox::String() const
 	return "min: " + glm::to_string(min) + "\n" + "max: " + glm::to_string(max) + "\n";
 }
 
+inline void BoundingBox::Reset()
+{
+	max = glm::vec3(0.0f);
+	min = glm::vec3(0.0f);
+	surfaceArea = 0.0f;
+}
+
 inline void BoundingBox::SetToLimit()
 {
 	max = glm::vec3(-FLT_MAX);
 	min = glm::vec3(FLT_MAX);
+	surfaceArea = 0.0f;
 }
 
 inline void BoundingBox::UpdateSurfaceArea()

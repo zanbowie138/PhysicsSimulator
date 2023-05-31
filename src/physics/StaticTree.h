@@ -1,11 +1,12 @@
 #pragma once
-#define BINS_AMT 1000
+#define BINS_AMT 8
 #include <unordered_map>
 #include <vector>
 #include <array>
 #include <algorithm>
 #include "BoundingBox.h"
 #include "../core/GlobalTypes.h"
+#include "../utils/Timer.h"
 #include <glm/gtx/string_cast.hpp>
 
 // https://iss.oden.utexas.edu/Publications/Papers/RT2008.pdf
@@ -55,7 +56,7 @@ namespace Physics
 
 		Triangle& GetTriangle(const size_t nodeIndex);
 
-		void UpdateNodeBoundingBox(size_t nodeIndex, bool useCentroid);
+		void UpdateNodeBoundingBox(size_t nodeIndex);
 		void ClearData();
 
 		size_t leafNodeAmount;
@@ -73,6 +74,10 @@ namespace Physics
 		ClearData();
 
 		leafNodeAmount = indices.size() / 3;
+
+		std::cout << "l amt " << leafNodeAmount << std::endl;
+
+		Utils::Timer t("StaticTree");
 
 		// Includes leaf nodes and internal nodes
 		mNodes.resize(leafNodeAmount * 2 + 1);
@@ -99,6 +104,8 @@ namespace Physics
 		mNodesUsed = 1;
 
 		Subdivide(rootNodeIdx);
+		std::cout << t.ToString().c_str() << std::endl;
+		std::cout << "Nodes used: " << mNodesUsed << std::endl;
 	}
 
 	template <typename T>
@@ -106,9 +113,9 @@ namespace Physics
 	{
 		std::vector<BoundingBox> output;
 		output.resize(mNodesUsed);
-		for (size_t i = 0; i < mNodesUsed; ++i)
+		for (size_t i = 0; i < mNodesUsed-1; ++i)
 		{
-			output.emplace_back(mNodes[i].box);
+			output[i] = (mNodes[i].box);
 		}
 		return output;
 	}
@@ -120,10 +127,7 @@ namespace Physics
 		output.resize(mNodesUsed);
 		for (size_t i = 0; i < mNodesUsed; ++i)
 		{
-			BoundingBox temp;
-			temp.min = modelMat * glm::vec4(mNodes[i].box.min, 1.0);
-			temp.max = modelMat * glm::vec4(mNodes[i].box.max,1.0);
-			output.emplace_back(temp);
+			output[i] = BoundingBox{ modelMat * glm::vec4(mNodes[i].box.min, 1.0), modelMat * glm::vec4(mNodes[i].box.max, 1.0) };
 		}
 		return output;
 	}
@@ -132,6 +136,8 @@ namespace Physics
 	void StaticTree<T>::Subdivide(size_t nodeIndex)
 	{
 		BVHNode& node = mNodes[nodeIndex];
+		UpdateNodeBoundingBox(nodeIndex);
+
 		if (node.triCount <= 1) return;
 
 		uint8_t axis;
@@ -140,7 +146,7 @@ namespace Physics
 		// Find axis, split position, and split cost
 		float splitCost = FindBestSplitPlane(nodeIndex, axis, splitPos);
 		node.box.UpdateSurfaceArea();
-		if (splitCost >= node.box.surfaceArea * static_cast<float>(node.triCount)) return;
+		//if (splitCost >= node.box.surfaceArea * static_cast<float>(node.triCount)) return;
 
 		size_t beginIter = node.first;
 		size_t endIter = node.first + (node.triCount - 1);
@@ -167,7 +173,6 @@ namespace Physics
 		mNodes[rightChildIdx].triCount = node.triCount - leftCount;
 
 		node.first = leftChildIdx;
-		node.triCount = 0;
 
 		// recurse
 		Subdivide(leftChildIdx);
@@ -178,12 +183,11 @@ namespace Physics
 	float StaticTree<T>::FindBestSplitPlane(size_t nodeIndex, uint8_t& axis, float& splitPos)
 	{
 		BVHNode& node = mNodes[nodeIndex];
-		UpdateNodeBoundingBox(nodeIndex, true);
 
 		float bestCost = FLT_MAX;
 		for (uint8_t currentAxis = 0; currentAxis < 3; ++currentAxis)
 		{
-			if (node.box.max[currentAxis] - node.box.min[currentAxis] == 0.0f) continue;
+			//if (node.box.max[currentAxis] - node.box.min[currentAxis] == 0.0f) continue;
 			Bin bins[BINS_AMT] = {};
 
 			float scale = static_cast<float>(BINS_AMT) / (node.box.max[currentAxis] - node.box.min[currentAxis]);
@@ -196,10 +200,6 @@ namespace Physics
 				// Determine which bin based on triangle centroid position
 				unsigned binIdx = std::min(static_cast<unsigned>(BINS_AMT - 1), static_cast<unsigned>((triangle.centroid[currentAxis] - node.box.min[currentAxis]) * scale));
 
-				if (bins[binIdx].triCount == 0)
-				{
-					bins[binIdx].bounds.SetToLimit();
-				}
 				++bins[binIdx].triCount;
 
 				// Expand bin bounding box based on triangle vertices
@@ -216,19 +216,19 @@ namespace Physics
 			BoundingBox leftBox;
 			BoundingBox rightBox;
 
-			leftBox.SetToLimit();
-			rightBox.SetToLimit();
-
 			for (size_t i = 0; i < BINS_AMT - 1; ++i)
 			{
 				leftSum += bins[i].triCount;
 				leftCount[i] = leftSum;
-				leftBox.Merge(bins[i].bounds);
+				if (bins[i].triCount > 0)
+					leftBox.Merge(bins[i].bounds);
 				leftArea[i] = leftBox.surfaceArea;
+				
 
 				rightSum += bins[BINS_AMT - i - 2].triCount;
 				rightCount[BINS_AMT - i - 2] = rightSum;
-				rightBox.Merge(bins[BINS_AMT - i - 2].bounds);
+				if (bins[BINS_AMT - i - 2].triCount > 0)
+					rightBox.Merge(bins[BINS_AMT - i - 2].bounds);
 				rightArea[BINS_AMT - i - 2] = rightBox.surfaceArea;
 			}
 
@@ -245,9 +245,10 @@ namespace Physics
 
 					// Update parameters
 					axis = currentAxis;
-					splitPos = node.box.min[currentAxis] + scale * (static_cast<int>(i) + 1.0f);
+					splitPos = node.box.min[currentAxis] + scale * (static_cast<float>(i) + 1.0f);
 				}
 			}
+			//std::cout << splitPos << std::endl;
 		}
 		return bestCost;
 	}
@@ -259,7 +260,7 @@ namespace Physics
 	}
 
 	template <typename T>
-	void StaticTree<T>::UpdateNodeBoundingBox(size_t nodeIndex, const bool useCentroid)
+	void StaticTree<T>::UpdateNodeBoundingBox(size_t nodeIndex)
 	{
 		BVHNode& node = mNodes[nodeIndex];
 		node.box.SetToLimit();
@@ -268,14 +269,8 @@ namespace Physics
 		for (int t = node.first; t < node.first + node.triCount; ++t)
 		{
 			Triangle& tri = GetTriangle(t);
-			if (useCentroid)
-				node.box.IncludePoint(tri.centroid);
-			else
-			{
-				node.box.IncludePoint(tri.v1);
-				node.box.IncludePoint(tri.v2);
-				node.box.IncludePoint(tri.v3);
-			}
+
+			node.box.IncludePoint(tri.centroid);
 		}
 	}
 
