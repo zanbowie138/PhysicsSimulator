@@ -82,6 +82,8 @@ namespace Physics
 		// Includes leaf nodes and internal nodes
 		mNodes.resize(leafNodeAmount * 2 + 1);
 
+		// TODO: don't make a copy of vertice info
+		// Maybe store connected to entity?
 		// Transfer vertice and indice information into triangle vector
 		mTriangles.resize(leafNodeAmount);
 		mTriIdx.resize(leafNodeAmount);

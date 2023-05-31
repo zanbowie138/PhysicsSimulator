@@ -21,12 +21,15 @@
 #include "renderables/Mesh.h"
 
 #include "utils/SimpleShapes.h"
+#include "utils/Timer.h"
 
 ECSController ecsController;
 
 int main()
 {
 	// TODO: Combine VBO, EBO into one class
+
+	Utils::Timer timer("Setup");
 	// Window creation
 	Core::WindowManager windowManager;
 	windowManager.Init("OpenGL Window", 900, 900);
@@ -123,7 +126,9 @@ int main()
 
 	boxRenderer.Clear();
 	bunny.InitTree();
-	for (const auto& box : bunny.mTree.GetBoxes(bunny.transform.modelMat))
+	const auto& boxes = bunny.mTree.GetBoxes(bunny.transform.modelMat);
+	boxRenderer.ResizeArrays(boxes.size());
+	for (const auto& box : boxes)
 	{
 		boxRenderer.PushBack(box);
 	}
@@ -149,6 +154,8 @@ int main()
 	float dt = 0;
 	unsigned int frame = 0;
 
+
+	std::cout << timer.ToString() << std::endl;
 	while (!glfwWindowShouldClose(window))
 	{
 		renderSystem->PreUpdate();

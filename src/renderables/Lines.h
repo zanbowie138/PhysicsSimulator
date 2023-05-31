@@ -24,6 +24,7 @@ public:
 
 	inline void PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds);
 	inline void PushBack(const BoundingBox& box);
+	inline void ResizeArrays(const size_t boxAmt);
 	inline void Clear();
 	size_t GetSize() override;
 private:
@@ -63,16 +64,17 @@ inline void Lines::PushBack(const BoundingBox& box)
 {
 	mVAO.Bind();
 	VBO.Bind();
-	std::vector<glm::vec3> verts;
-	verts.emplace_back(box.max);
-	verts.emplace_back(box.max.x, box.max.y, box.min.z);
-	verts.emplace_back(box.min.x, box.max.y, box.min.z);
-	verts.emplace_back(box.min.x, box.max.y, box.max.z);
-	
-	verts.emplace_back(box.max.x, box.min.y, box.max.z);
-	verts.emplace_back(box.max.x, box.min.y, box.min.z);
-	verts.emplace_back(box.min);
-	verts.emplace_back(box.min.x, box.min.y, box.max.z);
+	std::vector<glm::vec3> verts =
+	{
+		glm::vec3(box.max),
+		glm::vec3(box.max.x, box.max.y, box.min.z),
+		glm::vec3(box.min.x, box.max.y, box.min.z),
+		glm::vec3(box.min.x, box.max.y, box.max.z),
+		glm::vec3(box.max.x, box.min.y, box.max.z),
+		glm::vec3(box.max.x, box.min.y, box.min.z),
+		glm::vec3(box.min),
+		glm::vec3(box.min.x, box.min.y, box.max.z)
+	};
 
 	vertices.insert(vertices.end(), verts.begin(), verts.end());
 	VBO.PushData(verts);
@@ -95,6 +97,7 @@ inline void Lines::PushBack(const BoundingBox& box)
 	};
 
 	std::vector<GLuint> inds;
+	inds.resize(12);
 	for (const auto& i : offset)
 	{
 		inds.push_back(static_cast<GLuint>(vertices.size()) - 8 + i);
@@ -108,6 +111,12 @@ inline void Lines::PushBack(const BoundingBox& box)
 	EBO.Unbind();
 
 	UpdateSize();
+}
+
+inline void Lines::ResizeArrays(const size_t boxAmt)
+{
+	vertices.reserve(boxAmt * 8);
+	indices.reserve(boxAmt * 12);
 }
 
 inline void Lines::Clear()
