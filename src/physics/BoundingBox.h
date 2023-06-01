@@ -17,7 +17,7 @@ public:
 
 	void Merge(const BoundingBox& box1, const BoundingBox& box2);
 	void Merge(const BoundingBox& other);
-	void IncludePoint(const glm::vec3& point);
+	void IncludePoint(const glm::vec3 point);
 
 	std::string String() const;
 
@@ -66,7 +66,7 @@ inline void BoundingBox::Merge(const BoundingBox& other)
 	UpdateSurfaceArea();
 }
 
-inline void BoundingBox::IncludePoint(const glm::vec3& point)
+inline void BoundingBox::IncludePoint(const glm::vec3 point)
 {
 	for (unsigned int d = 0; d < 3; d++) {
 		min[d] = std::min(point[d], min[d]);

@@ -24,15 +24,6 @@ namespace Physics
 			size_t first;
 			size_t triCount;
 		};
-
-		struct Triangle
-		{
-			glm::vec3 v1;
-			glm::vec3 v2;
-			glm::vec3 v3;
-			glm::vec3 centroid;
-		};
-
 		struct Bin
 		{
 			BoundingBox bounds;
@@ -42,9 +33,9 @@ namespace Physics
 	public:
 		std::vector<BVHNode> mNodes;
 
-		explicit StaticTree() {}
+		StaticTree(){}
 
-		void CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned int>& indices);
+		void CreateStaticTree(const std::shared_ptr<std::vector<ModelPt>>& vert, const std::shared_ptr<std::vector<unsigned>>& inds);
 
 		std::vector<BoundingBox> GetBoxes();
 		std::vector<BoundingBox> GetBoxes(const glm::mat4& modelMat);
@@ -53,8 +44,9 @@ namespace Physics
 		void Subdivide(size_t nodeIndex);
 
 		float FindBestSplitPlane(size_t nodeIndex, uint8_t& axis, float& splitPos);
+		size_t GetTriIndex(size_t nodeIndex);
 
-		Triangle& GetTriangle(const size_t nodeIndex);
+		glm::vec3 GetCentroid(size_t nodeIndex);
 
 		void UpdateNodeBoundingBox(size_t nodeIndex);
 		void ClearData();
@@ -63,21 +55,27 @@ namespace Physics
 
 		size_t rootNodeIdx = 0;
 		std::vector<size_t> mTriIdx;
-		std::vector<Triangle> mTriangles;
+		std::vector<glm::vec3> mCentroids;
 
 		size_t mNodesUsed = 0;
+
+		std::shared_ptr<std::vector<ModelPt>> vertices;
+		std::shared_ptr<std::vector<unsigned int>> indices;
 	};
 
 	template <typename T>
-	void StaticTree<T>::CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned int>& indices)
+	void StaticTree<T>::CreateStaticTree(const std::shared_ptr<std::vector<ModelPt>>& vert, const std::shared_ptr<std::vector<unsigned>>& inds)
 	{
 		ClearData();
 
-		leafNodeAmount = indices.size() / 3;
+		leafNodeAmount = inds->size() / 3;
 
 		std::cout << "l amt " << leafNodeAmount << std::endl;
 
 		Utils::Timer t("StaticTree");
+
+		vertices = vert;
+		indices = inds;
 
 		// Includes leaf nodes and internal nodes
 		mNodes.resize(leafNodeAmount * 2 + 1);
@@ -85,19 +83,13 @@ namespace Physics
 		// TODO: don't make a copy of vertice info
 		// Maybe store connected to entity?
 		// Transfer vertice and indice information into triangle vector
-		mTriangles.resize(leafNodeAmount);
+		mCentroids.resize(leafNodeAmount);
 		mTriIdx.resize(leafNodeAmount);
 		for (size_t i = 0; i < leafNodeAmount; i++)
 		{
 			mTriIdx[i] = i;
 
-			auto& tri = mTriangles[i];
-
-			tri.v1 = vertices[indices[i*3]].position;
-			tri.v2 = vertices[indices[i*3+1]].position;
-			tri.v3 = vertices[indices[i*3+2]].position;
-
-			tri.centroid = (tri.v1 + tri.v2 + tri.v3) * 0.3333f;
+			mCentroids[i] = ((*vert)[(*inds)[i * 3]].position + (*vert)[(*inds)[i * 3 + 1]].position + (*vert)[(*inds)[i * 3 + 2]].position) / 3.0f;
 		}
 
 		BVHNode& root = mNodes[rootNodeIdx];
@@ -154,7 +146,7 @@ namespace Physics
 		size_t endIter = node.first + (node.triCount - 1);
 		while (beginIter <= endIter)
 		{
-			if (GetTriangle(beginIter).centroid[axis] < splitPos)
+			if (GetCentroid(beginIter)[axis] < splitPos)
 				++beginIter;
 			else
 				std::swap(mTriIdx[beginIter], mTriIdx[endIter--]);
@@ -189,7 +181,6 @@ namespace Physics
 		float bestCost = FLT_MAX;
 		for (uint8_t currentAxis = 0; currentAxis < 3; ++currentAxis)
 		{
-			//if (node.box.max[currentAxis] - node.box.min[currentAxis] == 0.0f) continue;
 			Bin bins[BINS_AMT] = {};
 
 			float scale = static_cast<float>(BINS_AMT) / (node.box.max[currentAxis] - node.box.min[currentAxis]);
@@ -197,17 +188,15 @@ namespace Physics
 			// Update bins based on triangles in the node
 			for (size_t i = node.first; i < node.first + node.triCount; ++i)
 			{
-				Triangle& triangle = GetTriangle(i);
-
 				// Determine which bin based on triangle centroid position
-				unsigned binIdx = std::min(static_cast<unsigned>(BINS_AMT - 1), static_cast<unsigned>((triangle.centroid[currentAxis] - node.box.min[currentAxis]) * scale));
+				unsigned binIdx = std::min(static_cast<unsigned>(BINS_AMT - 1), static_cast<unsigned>((mCentroids[GetTriIndex(i)][currentAxis] - node.box.min[currentAxis]) * scale));
 
 				++bins[binIdx].triCount;
 
 				// Expand bin bounding box based on triangle vertices
-				bins[binIdx].bounds.IncludePoint(triangle.v1);
-				bins[binIdx].bounds.IncludePoint(triangle.v2);
-				bins[binIdx].bounds.IncludePoint(triangle.v3);
+				bins[binIdx].bounds.IncludePoint(((*vertices)[(*indices)[mTriIdx[i]]]).position);
+				bins[binIdx].bounds.IncludePoint(((*vertices)[(*indices)[mTriIdx[i] + 1]]).position);
+				bins[binIdx].bounds.IncludePoint(((*vertices)[(*indices)[mTriIdx[i] + 2]]).position);
 			}
 
 			// Keeps track of each split plane candidate's bounding box area and triangle count
@@ -243,23 +232,28 @@ namespace Physics
 				if (planeCost < bestCost)
 				{
 					bestCost = planeCost;
-					//std::cout << leftCount[i] << " " << rightCount[i] << std::endl;
 
 					// Update parameters
 					axis = currentAxis;
 					splitPos = node.box.min[currentAxis] + scale * (static_cast<float>(i) + 1.0f);
 				}
 			}
-			//std::cout << splitPos << std::endl;
 		}
 		return bestCost;
 	}
 
 	template <typename T>
-	typename StaticTree<T>::Triangle& StaticTree<T>::GetTriangle(const size_t nodeIndex)
+	size_t StaticTree<T>::GetTriIndex(const size_t nodeIndex)
 	{
-		return mTriangles[mTriIdx[nodeIndex]];
+		return mTriIdx[nodeIndex];
 	}
+
+	template <typename T>
+	glm::vec3 StaticTree<T>::GetCentroid(size_t nodeIndex)
+	{
+		return mCentroids[mTriIdx[nodeIndex]];
+	}
+
 
 	template <typename T>
 	void StaticTree<T>::UpdateNodeBoundingBox(size_t nodeIndex)
@@ -270,9 +264,7 @@ namespace Physics
 		// Update bounds
 		for (int t = node.first; t < node.first + node.triCount; ++t)
 		{
-			Triangle& tri = GetTriangle(t);
-
-			node.box.IncludePoint(tri.centroid);
+			node.box.IncludePoint(GetCentroid(t));
 		}
 	}
 

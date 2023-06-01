@@ -124,8 +124,8 @@ int main()
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
 
-	boxRenderer.Clear();
 	bunny.InitTree();
+	boxRenderer.Clear();
 	const auto& boxes = bunny.mTree.GetBoxes(bunny.transform.modelMat);
 	boxRenderer.ResizeArrays(boxes.size());
 	for (const auto& box : boxes)
