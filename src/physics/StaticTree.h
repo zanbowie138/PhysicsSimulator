@@ -1,15 +1,19 @@
 #pragma once
 #define BINS_AMT 8
+#define DEBUG
 #include <unordered_map>
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <thread>
+#include <queue>
+
 #include "BoundingBox.h"
 #include "../core/GlobalTypes.h"
 #include "../utils/Timer.h"
+#include "../utils/ThreadPool.h"
 #include <glm/gtx/string_cast.hpp>
 
-// https://iss.oden.utexas.edu/Publications/Papers/RT2008.pdf
 // https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
 
 namespace Physics
@@ -57,10 +61,12 @@ namespace Physics
 		std::vector<size_t> mTriIdx;
 		std::vector<glm::vec3> mCentroids;
 
-		size_t mNodesUsed = 0;
+		std::atomic<size_t> mNodesUsed = 0;
 
 		std::shared_ptr<std::vector<ModelPt>> vertices;
 		std::shared_ptr<std::vector<unsigned int>> indices;
+
+		Utils::ThreadPool mThreadPool;
 	};
 
 	template <typename T>
@@ -70,9 +76,12 @@ namespace Physics
 
 		leafNodeAmount = inds->size() / 3;
 
-		std::cout << "l amt " << leafNodeAmount << std::endl;
+#ifdef DEBUG
+		std::cout << "Initializing Tree..." << std::endl;
+		std::cout << "Leaf node amount " << leafNodeAmount << std::endl;
 
 		Utils::Timer t("StaticTree");
+#endif
 
 		vertices = vert;
 		indices = inds;
@@ -80,8 +89,6 @@ namespace Physics
 		// Includes leaf nodes and internal nodes
 		mNodes.resize(leafNodeAmount * 2 + 1);
 
-		// TODO: don't make a copy of vertice info
-		// Maybe store connected to entity?
 		// Transfer vertice and indice information into triangle vector
 		mCentroids.resize(leafNodeAmount);
 		mTriIdx.resize(leafNodeAmount);
@@ -97,9 +104,17 @@ namespace Physics
 		root.triCount = leafNodeAmount;
 		mNodesUsed = 1;
 
-		Subdivide(rootNodeIdx);
+		mThreadPool.Start();
+		mThreadPool.QueueJob([this] {Subdivide(rootNodeIdx);});
+
+		while (mThreadPool.Busy()){}
+		mThreadPool.Clear();
+
+#ifdef DEBUG
+		std::cout << "Finished!" << std::endl;
 		std::cout << t.ToString().c_str() << std::endl;
 		std::cout << "Nodes used: " << mNodesUsed << std::endl;
+#endif
 	}
 
 	template <typename T>
@@ -159,6 +174,7 @@ namespace Physics
 		// create child nodes
 		size_t leftChildIdx = mNodesUsed++;
 		size_t rightChildIdx = mNodesUsed++;
+		
 
 		mNodes[leftChildIdx].first = node.first;
 		mNodes[leftChildIdx].triCount = leftCount;
@@ -169,9 +185,10 @@ namespace Physics
 		node.first = leftChildIdx;
 
 		// recurse
-		Subdivide(leftChildIdx);
-		Subdivide(rightChildIdx);
+		mThreadPool.QueueJob([this, leftChildIdx] { Subdivide(leftChildIdx); });
+		mThreadPool.QueueJob([this, rightChildIdx] { Subdivide(rightChildIdx); });
 	}
+
 
 	template <typename T>
 	float StaticTree<T>::FindBestSplitPlane(size_t nodeIndex, uint8_t& axis, float& splitPos)

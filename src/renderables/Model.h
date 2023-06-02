@@ -72,9 +72,7 @@ inline BoundingBox Model::CalcBoundingBox()
 
 inline void Model::InitTree()
 {
-	std::cout << "Starting init" << std::endl;
 	mTree.CreateStaticTree(vertices, indices);
-	std::cout << "done" << std::endl;
 }
 
 

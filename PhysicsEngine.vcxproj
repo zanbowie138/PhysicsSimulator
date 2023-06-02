@@ -231,6 +231,7 @@
     <ClInclude Include="src\renderer\VBO.h" />
     <ClInclude Include="src\utils\ModelImport.h" />
     <ClInclude Include="src\utils\SimpleShapes.h" />
+    <ClInclude Include="src\utils\ThreadPool.h" />
     <ClInclude Include="src\utils\Timer.h" />
     <ClInclude Include="src\utils\Utils.h" />
   </ItemGroup>
