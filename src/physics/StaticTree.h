@@ -10,11 +10,11 @@
 
 #include <glm/gtx/string_cast.hpp>
 
+#include "BoundingBox.h"
 #include "../core/GlobalTypes.h"
 #include "../utils/Timer.h"
 #include "../utils/ThreadPool.h"
 
-#include "BoundingBox.h"
 
 // Adapted from: https://github.com/jbikker/bvh_article/blob/main/quickbuild.cpp
 // Full article explanation: https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
@@ -38,6 +38,13 @@ namespace Physics
 			size_t triCount{};
 		};
 
+		struct Triangle
+		{
+			glm::vec3 v1;
+			glm::vec3 v2;
+			glm::vec3 v3;
+		};
+
 		// Index positions of triangles, eventually sorted by centroids depending on node
 		std::vector<size_t> mTriIdx;
 		// Vector of all triangle centroids
@@ -46,18 +53,18 @@ namespace Physics
 		// Keeps index position of next free node
 		std::atomic<size_t> mNodesUsed = 0;
 
-		// Pointers to model data
-		std::shared_ptr<std::vector<ModelPt>> vertices;
-		std::shared_ptr<std::vector<unsigned int>> indices;
+		// Triangle data
+		std::vector<Triangle> mTriangles;
 
 		// Thread pool for quick computation
 		Utils::ThreadPool mThreadPool;
+
 	public:
 		std::vector<BVHNode> mNodes;
 
-		StaticTree(){}
+		StaticTree() = default;
 
-		void CreateStaticTree(const std::shared_ptr<std::vector<ModelPt>>& vert, const std::shared_ptr<std::vector<unsigned>>& inds);
+		void CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned>& indices);
 
 		std::vector<BoundingBox> GetBoxes();
 		std::vector<BoundingBox> GetBoxes(const glm::mat4& modelMat);
@@ -66,20 +73,20 @@ namespace Physics
 		void Subdivide(size_t nodeIndex);
 
 		float FindBestSplitPlane(size_t nodeIndex, uint8_t& axis, float& splitPos);
-		size_t GetTriIndex(size_t nodeIndex);
 
-		glm::vec3 GetCentroid(size_t nodeIndex);
+		glm::vec3 GetCentroid(size_t index) const;
+		const Triangle& GetTriangle(size_t index) const;
 
 		void UpdateNodeBoundingBox(size_t nodeIndex);
 		void ClearData();
 	};
 
 	template <typename T>
-	void StaticTree<T>::CreateStaticTree(const std::shared_ptr<std::vector<ModelPt>>& vert, const std::shared_ptr<std::vector<unsigned>>& inds)
+	void StaticTree<T>::CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned>& indices)
 	{
 		ClearData();
 
-		size_t leafNodeAmount = inds->size() / 3;
+		size_t leafNodeAmount = indices.size() / 3;
 
 #ifdef DEBUG
 		std::cout << "Initializing Tree..." << std::endl;
@@ -88,20 +95,23 @@ namespace Physics
 		Utils::Timer t("StaticTree");
 #endif
 
-		vertices = vert;
-		indices = inds;
-
 		// Includes leaf nodes and internal nodes
 		mNodes.resize(leafNodeAmount * 2 + 1);
 
 		// Transfer vertice and indice information into triangle vector
 		mCentroids.resize(leafNodeAmount);
 		mTriIdx.resize(leafNodeAmount);
+		mTriangles.resize(leafNodeAmount);
 		for (size_t i = 0; i < leafNodeAmount; i++)
 		{
 			mTriIdx[i] = i;
 
-			mCentroids[i] = ((*vert)[(*inds)[i * 3]].position + (*vert)[(*inds)[i * 3 + 1]].position + (*vert)[(*inds)[i * 3 + 2]].position) * 0.33333f;
+			Triangle& tri = mTriangles[i];
+			tri.v1 = vertices[indices[i * 3]].position;
+			tri.v2 = vertices[indices[i * 3 + 1]].position;
+			tri.v3 = vertices[indices[i * 3 + 2]].position;
+
+			mCentroids[i] = (tri.v1 + tri.v2 + tri.v3) * 0.33333f;
 		}
 
 		BVHNode& root = mNodes[0];
@@ -110,9 +120,11 @@ namespace Physics
 		mNodesUsed = 1;
 
 		mThreadPool.Start();
-		mThreadPool.QueueJob([this] {Subdivide(0);});
+		mThreadPool.QueueJob([this] { Subdivide(0); });
 
-		while (mThreadPool.Busy()){}
+		while (mThreadPool.Busy())
+		{
+		}
 		mThreadPool.Clear();
 
 #ifdef DEBUG
@@ -123,11 +135,11 @@ namespace Physics
 	}
 
 	template <typename T>
-	std::vector<BoundingBox> StaticTree<T>::GetBoxes() 
+	std::vector<BoundingBox> StaticTree<T>::GetBoxes()
 	{
 		std::vector<BoundingBox> output;
 		output.resize(mNodesUsed);
-		for (size_t i = 0; i < mNodesUsed-1; ++i)
+		for (size_t i = 0; i < mNodesUsed - 1; ++i)
 		{
 			output[i] = (mNodes[i].box);
 		}
@@ -141,7 +153,9 @@ namespace Physics
 		output.resize(mNodesUsed);
 		for (size_t i = 0; i < mNodesUsed; ++i)
 		{
-			output[i] = BoundingBox{ modelMat * glm::vec4(mNodes[i].box.min, 1.0), modelMat * glm::vec4(mNodes[i].box.max, 1.0) };
+			output[i] = BoundingBox{
+				modelMat * glm::vec4(mNodes[i].box.min, 1.0), modelMat * glm::vec4(mNodes[i].box.max, 1.0)
+			};
 		}
 		return output;
 	}
@@ -171,7 +185,7 @@ namespace Physics
 			else
 				std::swap(mTriIdx[beginIter], mTriIdx[endIter--]);
 		}
-		
+
 		// Stop split if one side is empty
 		size_t leftCount = beginIter - node.first;
 		if (leftCount == 0 || leftCount == node.triCount) return;
@@ -179,7 +193,7 @@ namespace Physics
 		// create child nodes
 		size_t leftChildIdx = mNodesUsed++;
 		size_t rightChildIdx = mNodesUsed++;
-		
+
 
 		mNodes[leftChildIdx].first = node.first;
 		mNodes[leftChildIdx].triCount = leftCount;
@@ -211,14 +225,17 @@ namespace Physics
 			for (size_t i = node.first; i < node.first + node.triCount; ++i)
 			{
 				// Determine which bin based on triangle centroid position
-				unsigned binIdx = std::min(static_cast<unsigned>(BINS_AMT - 1), static_cast<unsigned>((mCentroids[GetTriIndex(i)][currentAxis] - node.box.min[currentAxis]) * scale));
+				unsigned binIdx = std::min(static_cast<unsigned>(BINS_AMT - 1),
+				                           static_cast<unsigned>((GetCentroid(i)[currentAxis] - node.box.min[
+					                           currentAxis]) * scale));
 
 				++bins[binIdx].triCount;
 
 				// Expand bin bounding box based on triangle vertices
-				bins[binIdx].bounds.IncludePoint(((*vertices)[(*indices)[mTriIdx[i]]]).position);
-				bins[binIdx].bounds.IncludePoint(((*vertices)[(*indices)[mTriIdx[i] + 1]]).position);
-				bins[binIdx].bounds.IncludePoint(((*vertices)[(*indices)[mTriIdx[i] + 2]]).position);
+				const Triangle& tri = GetTriangle(i);
+				bins[binIdx].bounds.IncludePoint(tri.v1);
+				bins[binIdx].bounds.IncludePoint(tri.v2);
+				bins[binIdx].bounds.IncludePoint(tri.v3);
 			}
 
 			// Keeps track of each split plane candidate's bounding box area and triangle count
@@ -236,7 +253,7 @@ namespace Physics
 				if (bins[i].triCount > 0)
 					leftBox.Merge(bins[i].bounds);
 				leftArea[i] = leftBox.surfaceArea;
-				
+
 
 				rightSum += bins[BINS_AMT - i - 2].triCount;
 				rightCount[BINS_AMT - i - 2] = rightSum;
@@ -265,15 +282,15 @@ namespace Physics
 	}
 
 	template <typename T>
-	size_t StaticTree<T>::GetTriIndex(const size_t nodeIndex)
+	glm::vec3 StaticTree<T>::GetCentroid(const size_t index) const
 	{
-		return mTriIdx[nodeIndex];
+		return mCentroids[mTriIdx[index]];
 	}
 
 	template <typename T>
-	glm::vec3 StaticTree<T>::GetCentroid(size_t nodeIndex)
+	const typename StaticTree<T>::Triangle& StaticTree<T>::GetTriangle(const size_t index) const
 	{
-		return mCentroids[mTriIdx[nodeIndex]];
+		return mTriangles[mTriIdx[index]];
 	}
 
 

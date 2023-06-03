@@ -17,8 +17,8 @@
 class Model: public Renderable
 {
 public:
-	std::shared_ptr<std::vector<ModelPt>> vertices;
-	std::shared_ptr < std::vector<unsigned int>> indices;
+	std::vector<ModelPt> vertices;
+	std::vector<unsigned int> indices;
 
 	Physics::StaticTree<size_t> mTree{};
 
@@ -46,8 +46,8 @@ inline Model::Model(const char* filename, const bool is_stl)
 		model = Utils::ReadSTL((std::filesystem::current_path().string() + localDir + filename).c_str());
 	}
 
-	vertices = std::make_shared< std::vector<ModelPt>>(model.first);
-	indices = std::make_shared<std::vector<unsigned int>>(model.second);
+	vertices = std::vector<ModelPt>(model.first);
+	indices = std::vector<unsigned int>(model.second);
 
 	InitVAO();
 }
@@ -56,9 +56,9 @@ inline BoundingBox Model::CalcBoundingBox()
 {
 	BoundingBox box;
 	transform.CalculateModelMat();
-	box.min = transform.modelMat * glm::vec4((*vertices)[0].position, 1.0f);
-	box.max = transform.modelMat * glm::vec4((*vertices)[0].position, 1.0f);
-	for (const auto& pt : *vertices)
+	box.min = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
+	box.max = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
+	for (const auto& pt : vertices)
 	{
 		auto point = transform.modelMat * glm::vec4(pt.position, 1.0f);
 		for (unsigned int i = 0; i < 3; i++)
@@ -80,8 +80,8 @@ inline void Model::InitVAO()
 {
 	mVAO.Bind();
 
-	VBO VBO(*vertices);
-	EBO EBO(*indices);
+	VBO VBO(vertices);
+	EBO EBO(indices);
 
 	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
 	mVAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(ModelPt), (void*)(3 * sizeof(float)));
@@ -93,5 +93,5 @@ inline void Model::InitVAO()
 
 inline size_t Model::GetSize()
 {
-	return indices->size();
+	return indices.size();
 }

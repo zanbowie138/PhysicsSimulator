@@ -125,8 +125,9 @@ int main()
 	boxRenderer.InitECS();
 
 	bunny.InitTree();
+	piece.InitTree();
 	boxRenderer.Clear();
-	const auto& boxes = bunny.mTree.GetBoxes(bunny.transform.modelMat);
+	const auto& boxes = piece.mTree.GetBoxes(piece.transform.modelMat);
 	boxRenderer.ResizeArrays(boxes.size());
 	for (const auto& box : boxes)
 	{

@@ -244,9 +244,6 @@
     <ClInclude Include="src\renderer\Texture.h">
       <Filter>Header Files\Renderer\Basic</Filter>
     </ClInclude>
-    <ClInclude Include="src\physics\Cluster.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\physics\DynamicTree.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>

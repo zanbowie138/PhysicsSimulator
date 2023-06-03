@@ -212,7 +212,6 @@
     <ClInclude Include="src\core\WindowManager.h" />
     <ClInclude Include="src\physics\BoundingBox.h" />
     <ClInclude Include="src\physics\BoundingBoxTree.h" />
-    <ClInclude Include="src\physics\Cluster.h" />
     <ClInclude Include="src\physics\Collidable.h" />
     <ClInclude Include="src\physics\DynamicTree.h" />
     <ClInclude Include="src\physics\PhysicsSystem.h" />
