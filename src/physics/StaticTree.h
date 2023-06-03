@@ -8,13 +8,16 @@
 #include <thread>
 #include <queue>
 
-#include "BoundingBox.h"
+#include <glm/gtx/string_cast.hpp>
+
 #include "../core/GlobalTypes.h"
 #include "../utils/Timer.h"
 #include "../utils/ThreadPool.h"
-#include <glm/gtx/string_cast.hpp>
 
-// https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
+#include "BoundingBox.h"
+
+// Adapted from: https://github.com/jbikker/bvh_article/blob/main/quickbuild.cpp
+// Full article explanation: https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
 
 namespace Physics
 {
@@ -25,15 +28,30 @@ namespace Physics
 		struct BVHNode
 		{
 			BoundingBox box;
-			size_t first;
-			size_t triCount;
+			size_t first{};
+			size_t triCount{};
 		};
+
 		struct Bin
 		{
 			BoundingBox bounds;
-			size_t triCount;
+			size_t triCount{};
 		};
 
+		// Index positions of triangles, eventually sorted by centroids depending on node
+		std::vector<size_t> mTriIdx;
+		// Vector of all triangle centroids
+		std::vector<glm::vec3> mCentroids;
+
+		// Keeps index position of next free node
+		std::atomic<size_t> mNodesUsed = 0;
+
+		// Pointers to model data
+		std::shared_ptr<std::vector<ModelPt>> vertices;
+		std::shared_ptr<std::vector<unsigned int>> indices;
+
+		// Thread pool for quick computation
+		Utils::ThreadPool mThreadPool;
 	public:
 		std::vector<BVHNode> mNodes;
 
@@ -54,19 +72,6 @@ namespace Physics
 
 		void UpdateNodeBoundingBox(size_t nodeIndex);
 		void ClearData();
-
-		size_t leafNodeAmount;
-
-		size_t rootNodeIdx = 0;
-		std::vector<size_t> mTriIdx;
-		std::vector<glm::vec3> mCentroids;
-
-		std::atomic<size_t> mNodesUsed = 0;
-
-		std::shared_ptr<std::vector<ModelPt>> vertices;
-		std::shared_ptr<std::vector<unsigned int>> indices;
-
-		Utils::ThreadPool mThreadPool;
 	};
 
 	template <typename T>
@@ -74,11 +79,11 @@ namespace Physics
 	{
 		ClearData();
 
-		leafNodeAmount = inds->size() / 3;
+		size_t leafNodeAmount = inds->size() / 3;
 
 #ifdef DEBUG
 		std::cout << "Initializing Tree..." << std::endl;
-		std::cout << "Leaf node amount " << leafNodeAmount << std::endl;
+		//std::cout << "Leaf node amount " << leafNodeAmount << std::endl;
 
 		Utils::Timer t("StaticTree");
 #endif
@@ -96,16 +101,16 @@ namespace Physics
 		{
 			mTriIdx[i] = i;
 
-			mCentroids[i] = ((*vert)[(*inds)[i * 3]].position + (*vert)[(*inds)[i * 3 + 1]].position + (*vert)[(*inds)[i * 3 + 2]].position) / 3.0f;
+			mCentroids[i] = ((*vert)[(*inds)[i * 3]].position + (*vert)[(*inds)[i * 3 + 1]].position + (*vert)[(*inds)[i * 3 + 2]].position) * 0.33333f;
 		}
 
-		BVHNode& root = mNodes[rootNodeIdx];
+		BVHNode& root = mNodes[0];
 		root.first = 0;
 		root.triCount = leafNodeAmount;
 		mNodesUsed = 1;
 
 		mThreadPool.Start();
-		mThreadPool.QueueJob([this] {Subdivide(rootNodeIdx);});
+		mThreadPool.QueueJob([this] {Subdivide(0);});
 
 		while (mThreadPool.Busy()){}
 		mThreadPool.Clear();
@@ -113,7 +118,7 @@ namespace Physics
 #ifdef DEBUG
 		std::cout << "Finished!" << std::endl;
 		std::cout << t.ToString().c_str() << std::endl;
-		std::cout << "Nodes used: " << mNodesUsed << std::endl;
+		//std::cout << "Nodes used: " << mNodesUsed << std::endl;
 #endif
 	}
 
