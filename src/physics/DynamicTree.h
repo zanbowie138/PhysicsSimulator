@@ -33,8 +33,6 @@ namespace Physics {
 		size_t nodeCount;
 		size_t rootIndex;
 
-		std::vector<size_t> mCollisions;
-
 	public:
 		// Queried to get object
 		std::unordered_map<size_t, T> nodeToObjectMap;
@@ -51,7 +49,7 @@ namespace Physics {
 		void UpdateEntity(T object, BoundingBox box);
 
 		// Uses TreeQuery to compute all box pairs
-		void ComputePairs();
+		std::vector<T> ComputePairs();
 
 		// Returns reference to object's bounding box
 		const BoundingBox& GetBoundingBox(T object) const;
@@ -69,14 +67,11 @@ namespace Physics {
 		// Expand capacity
 		void ExpandCapacity(size_t newNodeCapacity);
 
-		// Add all possible nodes to intersect test
-		void TreeQuery(const size_t node1, const size_t node2);
-
 		// Inserts an allocated node into the tree
 		void InsertLeaf(size_t leafIndex);
 
 		// Returns object given node index
-		T GetEntity(size_t nodeIndex);
+		T GetObject(size_t nodeIndex);
 
 		// Gets sibling of node
 		size_t GetSibling(size_t nodeIndex);
@@ -275,7 +270,7 @@ namespace Physics {
 	}
 
 	template <typename T>
-	T DynamicBBTree<T>::GetEntity(size_t nodeIndex)
+	T DynamicBBTree<T>::GetObject(size_t nodeIndex)
 	{
 		const auto iterator = nodeToObjectMap.find(nodeIndex);
 		assert(iterator != nodeToObjectMap.end() && "Trying to get node not in map");
@@ -369,57 +364,62 @@ namespace Physics {
 	}
 
 	template <typename T>
-	void DynamicBBTree<T>::TreeQuery(const size_t node1, const size_t node2)
+	std::vector<T> DynamicBBTree<T>::ComputePairs()
 	{
-		const auto& n1 = mNodes[node1];
-		const auto& n2 = mNodes[node2];
+		std::vector<T> output;
+		std::stack<std::pair<size_t, size_t>> stack;
 
-		if (IsInternal(node1) && IsInternal(node2))
+		if (nodeCount <= 1) return output;
+
+		stack.emplace(mNodes[rootIndex].left, mNodes[rootIndex].right);
+
+		while (!stack.empty())
 		{
-			TreeQuery(n1.left, n1.right);
-			TreeQuery(n2.left, n2.right);
+			size_t n1_idx = stack.top().first;
+			size_t n2_idx = stack.top().second;
 
-			if (n1.box.IsColliding(n2.box))
+			const auto& n1 = mNodes[n1_idx];
+			const auto& n2 = mNodes[n2_idx];
+			stack.pop();
+
+			if (IsInternal(n1_idx) && IsInternal(n2_idx))
 			{
-				TreeQuery(n1.left, n2.left);
-				TreeQuery(n1.left, n2.right);
-				TreeQuery(n1.right, n2.left);
-				TreeQuery(n1.right, n2.right);
+				stack.emplace(n1.left, n1.right);
+				stack.emplace(n2.left, n2.right);
+
+				if (n1.box.IsColliding(n2.box))
+				{
+					stack.emplace(n1.left, n2.left);
+					stack.emplace(n1.left, n2.right);
+					stack.emplace(n1.right, n2.left);
+					stack.emplace(n1.right, n2.right);
+				}
+			}
+			else if (IsInternal(n1_idx))
+			{
+				stack.emplace(n1.left, n1.right);
+				if (n1.box.IsColliding(n2.box))
+				{
+					stack.emplace(n1.left, n2_idx);
+					stack.emplace(n1.right, n2_idx);
+				}
+			}
+			else if (IsInternal(n2_idx))
+			{
+				stack.emplace(n2.left, n2.right);
+				if (n1.box.IsColliding(n2.box))
+				{
+					stack.emplace(n1_idx, n2.left);
+					stack.emplace(n1_idx, n2.right);
+				}
+			}
+			else if (n1.box.IsColliding(n2.box))
+			{
+				output.emplace_back(GetObject(n1_idx));
+				output.emplace_back(GetObject(n2_idx));
 			}
 		}
-		else if (IsInternal(node1))
-		{
-			TreeQuery(n1.left, n1.right);
-			if (n1.box.IsColliding(n2.box))
-			{
-				TreeQuery(n1.left, node2);
-				TreeQuery(n1.right, node2);
-			}
-		}
-		else if (IsInternal(node2))
-		{
-			TreeQuery(n2.left, n2.right);
-			if (n1.box.IsColliding(n2.box))
-			{
-				TreeQuery(node1, n2.left);
-				TreeQuery(node1, n2.right);
-			}
-		}
-		else if (n1.box.IsColliding(n2.box))
-		{
-			mCollisions.push_back(GetEntity(node1));
-			mCollisions.push_back(GetEntity(node2));
-		}
-	}
-
-	template <typename T>
-	void DynamicBBTree<T>::ComputePairs()
-	{
-		mCollisions.clear();
-
-		if (nodeCount <= 1) return;
-
-		TreeQuery(mNodes[rootIndex].left, mNodes[rootIndex].right);
+		return output;
 	}
 
 	template <typename T>

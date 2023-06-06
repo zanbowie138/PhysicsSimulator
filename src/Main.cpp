@@ -170,7 +170,8 @@ int main()
 		const auto boxes = tree.GetAllBoxes(false);
 
 		collideBox.Clear();
-		for (const auto entity : tree.mCollisions)
+		const auto collideBoxes = tree.ComputePairs();
+		for (const auto entity : collideBoxes)
 		{
 			collideBox.PushBack(tree.GetBoundingBox(entity));
 		}
@@ -206,7 +207,7 @@ int main()
 		renderSystem->Update();
 		GUI.NewFrame();
 		GUI.Write("FPSCounter", ss.str().c_str());
-		GUI.Write("Collisions", std::to_string(tree.mCollisions.size()).c_str());
+		GUI.Write("Collisions", std::to_string(collideBoxes.size()).c_str());
 		GUI.Write("Box Amount", std::to_string(tree.GetBoundingBox(cube.mEntityID).IsColliding(tree.GetBoundingBox(light.mEntityID))).c_str());
 		GUI.Render();
 		renderSystem->PostUpdate();

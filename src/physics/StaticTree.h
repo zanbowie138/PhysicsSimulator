@@ -1,5 +1,6 @@
 #pragma once
 #define BINS_AMT 8
+#define TRI_LIMIT 1
 #define DEBUG
 #include <unordered_map>
 #include <vector>
@@ -89,6 +90,7 @@ namespace Physics
 		void ClearData();
 
 		bool IsLeaf(size_t nodeIndex) const;
+		bool IsInternal(size_t nodeIndex) const;
 	};
 
 	
@@ -99,9 +101,7 @@ namespace Physics
 		size_t leafNodeAmount = indices.size() / 3;
 
 #ifdef DEBUG
-		std::cout << "Initializing Tree..." << std::endl;
 		//std::cout << "Leaf node amount " << leafNodeAmount << std::endl;
-
 		Utils::Timer t("StaticTree");
 #endif
 
@@ -136,22 +136,81 @@ namespace Physics
 		mThreadPool.Clear();
 
 #ifdef DEBUG
-		std::cout << "Finished!" << std::endl;
 		std::cout << t.ToString().c_str() << std::endl;
-		//std::cout << "Nodes used: " << mNodesUsed << std::endl;
+		std::cout << "Nodes used: " << mNodesUsed << std::endl;
 #endif
 	}
 
 
 	inline std::vector<BoundingBox> StaticTree::QueryTree(const StaticTree& other)
 	{
-		//std::stack<
+		std::vector<BoundingBox> output;
+		std::stack<std::pair<size_t, size_t>> stack;
+
+		stack.emplace(0, 0);
+
+		while (!stack.empty())
+		{
+			auto mine = stack.top().first;
+			auto theirs = stack.top().second;
+			stack.pop();
+
+			if (mNodes[mine].box.IsColliding(other.mNodes[theirs].box))
+			{
+				if (IsInternal(mine) && other.IsInternal(theirs))
+				{
+					stack.emplace(mNodes[mine].first, other.mNodes[theirs].first);
+					stack.emplace(mNodes[mine].first + 1, other.mNodes[theirs].first);
+					stack.emplace(mNodes[mine].first, other.mNodes[theirs].first + 1);
+					stack.emplace(mNodes[mine].first + 1, other.mNodes[theirs].first + 1);
+				}
+				else if (IsLeaf(mine))
+				{
+					stack.emplace(mine, other.mNodes[theirs].first);
+					stack.emplace(mine, other.mNodes[theirs].first + 1);
+				}
+				else if (other.IsLeaf(theirs))
+				{
+					stack.emplace(mNodes[mine].first, theirs);
+					stack.emplace(mNodes[mine].first + 1, theirs);
+				}
+				else
+				{
+					output.emplace_back(mNodes[mine].box);
+					output.emplace_back(other.mNodes[theirs].box);
+				}
+			}
+		}
+		return output;
 	}
 
 
 	inline std::vector<BoundingBox> StaticTree::QueryTree(const BoundingBox& box)
 	{
+		std::vector<BoundingBox> output;
+		std::stack<size_t> stack;
 
+		stack.emplace(0);
+
+		while (!stack.empty())
+		{
+			size_t nodeID = stack.top();
+			stack.pop();
+
+			if (box.IsColliding(mNodes[nodeID].box))
+			{
+				if (IsLeaf(nodeID))
+				{
+					output.emplace_back(mNodes[nodeID].box);
+				}
+				else
+				{
+					stack.emplace(mNodes[nodeID].first);
+					stack.emplace(mNodes[nodeID].first + 1);
+				}
+			}
+		}
+		return output;
 	}
 
 
@@ -184,7 +243,7 @@ namespace Physics
 		BVHNode& node = mNodes[nodeIndex];
 		UpdateNodeBoundingBox(nodeIndex);
 
-		if (node.triCount == 1) return;
+		if (node.triCount <= TRI_LIMIT) return;
 
 		uint8_t axis = 4;
 		float splitPos;
@@ -192,7 +251,7 @@ namespace Physics
 		// Find axis, split position, and split cost
 		float splitCost = FindBestSplitPlane(nodeIndex, axis, splitPos);
 		node.box.UpdateSurfaceArea();
-		//if (splitCost >= node.box.surfaceArea * static_cast<float>(node.triCount)) return;
+		if (splitCost >= node.box.surfaceArea * static_cast<float>(node.triCount)) return;
 
 		size_t beginIter = node.first;
 		size_t endIter = node.first + (node.triCount - 1);
@@ -354,5 +413,10 @@ namespace Physics
 	inline bool StaticTree::IsLeaf(size_t nodeIndex) const
 	{
 		return mNodes[nodeIndex].triCount > 0;
+	}
+
+	inline bool StaticTree::IsInternal(size_t nodeIndex) const
+	{
+		return !IsLeaf(nodeIndex);
 	}
 }
