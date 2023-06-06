@@ -76,7 +76,7 @@ int main()
 	piece.InitECS();
 	tree.InsertEntity(piece.mEntityID, piece.CalcBoundingBox());
 
-	Model bunny("bunny.stl", true);
+	Model bunny("bunny.dat", false);
 	bunny.ShaderID = flatShader.ID;
 	bunny.transform.scale = glm::vec3(0.01f);
 	bunny.transform.rotation = glm::vec3(-90, 0, 0);
@@ -127,7 +127,7 @@ int main()
 	bunny.InitTree();
 	piece.InitTree();
 	boxRenderer.Clear();
-	const auto& boxes = piece.mTree.GetBoxes(piece.transform.modelMat);
+	const auto& boxes = bunny.mTree.GetBoxes(bunny.transform.modelMat);
 	boxRenderer.ResizeArrays(boxes.size());
 	for (const auto& box : boxes)
 	{

@@ -13,6 +13,7 @@
 #include "../physics/Collidable.h"
 #include "../utils/ModelImport.h"
 #include "physics/StaticTree.h"
+#include "../utils/Timer.h"
 
 class Model: public Renderable
 {
@@ -20,7 +21,7 @@ public:
 	std::vector<ModelPt> vertices;
 	std::vector<unsigned int> indices;
 
-	Physics::StaticTree<size_t> mTree{};
+	Physics::StaticTree mTree{};
 
 	// Initializes the object
 	Model(const char* filename, bool is_stl);

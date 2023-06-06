@@ -19,6 +19,8 @@ public:
 	void Merge(const BoundingBox& other);
 	void IncludePoint(const glm::vec3 point);
 
+	void Scale(const glm::mat4& mat);
+
 	std::string String() const;
 
 	void Reset();
@@ -72,6 +74,12 @@ inline void BoundingBox::IncludePoint(const glm::vec3 point)
 		min[d] = std::min(point[d], min[d]);
 		max[d] = std::max(point[d], max[d]);
 	}
+}
+
+inline void BoundingBox::Scale(const glm::mat4& mat)
+{
+	min = mat* glm::vec4(min, 1.0);
+	max = mat * glm::vec4(min, 1.0);
 }
 
 inline std::string BoundingBox::String() const 

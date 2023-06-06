@@ -18,17 +18,18 @@
 
 // Adapted from: https://github.com/jbikker/bvh_article/blob/main/quickbuild.cpp
 // Full article explanation: https://jacco.ompf2.com/2022/04/21/how-to-build-a-bvh-part-3-quick-builds/
-
+// TODO: Make all models load at the same time
 namespace Physics
 {
-	template <typename T>
 	class StaticTree
 	{
 	private:
 		struct BVHNode
 		{
 			BoundingBox box;
+			// Either means first triangle or left child, depending if it is a leaf or not
 			size_t first{};
+			// If higher than 0, node is a leaf node
 			size_t triCount{};
 		};
 
@@ -51,7 +52,10 @@ namespace Physics
 		std::vector<glm::vec3> mCentroids;
 
 		// Keeps index position of next free node
-		std::atomic<size_t> mNodesUsed = 0;
+		size_t mNodesUsed = 0;
+		// Prevents data racing
+		// Using this instead of atomic var because left child idx and right child idx should be next to each other
+		std::mutex nodesUsedMutex;
 
 		// Triangle data
 		std::vector<Triangle> mTriangles;
@@ -66,10 +70,14 @@ namespace Physics
 
 		void CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned>& indices);
 
-		std::vector<BoundingBox> GetBoxes();
-		std::vector<BoundingBox> GetBoxes(const glm::mat4& modelMat);
+		std::vector<BoundingBox> QueryTree(const StaticTree& other);
+		std::vector<BoundingBox> QueryTree(const BoundingBox& box);
+
+		std::vector<BoundingBox> GetBoxes() const;
+		std::vector<BoundingBox> GetBoxes(const glm::mat4& modelMat) const;
 
 	private:
+		
 		void Subdivide(size_t nodeIndex);
 
 		float FindBestSplitPlane(size_t nodeIndex, uint8_t& axis, float& splitPos);
@@ -79,10 +87,12 @@ namespace Physics
 
 		void UpdateNodeBoundingBox(size_t nodeIndex);
 		void ClearData();
+
+		bool IsLeaf(size_t nodeIndex) const;
 	};
 
-	template <typename T>
-	void StaticTree<T>::CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned>& indices)
+	
+	void StaticTree::CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned>& indices)
 	{
 		ClearData();
 
@@ -122,9 +132,7 @@ namespace Physics
 		mThreadPool.Start();
 		mThreadPool.QueueJob([this] { Subdivide(0); });
 
-		while (mThreadPool.Busy())
-		{
-		}
+		while (mThreadPool.Busy()){}
 		mThreadPool.Clear();
 
 #ifdef DEBUG
@@ -134,41 +142,51 @@ namespace Physics
 #endif
 	}
 
-	template <typename T>
-	std::vector<BoundingBox> StaticTree<T>::GetBoxes()
+
+	inline std::vector<BoundingBox> StaticTree::QueryTree(const StaticTree& other)
+	{
+		//std::stack<
+	}
+
+
+	inline std::vector<BoundingBox> StaticTree::QueryTree(const BoundingBox& box)
+	{
+
+	}
+
+
+	inline std::vector<BoundingBox> StaticTree::GetBoxes() const
 	{
 		std::vector<BoundingBox> output;
-		output.resize(mNodesUsed);
 		for (size_t i = 0; i < mNodesUsed - 1; ++i)
 		{
-			output[i] = (mNodes[i].box);
+			output.emplace_back(mNodes[i].box);
 		}
 		return output;
 	}
 
-	template <typename T>
-	std::vector<BoundingBox> StaticTree<T>::GetBoxes(const glm::mat4& modelMat)
+
+	inline std::vector<BoundingBox> StaticTree::GetBoxes(const glm::mat4& modelMat) const
 	{
 		std::vector<BoundingBox> output;
-		output.resize(mNodesUsed);
 		for (size_t i = 0; i < mNodesUsed; ++i)
 		{
-			output[i] = BoundingBox{
-				modelMat * glm::vec4(mNodes[i].box.min, 1.0), modelMat * glm::vec4(mNodes[i].box.max, 1.0)
-			};
+			if (IsLeaf(i))
+				output.emplace_back(modelMat * glm::vec4(mNodes[i].box.min, 1.0), modelMat * glm::vec4(mNodes[i].box.max, 1.0));
 		}
+		std::cout << output.size() << std::endl;
 		return output;
 	}
 
-	template <typename T>
-	void StaticTree<T>::Subdivide(size_t nodeIndex)
+
+	inline void StaticTree::Subdivide(size_t nodeIndex)
 	{
 		BVHNode& node = mNodes[nodeIndex];
 		UpdateNodeBoundingBox(nodeIndex);
 
-		if (node.triCount <= 1) return;
+		if (node.triCount == 1) return;
 
-		uint8_t axis;
+		uint8_t axis = 4;
 		float splitPos;
 
 		// Find axis, split position, and split cost
@@ -180,7 +198,7 @@ namespace Physics
 		size_t endIter = node.first + (node.triCount - 1);
 		while (beginIter <= endIter)
 		{
-			if (GetCentroid(beginIter)[axis] < splitPos)
+			if (GetCentroid(beginIter)[axis] <= splitPos)
 				++beginIter;
 			else
 				std::swap(mTriIdx[beginIter], mTriIdx[endIter--]);
@@ -188,12 +206,21 @@ namespace Physics
 
 		// Stop split if one side is empty
 		size_t leftCount = beginIter - node.first;
-		if (leftCount == 0 || leftCount == node.triCount) return;
+#ifdef DEBUG
+		assert(leftCount != 0 && leftCount != node.triCount);
+#endif
+		// if (leftCount == 0 || leftCount == node.triCount) return;
 
 		// create child nodes
-		size_t leftChildIdx = mNodesUsed++;
-		size_t rightChildIdx = mNodesUsed++;
-
+		size_t leftChildIdx;
+		size_t rightChildIdx;
+		{
+			// Ensures left child index and right child index are 1 apart
+			// Also prevents data racing
+			std::unique_lock<std::mutex> lock(nodesUsedMutex);
+			leftChildIdx = mNodesUsed++;
+			rightChildIdx = mNodesUsed++;
+		}
 
 		mNodes[leftChildIdx].first = node.first;
 		mNodes[leftChildIdx].triCount = leftCount;
@@ -202,6 +229,7 @@ namespace Physics
 		mNodes[rightChildIdx].triCount = node.triCount - leftCount;
 
 		node.first = leftChildIdx;
+		node.triCount = 0;
 
 		// recurse
 		mThreadPool.QueueJob([this, leftChildIdx] { Subdivide(leftChildIdx); });
@@ -209,24 +237,32 @@ namespace Physics
 	}
 
 
-	template <typename T>
-	float StaticTree<T>::FindBestSplitPlane(size_t nodeIndex, uint8_t& axis, float& splitPos)
+	inline float StaticTree::FindBestSplitPlane(size_t nodeIndex, uint8_t& axis, float& splitPos)
 	{
 		BVHNode& node = mNodes[nodeIndex];
+
+		BoundingBox centroidBox;
+		centroidBox.SetToLimit();
+
+		// Have box include all centroids
+		for (size_t t = node.first; t < node.first + node.triCount; ++t)
+		{
+			centroidBox.IncludePoint(GetCentroid(t));
+		}
 
 		float bestCost = FLT_MAX;
 		for (uint8_t currentAxis = 0; currentAxis < 3; ++currentAxis)
 		{
 			Bin bins[BINS_AMT] = {};
 
-			float scale = static_cast<float>(BINS_AMT) / (node.box.max[currentAxis] - node.box.min[currentAxis]);
+			float scale = static_cast<float>(BINS_AMT) / (centroidBox.max[currentAxis] - centroidBox.min[currentAxis]);
 
 			// Update bins based on triangles in the node
 			for (size_t i = node.first; i < node.first + node.triCount; ++i)
 			{
 				// Determine which bin based on triangle centroid position
 				unsigned binIdx = std::min(static_cast<unsigned>(BINS_AMT - 1),
-				                           static_cast<unsigned>((GetCentroid(i)[currentAxis] - node.box.min[
+				                           static_cast<unsigned>((GetCentroid(i)[currentAxis] - centroidBox.min[
 					                           currentAxis]) * scale));
 
 				++bins[binIdx].triCount;
@@ -263,39 +299,37 @@ namespace Physics
 			}
 
 			// calculate SAH cost for each split plane candidate
-			scale = (node.box.max[currentAxis] - node.box.min[currentAxis]) / BINS_AMT;
+			scale = (centroidBox.max[currentAxis] - centroidBox.min[currentAxis]) / BINS_AMT;
 			for (int i = 0; i < BINS_AMT - 1; i++)
 			{
-				float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
+				const float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
 
-				if (planeCost < bestCost)
+				if (planeCost < bestCost && leftCount[i] != 0 && rightCount[i] != 0)
 				{
 					bestCost = planeCost;
 
 					// Update parameters
 					axis = currentAxis;
-					splitPos = node.box.min[currentAxis] + scale * (static_cast<float>(i) + 1.0f);
+					splitPos = centroidBox.min[currentAxis] + scale * (static_cast<float>(i) + 1.0f);
 				}
 			}
 		}
 		return bestCost;
 	}
 
-	template <typename T>
-	glm::vec3 StaticTree<T>::GetCentroid(const size_t index) const
+
+	inline glm::vec3 StaticTree::GetCentroid(const size_t index) const
 	{
 		return mCentroids[mTriIdx[index]];
 	}
 
-	template <typename T>
-	const typename StaticTree<T>::Triangle& StaticTree<T>::GetTriangle(const size_t index) const
+	inline const typename StaticTree::Triangle& StaticTree::GetTriangle(const size_t index) const
 	{
 		return mTriangles[mTriIdx[index]];
 	}
 
 
-	template <typename T>
-	void StaticTree<T>::UpdateNodeBoundingBox(size_t nodeIndex)
+	inline void StaticTree::UpdateNodeBoundingBox(size_t nodeIndex)
 	{
 		BVHNode& node = mNodes[nodeIndex];
 		node.box.SetToLimit();
@@ -303,13 +337,22 @@ namespace Physics
 		// Update bounds
 		for (int t = node.first; t < node.first + node.triCount; ++t)
 		{
-			node.box.IncludePoint(GetCentroid(t));
+			const Triangle& tri = GetTriangle(t);
+			node.box.IncludePoint(tri.v1);
+			node.box.IncludePoint(tri.v2);
+			node.box.IncludePoint(tri.v3);
 		}
 	}
 
-	template <typename T>
-	void StaticTree<T>::ClearData()
+
+	inline void StaticTree::ClearData()
 	{
 		mNodes.clear();
+	}
+
+
+	inline bool StaticTree::IsLeaf(size_t nodeIndex) const
+	{
+		return mNodes[nodeIndex].triCount > 0;
 	}
 }
