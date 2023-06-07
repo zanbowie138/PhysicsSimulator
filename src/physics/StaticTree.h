@@ -1,6 +1,6 @@
 #pragma once
 #define BINS_AMT 8
-#define TRI_LIMIT 5
+#define TRI_LIMIT 1
 #define DEBUG
 #include <unordered_map>
 #include <vector>
@@ -74,8 +74,8 @@ namespace Physics
 		std::vector<BoundingBox> QueryTree(const StaticTree& other);
 		std::vector<BoundingBox> QueryTree(const BoundingBox& box);
 
-		std::vector<BoundingBox> GetBoxes() const;
-		std::vector<BoundingBox> GetBoxes(const glm::mat4& modelMat) const;
+		std::vector<BoundingBox> GetBoxes(bool onlyLeaf = true) const;
+		std::vector<BoundingBox> GetBoxes(const glm::mat4& modelMat, bool onlyLeaf = true) const;
 
 	private:
 		
@@ -214,23 +214,24 @@ namespace Physics
 	}
 
 
-	inline std::vector<BoundingBox> StaticTree::GetBoxes() const
+	inline std::vector<BoundingBox> StaticTree::GetBoxes(const bool onlyLeaf) const
 	{
 		std::vector<BoundingBox> output;
 		for (size_t i = 0; i < mNodesUsed - 1; ++i)
 		{
-			output.emplace_back(mNodes[i].box);
+			if (IsLeaf(i) || !onlyLeaf)
+				output.emplace_back(mNodes[i].box);
 		}
 		return output;
 	}
 
 
-	inline std::vector<BoundingBox> StaticTree::GetBoxes(const glm::mat4& modelMat) const
+	inline std::vector<BoundingBox> StaticTree::GetBoxes(const glm::mat4& modelMat, const bool onlyLeaf) const
 	{
 		std::vector<BoundingBox> output;
 		for (size_t i = 0; i < mNodesUsed; ++i)
 		{
-			if (IsLeaf(i))
+			if (IsLeaf(i) || !onlyLeaf)
 				output.emplace_back(modelMat * glm::vec4(mNodes[i].box.min, 1.0), modelMat * glm::vec4(mNodes[i].box.max, 1.0));
 		}
 		std::cout << output.size() << std::endl;

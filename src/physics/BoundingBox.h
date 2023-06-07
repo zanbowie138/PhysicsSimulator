@@ -108,3 +108,5 @@ inline void BoundingBox::UpdateSurfaceArea()
 {
 	surfaceArea = (max.x-min.x)*(max.y-min.y) + (max.y-min.y)*(max.z-min.z) + (max.x-min.x)*(max.z-min.z);
 }
+
+

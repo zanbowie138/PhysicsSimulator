@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 
 #include "Renderable.h"
 #include "../renderer/VBO.h"
@@ -12,75 +13,25 @@ extern ECSController ecsController;
 class Lines : public Renderable
 {
 public:
-	std::vector<glm::vec3> vertices;
-	std::vector<GLuint> indices;
-
 	const GLuint mCapacity;
+	GLuint mCount = 0;
 
 	VBO VBO;
 	EBO EBO;
 
 	explicit inline Lines(GLuint indiceAmt);
 
-	inline void PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds);
-	inline void PushBack(const BoundingBox& box);
-	inline void ResizeArrays(const size_t boxAmt);
-	inline void Clear();
+	void PushToBuffer(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& indices);
+	void PushBack(const BoundingBox& box);
+	void PushBack(const std::vector<BoundingBox>& boxes);
+
+	void Clear();
 	size_t GetSize() override;
 private:
 	void InitVAO() override;
 	void UpdateSize();
-};
 
-Lines::Lines(const GLuint indiceAmt): mCapacity(indiceAmt)
-{
-	vertices = std::vector<glm::vec3>();
-	indices = std::vector<unsigned int>();
-	primitiveType = GL_LINES;
-
-	InitVAO();
-}
-
-void Lines::PushBack(const std::vector<glm::vec3>& verts, const std::vector<unsigned int>& inds)
-{
-	mVAO.Bind();
-
-	VBO.Bind();
-	vertices.insert(vertices.end(), verts.begin(), verts.end());
-	VBO.PushData(verts);
-
-	EBO.Bind();
-	indices.insert(indices.end(), inds.begin(), inds.end());
-	EBO.PushData(inds);
-
-	mVAO.Unbind();
-	VBO.Unbind();
-	EBO.Unbind();
-
-	UpdateSize();
-}
-
-inline void Lines::PushBack(const BoundingBox& box)
-{
-	mVAO.Bind();
-	VBO.Bind();
-	std::vector<glm::vec3> verts =
-	{
-		glm::vec3(box.max),
-		glm::vec3(box.max.x, box.max.y, box.min.z),
-		glm::vec3(box.min.x, box.max.y, box.min.z),
-		glm::vec3(box.min.x, box.max.y, box.max.z),
-		glm::vec3(box.max.x, box.min.y, box.max.z),
-		glm::vec3(box.max.x, box.min.y, box.min.z),
-		glm::vec3(box.min),
-		glm::vec3(box.min.x, box.min.y, box.max.z)
-	};
-
-	vertices.insert(vertices.end(), verts.begin(), verts.end());
-	VBO.PushData(verts);
-
-	EBO.Bind();
-	const std::vector<GLuint> offset =
+	const std::vector<GLuint> cubeIdxOffset =
 	{
 		0,1,
 		1,2,
@@ -96,36 +47,98 @@ inline void Lines::PushBack(const BoundingBox& box)
 		3,7
 	};
 
-	std::vector<GLuint> inds;
-	inds.resize(12);
-	for (const auto& i : offset)
+	static std::vector<glm::vec3> GetCubeVertices(const BoundingBox& box)
 	{
-		inds.push_back(static_cast<GLuint>(vertices.size()) - 8 + i);
+		return std::vector<glm::vec3>
+		{
+			glm::vec3(box.max),
+			glm::vec3(box.max.x, box.max.y, box.min.z),
+			glm::vec3(box.min.x, box.max.y, box.min.z),
+			glm::vec3(box.min.x, box.max.y, box.max.z),
+			glm::vec3(box.max.x, box.min.y, box.max.z),
+			glm::vec3(box.max.x, box.min.y, box.min.z),
+			glm::vec3(box.min),
+			glm::vec3(box.min.x, box.min.y, box.max.z)
+		};
 	}
 
-	indices.insert(indices.end(), inds.begin(), inds.end());
-	EBO.PushData(inds);
+};
+
+Lines::Lines(const GLuint indiceAmt): mCapacity(indiceAmt)
+{
+	primitiveType = GL_LINES;
+
+	InitVAO();
+}
+
+inline void Lines::PushToBuffer(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& indices)
+{
+	mVAO.Bind();
+
+	VBO.Bind();
+	VBO.PushData(vertices);
+
+	EBO.Bind();
+	EBO.PushData(indices);
 
 	mVAO.Unbind();
 	VBO.Unbind();
 	EBO.Unbind();
 
+	mCount += indices.size();
 	UpdateSize();
 }
 
-inline void Lines::ResizeArrays(const size_t boxAmt)
+inline void Lines::PushBack(const BoundingBox& box)
 {
-	vertices.reserve(boxAmt * 8);
-	indices.reserve(boxAmt * 12);
+	std::vector<glm::vec3> tempVertices;
+	std::vector<GLuint> tempIndices;
+
+	tempVertices.resize(8);
+	tempIndices.resize(24);
+
+	for (size_t i = 0; i < 24; ++i)
+	{
+		tempIndices[i] = cubeIdxOffset[i];
+	}
+
+	auto cubeVerts = GetCubeVertices(box);
+	std::copy(cubeVerts.begin(), cubeVerts.end(), tempVertices.begin());
+
+	PushToBuffer(tempVertices, tempIndices);
+}
+
+
+inline void Lines::PushBack(const std::vector<BoundingBox>& boxes)
+{
+	size_t vIdx, iIdx;
+	vIdx = iIdx = 0;
+	
+	std::vector<glm::vec3> tempVertices(boxes.size() * 8);
+	std::vector<GLuint> tempIndices(boxes.size() * 24);
+
+	for (const auto& box : boxes)
+	{
+		for (size_t i = 0; i < 24; ++i)
+		{
+			tempIndices[iIdx] = static_cast<GLuint>(vIdx) + cubeIdxOffset[i];
+			++iIdx;
+		}
+
+		auto cubeVerts = GetCubeVertices(box);
+		std::copy(cubeVerts.begin(), cubeVerts.end(), tempVertices.begin() + vIdx);
+		vIdx += 8;
+	}
+
+	PushToBuffer(tempVertices, tempIndices);
 }
 
 inline void Lines::Clear()
 {
-	vertices.clear();
-	indices.clear();
-
 	VBO.ClearData();
 	EBO.ClearData();
+
+	mCount = 0;
 
 	UpdateSize();
 }
@@ -151,5 +164,5 @@ inline void Lines::InitVAO()
 
 inline size_t Lines::GetSize()
 {
-	return indices.size();
+	return mCount;
 }

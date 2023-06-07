@@ -100,7 +100,7 @@ int main()
 	const auto [cubeVerts, cubeInds] = Utils::CubeData(true);
 	Mesh light(cubeVerts, cubeInds);
 	light.transform.worldPos = glm::vec3(0.0f, 1.0f, 0.0f);
-	light.transform.scale = glm::vec3(0.5f);
+	light.transform.scale = glm::vec3(0.07f);
 	light.ShaderID = basicShader.ID;
 	light.InitECS();
 	tree.InsertEntity(light.mEntityID, light.CalcBoundingBox());
@@ -120,12 +120,22 @@ int main()
 	collideBox.ShaderID = basicShader.ID;
 	collideBox.InitECS();
 
+	Lines narrowBoxRenderer(20000000);
+	narrowBoxRenderer.ShaderID = basicShader.ID;
+	narrowBoxRenderer.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
+	narrowBoxRenderer.InitECS();
+
 	Lines boxRenderer(20000000);
 	boxRenderer.ShaderID = basicShader.ID;
+	boxRenderer.mColor = glm::vec3(0.7f);
 	boxRenderer.InitECS();
 
 	bunny.InitTree();
 	piece.InitTree();
+
+	boxRenderer.Clear();
+	const auto& staticTreeBoxes = bunny.mTree.GetBoxes(bunny.transform.modelMat, true);
+	boxRenderer.PushBack(staticTreeBoxes);
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO; 
@@ -154,7 +164,8 @@ int main()
 	{
 		renderSystem->PreUpdate();
 
-		lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f))/2.0f, 0.7f, glm::cos(glm::radians(time / 30.0f))/2.0f);
+		//lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f))/2.0f, 0.7f, glm::cos(glm::radians(time / 30.0f))/2.0f);
+		lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f)) / 3.0f + 1.0f, 0.7f, 0.0f);
 		light.transform.worldPos = lightPos;
 		
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
@@ -163,14 +174,14 @@ int main()
 		const auto boxes = tree.GetAllBoxes(false);
 
 		collideBox.Clear();
-		const auto collideBoxes = tree.ComputePairs();
-		for (const auto entity : collideBoxes)
+		const auto collidedEntities = tree.ComputePairs();
+		for (const auto entity : collidedEntities)
 		{
 			collideBox.PushBack(tree.GetBoundingBox(entity));
 		}
 
-		boxRenderer.Clear();
-		if (!collideBoxes.empty())
+		narrowBoxRenderer.Clear();
+		if (!collidedEntities.empty())
 		{
 			bunny.transform.CalculateModelMat();
 			light.transform.CalculateModelMat();
@@ -179,13 +190,12 @@ int main()
 			//std::cout << lightBox.String() << std::endl;
 			//std::cout << bunny.mTree.mNodes[0].box.String() << std::endl;
 
-			const auto& narrowCollideBoxes = bunny.mTree.QueryTree(lightBox);
-			for (auto box : narrowCollideBoxes)
+			auto narrowCollideBoxes = bunny.mTree.QueryTree(lightBox);
+			for (auto& box : narrowCollideBoxes)
 			{
 				box.ApplyMat(bunny.transform.modelMat);
-				//std::cout << "Collision: " << std::endl << box.String() << std::endl;
-				boxRenderer.PushBack(box);
 			}
+			narrowBoxRenderer.PushBack(narrowCollideBoxes);
 		}
 		
 
@@ -220,7 +230,7 @@ int main()
 		renderSystem->Update();
 		GUI.NewFrame();
 		GUI.Write("FPSCounter", ss.str().c_str());
-		GUI.Write("Collisions", std::to_string(collideBoxes.size()).c_str());
+		GUI.Write("Collisions", std::to_string(collidedEntities.size()).c_str());
 		GUI.Write("Box Amount", std::to_string(tree.GetBoundingBox(cube.mEntityID).IsColliding(tree.GetBoundingBox(light.mEntityID))).c_str());
 		GUI.Render();
 		renderSystem->PostUpdate();
