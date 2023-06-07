@@ -106,9 +106,9 @@ namespace Core {
 			mMousePos = glm::vec2(mouseX, mouseY);
 
 			// Handles key inputs
-			if (glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			if (glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			{
-				mButtons.set(static_cast<std::size_t>(InputButtons::MOUSE));
+				mButtons.set(static_cast<std::size_t>(InputButtons::RIGHT_MOUSE));
 
 				// Checking if this is a first time click
 				if (firstClick)

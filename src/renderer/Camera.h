@@ -72,7 +72,7 @@ inline void Camera::MoveCam(const InputBitset& buttons, const glm::vec2& mousePo
 	else
 		speed = baseSpeed;
 
-	if (buttons.test((static_cast<std::size_t>(InputButtons::MOUSE))))
+	if (buttons.test((static_cast<std::size_t>(InputButtons::RIGHT_MOUSE))))
 	{
 		// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
 		// and then "transforms" them into degrees 

@@ -18,7 +18,8 @@ using ComponentType = uint8_t;
 // Input
 enum class InputButtons
 {
-	MOUSE,
+	LEFT_MOUSE,
+	RIGHT_MOUSE,
 	W,
 	A,
 	S,
