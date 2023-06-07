@@ -20,5 +20,21 @@ namespace Components
 			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
 			modelMat = translationMatrix * rotationMatrix * scaleMatrix;
 		}
+
+		// Returns a mat4 of the linear transformation of rotation and scale
+		// Doesn't include worldPos
+		// Useful if multiple transforms need o
+		glm::mat4 GetLinearTransform() const
+		{
+			return glm::eulerAngleYXZ(glm::radians(rotation.y), glm::radians(rotation.x), glm::radians(rotation.z)) * glm::scale(glm::mat4(1.0f), scale);
+		}
+
+		glm::mat4 CombineTransforms(Transform& other)
+		{
+			CalculateModelMat();
+			other.CalculateModelMat();
+
+			return glm::translate(glm::mat4(1.0f), worldPos);
+		}
 	};
 }

@@ -26,6 +26,7 @@ public:
 
 	void InitECS();
 	BoundingBox CalcBoundingBox();
+	BoundingBox CalcBoundingBox(const glm::mat4& modelMat) const;
 private:
 	void InitVAO() override;
 	size_t GetSize() override;
@@ -79,13 +80,18 @@ inline size_t Mesh::GetSize()
 
 inline BoundingBox Mesh::CalcBoundingBox()
 {
-	BoundingBox box;
 	transform.CalculateModelMat();
-	box.min = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
-	box.max = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
+	return CalcBoundingBox(transform.modelMat);
+}
+
+inline BoundingBox Mesh::CalcBoundingBox(const glm::mat4& modelMat) const
+{
+	BoundingBox box;
+	box.min = modelMat * glm::vec4(vertices[0].position, 1.0f);
+	box.max = modelMat * glm::vec4(vertices[0].position, 1.0f);
 	for (const auto& pt : vertices)
 	{
-		auto point = transform.modelMat * glm::vec4(pt.position, 1.0f);
+		auto point = modelMat * glm::vec4(pt.position, 1.0f);
 		for (unsigned int i = 0; i < 3; i++)
 		{
 			box.max[i] = std::max(box.max[i], point[i]);

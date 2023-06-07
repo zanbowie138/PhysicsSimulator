@@ -80,7 +80,7 @@ int main()
 	bunny.ShaderID = flatShader.ID;
 	bunny.transform.scale = glm::vec3(0.01f);
 	bunny.transform.rotation = glm::vec3(-90, 0, 0);
-	bunny.transform.worldPos = glm::vec3(1.0f, 0.0f, 0.0f);
+	bunny.transform.worldPos = glm::vec3(0.5f, 0.0f, 0.0f);
 	bunny.InitECS();
 	tree.InsertEntity(bunny.mEntityID, bunny.CalcBoundingBox());
 
@@ -100,7 +100,7 @@ int main()
 	const auto [cubeVerts, cubeInds] = Utils::CubeData(true);
 	Mesh light(cubeVerts, cubeInds);
 	light.transform.worldPos = glm::vec3(0.0f, 1.0f, 0.0f);
-	light.transform.scale = glm::vec3(0.1f);
+	light.transform.scale = glm::vec3(0.5f);
 	light.ShaderID = basicShader.ID;
 	light.InitECS();
 	tree.InsertEntity(light.mEntityID, light.CalcBoundingBox());
@@ -126,13 +126,6 @@ int main()
 
 	bunny.InitTree();
 	piece.InitTree();
-	boxRenderer.Clear();
-	const auto& boxes = bunny.mTree.GetBoxes(bunny.transform.modelMat);
-	boxRenderer.ResizeArrays(boxes.size());
-	for (const auto& box : boxes)
-	{
-		boxRenderer.PushBack(box);
-	}
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO; 
@@ -161,7 +154,7 @@ int main()
 	{
 		renderSystem->PreUpdate();
 
-		lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f))/0.7f, 1.0f, glm::cos(glm::radians(time / 30.0f))/0.7f);
+		lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f))/2.0f, 0.7f, glm::cos(glm::radians(time / 30.0f))/2.0f);
 		light.transform.worldPos = lightPos;
 		
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
@@ -175,6 +168,26 @@ int main()
 		{
 			collideBox.PushBack(tree.GetBoundingBox(entity));
 		}
+
+		boxRenderer.Clear();
+		if (!collideBoxes.empty())
+		{
+			bunny.transform.CalculateModelMat();
+			light.transform.CalculateModelMat();
+			auto lightBox = light.CalcBoundingBox(glm::inverse(bunny.transform.modelMat) * (light.transform.modelMat));
+
+			//std::cout << lightBox.String() << std::endl;
+			//std::cout << bunny.mTree.mNodes[0].box.String() << std::endl;
+
+			const auto& narrowCollideBoxes = bunny.mTree.QueryTree(lightBox);
+			for (auto box : narrowCollideBoxes)
+			{
+				box.ApplyMat(bunny.transform.modelMat);
+				//std::cout << "Collision: " << std::endl << box.String() << std::endl;
+				boxRenderer.PushBack(box);
+			}
+		}
+		
 
 
 		dt = static_cast<float>(glfwGetTime() - currentTime) * 1000.0f;

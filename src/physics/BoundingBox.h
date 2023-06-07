@@ -2,6 +2,9 @@
 #include <glm/glm.hpp>
 #include <memory>
 
+#include "BoundingBox.h"
+#include "BoundingBox.h"
+
 class BoundingBox
 {
 public:
@@ -19,7 +22,7 @@ public:
 	void Merge(const BoundingBox& other);
 	void IncludePoint(const glm::vec3 point);
 
-	void Scale(const glm::mat4& mat);
+	void ApplyMat(const glm::mat4& mat);
 
 	std::string String() const;
 
@@ -76,10 +79,10 @@ inline void BoundingBox::IncludePoint(const glm::vec3 point)
 	}
 }
 
-inline void BoundingBox::Scale(const glm::mat4& mat)
+inline void BoundingBox::ApplyMat(const glm::mat4& mat)
 {
-	min = mat* glm::vec4(min, 1.0);
-	max = mat * glm::vec4(min, 1.0);
+	min = mat * glm::vec4(min, 1.0);
+	max = mat * glm::vec4(max, 1.0);
 }
 
 inline std::string BoundingBox::String() const 

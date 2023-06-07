@@ -1,6 +1,6 @@
 #pragma once
 #define BINS_AMT 8
-#define TRI_LIMIT 1
+#define TRI_LIMIT 5
 #define DEBUG
 #include <unordered_map>
 #include <vector>
