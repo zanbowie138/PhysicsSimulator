@@ -1,5 +1,10 @@
 #pragma once
-struct Rigidbody 
+#include "glm/glm.hpp"
+namespace Components
 {
-    unsigned int mass;
-};
+	struct Rigidbody 
+	{
+	    float mass;
+		glm::vec3 velocity;
+	};
+}

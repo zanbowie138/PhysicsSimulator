@@ -50,17 +50,31 @@ enum ChessPiece
 	king
 };
 
-// For interpreting stl files
-struct ModelPt
+// For interpreting stl files or models without textures
+struct MeshPt
 {
 	glm::vec3 position;
 	glm::vec3 normal;
 };
 
 // For user created meshes with textures
-struct Vertex
+struct ModelPt
 {
 	glm::vec3 position;
 	glm::vec3 normal;
 	glm::vec2 uv;
+};
+
+// Position and normal information
+struct MeshData
+{
+	std::vector<MeshPt> vertices;
+	std::vector<GLuint> indices;
+};
+
+// Position, normal, and uv information
+struct ModelData
+{
+	std::vector<ModelPt> vertices;
+	std::vector<GLuint> indices;
 };

@@ -17,8 +17,8 @@
 #include "physics/PhysicsSystem.h"
 
 #include "renderables/Lines.h"
-#include "renderables/Model.h"
 #include "renderables/Mesh.h"
+#include "renderables/Model.h"
 
 #include "utils/SimpleShapes.h"
 #include "utils/Timer.h"
@@ -69,21 +69,6 @@ int main()
 	Shader defaultShader("default.vert", "default.frag");
 	basicShader.mUniforms.reset(static_cast<size_t>(UniformBlockConfig::LIGHTING));
 
-	Model piece("chess_models/king.bin", false);
-	piece.ShaderID = flatShader.ID; // TODO: Make this easier to initialize
-	piece.transform.scale = glm::vec3(0.01f);
-	piece.mColor = glm::vec3(1.0f, 0.0f, 0.5f);
-	piece.InitECS();
-	tree.InsertEntity(piece.mEntityID, piece.CalcBoundingBox());
-
-	Model bunny("bunny.dat", false);
-	bunny.ShaderID = flatShader.ID;
-	bunny.transform.scale = glm::vec3(0.01f);
-	bunny.transform.rotation = glm::vec3(-90, 0, 0);
-	bunny.transform.worldPos = glm::vec3(0.5f, 0.0f, 0.0f);
-	bunny.InitECS();
-	tree.InsertEntity(bunny.mEntityID, bunny.CalcBoundingBox());
-
 	// Wood floor setup
 	const auto [planeVerts, planeInds] = Utils::PlaneData();
 	Texture textures[]
@@ -92,7 +77,7 @@ int main()
 		Texture("planksSpec.png",  GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE)
 	};
 	std::vector<Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
-	Mesh floor(planeVerts, planeInds, tex);
+	Model floor(planeVerts, planeInds, tex);
 	floor.ShaderID = defaultShader.ID;
 	floor.transform.scale = glm::vec3(10.0f);
 	floor.InitECS();
@@ -115,27 +100,25 @@ int main()
 	auto& cubePos = ecsController.GetComponent<Components::Transform>(light.mEntityID);
 	tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
 
+	const ModelData sphereData = Utils::UVSphereData(20,20);
+	Model sphere(sphereData);
+	sphere.transform.scale = glm::vec3(0.1f);
+	sphere.ShaderID = flatShader.ID;
+	sphere.mColor = glm::vec3(0.5f, 0.3f, 1.0f);
+	sphere.InitECS();
+
 	Lines collideBox(1000);
 	collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
 	collideBox.ShaderID = basicShader.ID;
 	collideBox.InitECS();
 
-	Lines narrowBoxRenderer(20000000);
-	narrowBoxRenderer.ShaderID = basicShader.ID;
-	narrowBoxRenderer.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
-	narrowBoxRenderer.InitECS();
-
-	Lines boxRenderer(20000000);
+	Lines boxRenderer(20000);
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.mColor = glm::vec3(0.7f);
 	boxRenderer.InitECS();
 
-	bunny.InitTree();
-	piece.InitTree();
-
 	boxRenderer.Clear();
-	const auto& staticTreeBoxes = bunny.mTree.GetBoxes(bunny.transform.modelMat, true);
-	boxRenderer.PushBack(staticTreeBoxes);
+	boxRenderer.PushBack(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO; 
@@ -164,8 +147,8 @@ int main()
 	{
 		renderSystem->PreUpdate();
 
-		//lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f))/2.0f, 0.7f, glm::cos(glm::radians(time / 30.0f))/2.0f);
-		lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f)) / 3.0f + 1.0f, 0.7f, 0.0f);
+		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 2.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
+		//lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f)) / 3.0f + 1.0f, 0.7f, 0.0f);
 		light.transform.worldPos = lightPos;
 		
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
@@ -179,26 +162,6 @@ int main()
 		{
 			collideBox.PushBack(tree.GetBoundingBox(entity));
 		}
-
-		narrowBoxRenderer.Clear();
-		if (!collidedEntities.empty())
-		{
-			bunny.transform.CalculateModelMat();
-			light.transform.CalculateModelMat();
-			auto lightBox = light.CalcBoundingBox(glm::inverse(bunny.transform.modelMat) * (light.transform.modelMat));
-
-			//std::cout << lightBox.String() << std::endl;
-			//std::cout << bunny.mTree.mNodes[0].box.String() << std::endl;
-
-			auto narrowCollideBoxes = bunny.mTree.QueryTree(lightBox);
-			for (auto& box : narrowCollideBoxes)
-			{
-				box.ApplyMat(bunny.transform.modelMat);
-			}
-			narrowBoxRenderer.PushBack(narrowCollideBoxes);
-		}
-		
-
 
 		dt = static_cast<float>(glfwGetTime() - currentTime) * 1000.0f;
 		time += dt;

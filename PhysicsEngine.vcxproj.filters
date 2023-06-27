@@ -127,7 +127,7 @@
     <ClInclude Include="src\components\Transform.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderables\Model.h">
+    <ClInclude Include="src\renderables\Mesh.h">
       <Filter>Header Files\Renderables</Filter>
     </ClInclude>
     <ClInclude Include="src\renderables\Points.h">
@@ -136,7 +136,7 @@
     <ClInclude Include="src\renderables\Lines.h">
       <Filter>Header Files\Renderables</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderables\Mesh.h">
+    <ClInclude Include="src\renderables\Model.h">
       <Filter>Header Files\Renderables</Filter>
     </ClInclude>
     <ClInclude Include="src\core\WindowManager.h">
@@ -205,7 +205,7 @@
     <ClInclude Include="src\utils\Utils.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\ModelImport.h">
+    <ClInclude Include="src\utils\MeshImport.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\components\Rigidbody.h">

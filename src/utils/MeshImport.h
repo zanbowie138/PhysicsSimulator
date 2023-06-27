@@ -13,11 +13,11 @@
 
 namespace Utils
 {
-    static std::pair<std::vector<ModelPt>, std::vector<unsigned int>> ReadSTL(const char* filepath)
+    static MeshData ReadSTL(const char* filepath)
     {
         // STL File format: https://people.sc.fsu.edu/~jburkardt/data/stlb/stlb.html
 
-        std::vector<ModelPt> points;
+        std::vector<MeshPt> points;
         std::vector<unsigned int> indices;
 
         std::unordered_map<glm::vec3, unsigned int, std::hash<glm::vec3>> pointToIndex;
@@ -53,7 +53,7 @@ namespace Utils
                 {
                     // If the current point is new
                     pointToIndex.insert(std::make_pair(tempPos, currentIndex));
-                    points.emplace_back(ModelPt{ tempPos, tempNormal });
+                    points.emplace_back(MeshPt{ tempPos, tempNormal });
                     indices.push_back(currentIndex);
                     currentIndex++;
                 }
@@ -72,7 +72,7 @@ namespace Utils
             point.normal = glm::normalize(point.normal);
         }
 
-        return std::make_pair(points, indices);
+        return MeshData{ points, indices };
     }
 
 	/*
@@ -87,7 +87,7 @@ namespace Utils
 	For each index
 		unsigned int index, 4 bytes
 	*/
-	static std::pair<std::vector<ModelPt>, std::vector<unsigned int>> ReadPackedSTL(const char* filepath)
+	static MeshData ReadPackedSTL(const char* filepath)
 	{
 		// Reading packed file
 		std::ifstream is(filepath, std::ios::out | std::ios::binary);
@@ -102,8 +102,8 @@ namespace Utils
 		is.read(reinterpret_cast<char*>(&indexAmount), sizeof(unsigned int));
 
 		// Read position and normal information
-		ModelPt tempPt{};
-		std::vector<ModelPt> vertices;
+		MeshPt tempPt{};
+		std::vector<MeshPt> vertices;
 		vertices.reserve(vertexAmount);
 		for (int i = 0; i < static_cast<int>(vertexAmount); i++)
 		{
@@ -123,6 +123,6 @@ namespace Utils
 		}
 		is.close();
 
-		return std::make_pair(vertices, indices);
+		return MeshData{ vertices, indices };
 	}
 }

@@ -69,7 +69,7 @@ namespace Physics
 
 		StaticTree() = default;
 
-		void CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned>& indices);
+		void CreateStaticTree(const std::vector<MeshPt>& vertices, const std::vector<unsigned>& indices);
 
 		std::vector<BoundingBox> QueryTree(const StaticTree& other);
 		std::vector<BoundingBox> QueryTree(const BoundingBox& box);
@@ -94,7 +94,7 @@ namespace Physics
 	};
 
 	
-	void StaticTree::CreateStaticTree(const std::vector<ModelPt>& vertices, const std::vector<unsigned>& indices)
+	void StaticTree::CreateStaticTree(const std::vector<MeshPt>& vertices, const std::vector<unsigned>& indices)
 	{
 		ClearData();
 

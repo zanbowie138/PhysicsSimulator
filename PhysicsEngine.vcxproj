@@ -217,8 +217,8 @@
     <ClInclude Include="src\physics\PhysicsSystem.h" />
     <ClInclude Include="src\physics\StaticTree.h" />
     <ClInclude Include="src\renderables\Lines.h" />
-    <ClInclude Include="src\renderables\Mesh.h" />
     <ClInclude Include="src\renderables\Model.h" />
+    <ClInclude Include="src\renderables\Mesh.h" />
     <ClInclude Include="src\renderables\Points.h" />
     <ClInclude Include="src\renderables\Renderable.h" />
     <ClInclude Include="src\renderer\Camera.h" />
@@ -228,7 +228,7 @@
     <ClInclude Include="src\renderer\Texture.h" />
     <ClInclude Include="src\renderer\VAO.h" />
     <ClInclude Include="src\renderer\VBO.h" />
-    <ClInclude Include="src\utils\ModelImport.h" />
+    <ClInclude Include="src\utils\MeshImport.h" />
     <ClInclude Include="src\utils\SimpleShapes.h" />
     <ClInclude Include="src\utils\ThreadPool.h" />
     <ClInclude Include="src\utils\Timer.h" />
