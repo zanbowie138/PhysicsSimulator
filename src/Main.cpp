@@ -82,8 +82,8 @@ int main()
 	floor.transform.scale = glm::vec3(10.0f);
 	floor.InitECS();
 
-	const auto [cubeVerts, cubeInds] = Utils::CubeData(true);
-	Mesh light(cubeVerts, cubeInds);
+	const auto cubeData = Utils::CubeData(true);
+	Mesh light(cubeData.vertices, cubeData.indices);
 	light.transform.worldPos = glm::vec3(0.0f, 1.0f, 0.0f);
 	light.transform.scale = glm::vec3(0.07f);
 	light.ShaderID = basicShader.ID;
@@ -92,7 +92,7 @@ int main()
 	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
 
-	Mesh cube(cubeVerts, cubeInds);
+	Mesh cube(cubeData.vertices, cubeData.indices);
 	cube.transform.worldPos = glm::vec3(-1.0f, 1.0f, static_cast<float>(1));
 	cube.transform.scale = glm::vec3(0.3f);
 	cube.ShaderID = flatShader.ID;
@@ -132,14 +132,14 @@ int main()
 	UBO.BindShader(defaultShader);
 	UBO.BindShader(flatShader);
 
-	double lastTime = glfwGetTime();
-	double currentTime = 0.0;
+	double lastFPSTime, currentTime;
+	lastFPSTime = currentTime = glfwGetTime();
+
 	unsigned int fpsFrameCount = 0;
-	float mspf = 0.0f;
-	float fps = 0.0f;
-	float time = 0;
-	float dt = 0;
-	unsigned int frame = 0;
+
+	float time, mspf, fps;
+	time = mspf = fps = 0.0f;
+
 
 
 	std::cout << timer.ToString() << std::endl;
@@ -147,6 +147,7 @@ int main()
 	{
 		renderSystem->PreUpdate();
 
+		// Move entities
 		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 2.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
 		//lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f)) / 3.0f + 1.0f, 0.7f, 0.0f);
 		light.transform.worldPos = lightPos;
@@ -163,19 +164,22 @@ int main()
 			collideBox.PushBack(tree.GetBoundingBox(entity));
 		}
 
-		dt = static_cast<float>(glfwGetTime() - currentTime) * 1000.0f;
-		time += dt;
+		float dt = static_cast<float>(glfwGetTime() - currentTime) * 1000.0f;
+
 		currentTime = glfwGetTime();
 		fpsFrameCount++;
-		if (currentTime - lastTime >= 1.0)
+
+		// Updates fps every second
+		if (currentTime - lastFPSTime >= 1.0)
 		{
 			// If last fps update() was more than 1 sec ago
 			mspf = 1000.0f / static_cast<float>(fpsFrameCount);
 			fps = static_cast<float>(fpsFrameCount);
 			fpsFrameCount = 0;
-			lastTime += 1.0;
+			lastFPSTime += 1.0;
 		}
-		frame++;
+
+		time += dt;
 
 		// Update window input bitset
 		windowManager.ProcessInputs(!GUI.MouseOver());
@@ -187,12 +191,11 @@ int main()
 		// Update uniform buffer
 		UBO.UpdateData(cam, ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos);
 
-		std::stringstream ss;
-		ss << "FPS: " << fps << "\nMSPF: " << mspf;
+		std::string fpsString("FPS: " + std::to_string(fps) + "\nMSPF: " + std::to_string(mspf));
 
 		renderSystem->Update();
 		GUI.NewFrame();
-		GUI.Write("FPSCounter", ss.str().c_str());
+		GUI.Write("FPSCounter", fpsString.c_str());
 		GUI.Write("Collisions", std::to_string(collidedEntities.size()).c_str());
 		GUI.Write("Box Amount", std::to_string(tree.GetBoundingBox(cube.mEntityID).IsColliding(tree.GetBoundingBox(light.mEntityID))).c_str());
 		GUI.Render();
