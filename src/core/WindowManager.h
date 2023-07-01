@@ -15,8 +15,8 @@ namespace Core {
 	class WindowManager
 	{
 	private:
-		unsigned int screenWidth;
-		unsigned int screenHeight;
+		unsigned int screenWidth = 0;
+		unsigned int screenHeight = 0;
 
 		const unsigned int aliasingSamples = 5;
 

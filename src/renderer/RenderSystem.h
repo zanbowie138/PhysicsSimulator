@@ -2,6 +2,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Camera.h"
 
 #include "../components/RenderInfo.h"

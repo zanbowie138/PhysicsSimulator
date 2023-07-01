@@ -1,11 +1,11 @@
 #pragma once
 
-#include<filesystem>
-
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <filesystem>
 #include <string>
 #include <fstream>
-#include <sstream>
 #include <iostream>
 #include <cerrno>
 #include "../core/GlobalTypes.h"
@@ -120,7 +120,7 @@ void Shader::CompileErrors(const unsigned int shader, const char* type)
 		if (hasCompiled == GL_FALSE)
 		{
 			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
-			std::cout << "SHADER_COMPILATION_ERROR for: " << type << "\n" << infolog << std::endl;
+			std::cerr << "SHADER_COMPILATION_ERROR for: " << type << "\n" << infolog << std::endl;
 		}
 	}
 	else
@@ -129,7 +129,7 @@ void Shader::CompileErrors(const unsigned int shader, const char* type)
 		if (hasCompiled == GL_FALSE)
 		{
 			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
-			std::cout << "SHADER_LINKING_ERROR for: " << type << "\n" << infolog << std::endl;
+			std::cerr << "SHADER_LINKING_ERROR for: " << type << "\n" << infolog << std::endl;
 		}
 	}
 }
