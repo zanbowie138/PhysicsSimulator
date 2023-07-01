@@ -5,8 +5,6 @@
 #include "../renderer/VAO.h"
 #include "../core/ECS.h"
 
-#include "../physics/BoundingBox.h"
-
 extern ECSController ecsController;
 
 // This class serves as a template to initialize OpenGL data and ECS.

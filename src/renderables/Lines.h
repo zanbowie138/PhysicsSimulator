@@ -85,7 +85,7 @@ inline void Lines::PushToBuffer(const std::vector<glm::vec3>& vertices, const st
 	VBO.Unbind();
 	EBO.Unbind();
 
-	mCount += indices.size();
+	mCount += static_cast<GLuint>(indices.size());
 	UpdateSize();
 }
 

@@ -2,6 +2,7 @@
 #define BINS_AMT 8
 #define TRI_LIMIT 1
 #define DEBUG
+
 #include <unordered_map>
 #include <vector>
 #include <array>
@@ -24,7 +25,6 @@ namespace Physics
 {
 	class StaticTree
 	{
-	private:
 		struct BVHNode
 		{
 			BoundingBox box;
@@ -47,6 +47,7 @@ namespace Physics
 			glm::vec3 v3;
 		};
 
+	private:
 		// Index positions of triangles, eventually sorted by centroids depending on node
 		std::vector<size_t> mTriIdx;
 		// Vector of all triangle centroids
@@ -93,8 +94,8 @@ namespace Physics
 		bool IsInternal(size_t nodeIndex) const;
 	};
 
-	
-	void StaticTree::CreateStaticTree(const std::vector<MeshPt>& vertices, const std::vector<unsigned>& indices)
+
+	inline void StaticTree::CreateStaticTree(const std::vector<MeshPt>& vertices, const std::vector<unsigned>& indices)
 	{
 		ClearData();
 
@@ -395,7 +396,7 @@ namespace Physics
 		node.box.SetToLimit();
 
 		// Update bounds
-		for (int t = node.first; t < node.first + node.triCount; ++t)
+		for (size_t t = node.first; t < node.first + node.triCount; ++t)
 		{
 			const Triangle& tri = GetTriangle(t);
 			node.box.IncludePoint(tri.v1);

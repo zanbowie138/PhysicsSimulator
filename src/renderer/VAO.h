@@ -1,6 +1,7 @@
 #pragma once
-
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "VBO.h"
 
 class VAO
@@ -17,7 +18,7 @@ public:
 	/// <param name="type">data type of each component in array</param>
 	/// <param name="stride">byte offset of each consecutive vertex</param>
 	/// <param name="offset">Specifies a offset of the first component of the first generic vertex attribute</param>
-	inline void LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void* offset);
+	inline void LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride, const void* offset);
 	inline void Bind() const;
 	static inline void Unbind();
 	inline void Delete() const;
@@ -30,7 +31,7 @@ inline VAO::VAO()
 }
 
 // Links a VBO to the VAO using a certain layout
-inline void VAO::LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void* offset)
+inline void VAO::LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride, const void* offset)
 {
 	/*
 	* layout: Specifies the index of the generic vertex attribute to be modified.

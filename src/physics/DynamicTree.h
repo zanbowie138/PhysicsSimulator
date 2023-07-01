@@ -11,10 +11,8 @@ namespace Physics {
 	constexpr size_t NULL_NODE = 0xffffffff;
 
 	// Algorithm adapted from Box2D's dynamic tree
-	template <typename T>
 	class DynamicBBTree
 	{
-	private:
 		struct Node
 		{
 			BoundingBox box;
@@ -26,6 +24,7 @@ namespace Physics {
 			size_t left;
 			size_t right;
 		};
+
 	public:
 		std::vector<Node> mNodes;
 
@@ -34,25 +33,25 @@ namespace Physics {
 		size_t rootIndex;
 
 	public:
-		// Queried to get object
-		std::unordered_map<size_t, T> nodeToObjectMap;
+		// Queried to get entity
+		std::unordered_map<size_t, Entity> nodeToEntityMap;
 		// Queried to get node
-		std::unordered_map<T, size_t> objectToNodeMap;
+		std::unordered_map<Entity, size_t> entityToNodeMap;
 
 		// Stack of free nodes
 		std::stack<size_t> mFreeList;
 	public:
 		explicit DynamicBBTree(size_t initialCapacity = 1);
 
-		void InsertEntity(T object, BoundingBox box);
-		void RemoveEntity(T object);
-		void UpdateEntity(T object, BoundingBox box);
+		void InsertEntity(Entity entity, BoundingBox box);
+		void RemoveEntity(Entity entity);
+		void UpdateEntity(Entity entity, BoundingBox box);
 
 		// Uses TreeQuery to compute all box pairs
-		std::vector<T> ComputePairs();
+		std::vector<Entity> ComputeCollisionPairs();
 
 		// Returns reference to object's bounding box
-		const BoundingBox& GetBoundingBox(T object) const;
+		const BoundingBox& GetBoundingBox(Entity object) const;
 
 		// Returns a vector of all active bounding boxes
 		// Bool decides whether non-leaf boxes are added
@@ -71,7 +70,7 @@ namespace Physics {
 		void InsertLeaf(size_t leafIndex);
 
 		// Returns object given node index
-		T GetObject(size_t nodeIndex);
+		Entity GetObject(size_t nodeIndex);
 
 		// Gets sibling of node
 		size_t GetSibling(size_t nodeIndex);
@@ -92,8 +91,8 @@ namespace Physics {
 		void ResetNodeData(size_t nodeIndex);
 	};
 
-	template <typename T>
-	DynamicBBTree<T>::DynamicBBTree(const size_t initialCapacity)
+
+	inline DynamicBBTree::DynamicBBTree(const size_t initialCapacity)
 	{
 		rootIndex = NULL_NODE;
 		nodeCount = 0;
@@ -102,32 +101,32 @@ namespace Physics {
 		ExpandCapacity(initialCapacity);
 	}
 
-	template <typename T>
-	void DynamicBBTree<T>::InsertEntity(T object, BoundingBox box)
+
+	inline void DynamicBBTree::InsertEntity(Entity entity, BoundingBox box)
 	{
 		size_t newNodeIndex = AllocateNode();
 
 		mNodes[newNodeIndex].box = box;
 
-		nodeToObjectMap.emplace(newNodeIndex, object);
-		objectToNodeMap.emplace(object, newNodeIndex);
+		nodeToEntityMap.emplace(newNodeIndex, entity);
+		entityToNodeMap.emplace(entity, newNodeIndex);
 
 		InsertLeaf(newNodeIndex);
 	}
 
-	template <typename T>
-	void DynamicBBTree<T>::RemoveEntity(const T object)
-	{
-		const auto enIterator = objectToNodeMap.find(object);
-		assert(enIterator != objectToNodeMap.end() && "Trying to remove object not in map");
 
-		const auto neIterator = nodeToObjectMap.find(enIterator->second);
-		assert(neIterator != nodeToObjectMap.end() && "Trying to remove node not in map");
+	inline void DynamicBBTree::RemoveEntity(const Entity entity)
+	{
+		const auto enIterator = entityToNodeMap.find(entity);
+		assert(enIterator != entityToNodeMap.end() && "Trying to remove entity not in map");
+
+		const auto neIterator = nodeToEntityMap.find(enIterator->second);
+		assert(neIterator != nodeToEntityMap.end() && "Trying to remove node not in map");
 
 		size_t node = enIterator->second;
 
-		objectToNodeMap.erase(enIterator);
-		nodeToObjectMap.erase(neIterator);
+		entityToNodeMap.erase(enIterator);
+		nodeToEntityMap.erase(neIterator);
 
 		if (node == rootIndex)
 		{
@@ -160,15 +159,15 @@ namespace Physics {
 		FreeNode(node);
 	}
 
-	template <typename T>
-	void DynamicBBTree<T>::UpdateEntity(T object, BoundingBox box)
+
+	inline void DynamicBBTree::UpdateEntity(Entity entity, BoundingBox box)
 	{
-		RemoveEntity(object);
-		InsertEntity(object, box);
+		RemoveEntity(entity);
+		InsertEntity(entity, box);
 	}
 
-	template <typename T>
-	size_t DynamicBBTree<T>::AllocateNode()
+
+	inline size_t DynamicBBTree::AllocateNode()
 	{
 		size_t nodeIndex;
 
@@ -198,8 +197,8 @@ namespace Physics {
 		return nodeIndex;
 	}
 
-	template <typename T>
-	void DynamicBBTree<T>::FreeNode(const size_t nodeIndex)
+
+	inline void DynamicBBTree::FreeNode(const size_t nodeIndex)
 	{
 		// Reset data
 		ResetNodeData(nodeIndex);
@@ -210,8 +209,8 @@ namespace Physics {
 		nodeCount--;
 	}
 
-	template <typename T>
-	void DynamicBBTree<T>::InsertLeaf(const size_t leafIndex)
+
+	inline void DynamicBBTree::InsertLeaf(const size_t leafIndex)
 	{
 		if (rootIndex == NULL_NODE)
 		{
@@ -269,17 +268,17 @@ namespace Physics {
 		}
 	}
 
-	template <typename T>
-	T DynamicBBTree<T>::GetObject(size_t nodeIndex)
+
+	inline Entity DynamicBBTree::GetObject(size_t nodeIndex)
 	{
-		const auto iterator = nodeToObjectMap.find(nodeIndex);
-		assert(iterator != nodeToObjectMap.end() && "Trying to get node not in map");
+		const auto iterator = nodeToEntityMap.find(nodeIndex);
+		assert(iterator != nodeToEntityMap.end() && "Trying to get node not in map");
 
 		return iterator->second;
 	}
 
-	template <typename T>
-	size_t DynamicBBTree<T>::GetSibling(size_t nodeIndex)
+
+	inline size_t DynamicBBTree::GetSibling(size_t nodeIndex)
 	{
 		const auto& parentNode = mNodes[mNodes[nodeIndex].parent];
 		size_t sibling;
@@ -292,8 +291,8 @@ namespace Physics {
 		return sibling;
 	}
 
-	template <typename T>
-	size_t DynamicBBTree<T>::FindBestSibling(size_t leafIndex) const
+
+	inline size_t DynamicBBTree::FindBestSibling(size_t leafIndex) const
 	{
 		size_t sibling = rootIndex;
 		BoundingBox leafBox = mNodes[leafIndex].box;
@@ -363,10 +362,10 @@ namespace Physics {
 		return sibling;
 	}
 
-	template <typename T>
-	std::vector<T> DynamicBBTree<T>::ComputePairs()
+
+	inline std::vector<Entity> DynamicBBTree::ComputeCollisionPairs()
 	{
-		std::vector<T> output;
+		std::vector<Entity> output;
 		std::stack<std::pair<size_t, size_t>> stack;
 
 		if (nodeCount <= 1) return output;
@@ -422,8 +421,8 @@ namespace Physics {
 		return output;
 	}
 
-	template <typename T>
-	void DynamicBBTree<T>::ExpandCapacity(const size_t newNodeCapacity)
+
+	inline void DynamicBBTree::ExpandCapacity(const size_t newNodeCapacity)
 	{
 		assert(newNodeCapacity > nodeCapacity);
 
@@ -433,21 +432,21 @@ namespace Physics {
 		mNodes.resize(nodeCapacity);
 	}
 
-	template <typename T>
-	bool DynamicBBTree<T>::IsLeaf(const size_t index) const
+
+	inline bool DynamicBBTree::IsLeaf(const size_t index) const
 	{
 		if (mNodes[index].left == NULL_NODE && mNodes[index].right == NULL_NODE) assert(mNodes[index].height == 0 && "Leaf");
 		return mNodes[index].left == NULL_NODE && mNodes[index].right == NULL_NODE;
 	}
 
-	template <typename T>
-	bool DynamicBBTree<T>::IsInternal(size_t nodeIndex) const
+
+	inline bool DynamicBBTree::IsInternal(size_t nodeIndex) const
 	{
 		return !IsLeaf(nodeIndex);
 	}
 
-	template <typename T>
-	size_t DynamicBBTree<T>::Balance(const size_t node)
+
+	inline size_t DynamicBBTree::Balance(const size_t node)
 	{
 		// If node is a leaf or height = 0
 		if (IsLeaf(node))
@@ -456,7 +455,7 @@ namespace Physics {
 		size_t left = mNodes[node].left;
 		size_t right = mNodes[node].right;
 
-		int currentBalance = mNodes[right].height - mNodes[left].height;
+		int currentBalance = static_cast<int>(mNodes[right].height - mNodes[left].height);
 
 		// Rotate right branch up.
 		if (currentBalance > 1)
@@ -569,17 +568,16 @@ namespace Physics {
 		return node;
 	}
 
-	template <typename T>
-	const BoundingBox& DynamicBBTree<T>::GetBoundingBox(const T object) const
+
+	inline const BoundingBox& DynamicBBTree::GetBoundingBox(const Entity object) const
 	{
-		const auto enIterator = objectToNodeMap.find(object);
-		assert(enIterator != objectToNodeMap.end() && "Trying to get object not in map");
+		const auto enIterator = entityToNodeMap.find(object);
+		assert(enIterator != entityToNodeMap.end() && "Trying to get object not in map");
 
 		return mNodes[enIterator->second].box;
 	}
 
-	template <typename T>
-	std::vector<BoundingBox> DynamicBBTree<T>::GetAllBoxes(const bool onlyLeaf) const
+	inline std::vector<BoundingBox> DynamicBBTree::GetAllBoxes(const bool onlyLeaf) const
 	{
 		std::vector<BoundingBox> output;
 		for (size_t i = 0; i < mNodes.size(); i++)
@@ -590,8 +588,8 @@ namespace Physics {
 		return output;
 	}
 
-	template <typename T>
-	void DynamicBBTree<T>::ResetNodeData(const size_t nodeIndex)
+
+	inline void DynamicBBTree::ResetNodeData(const size_t nodeIndex)
 	{
 		mNodes[nodeIndex].box = BoundingBox{};
 		mNodes[nodeIndex].parent = NULL_NODE;

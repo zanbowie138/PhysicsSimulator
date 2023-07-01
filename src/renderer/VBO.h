@@ -1,7 +1,8 @@
 #pragma once
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
-#include <glad/glad.h>
 
 #include <vector>
 #include <iostream>
@@ -46,7 +47,7 @@ inline void VBO::PushData(const std::vector<glm::vec3>& vertices)
 	assert(currentBufSize + vertices.size() * sizeof(glm::vec3) < bufSize && "VBO Overflow");
 
 	glBufferSubData(GL_ARRAY_BUFFER, currentBufSize, vertices.size() * sizeof(glm::vec3), vertices.data());
-	currentBufSize += vertices.size() * sizeof(glm::vec3);
+	currentBufSize += static_cast<GLuint>(vertices.size() * sizeof(glm::vec3));
 }
 
 inline void VBO::ClearData()

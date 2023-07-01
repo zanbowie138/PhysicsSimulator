@@ -14,7 +14,7 @@
 class PhysicsSystem : public System
 {
 public:
-    Physics::DynamicBBTree<Entity> tree;
+    Physics::DynamicBBTree tree;
 
     explicit PhysicsSystem();
     ~PhysicsSystem() = default;
@@ -28,7 +28,7 @@ private:
 
 inline PhysicsSystem::PhysicsSystem()
 {
-    tree = Physics::DynamicBBTree<Entity>{ 1 };
+    tree = Physics::DynamicBBTree{ 1 };
 }
 
 inline void PhysicsSystem::Clean()

@@ -1,13 +1,14 @@
 #pragma once
-#include<string>
+#include <string>
 #include <vector>
 
 #include "../core/GlobalTypes.h"
-#include "../renderer/Camera.h"
+
 #include "../renderer/EBO.h"
 #include "../renderer/VBO.h"
 #include "../renderer/VAO.h"
 #include "../renderer/Texture.h"
+
 #include "Renderable.h"
 
 class Model: public Renderable

@@ -115,9 +115,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\physics\BoundingBoxTree.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\components\Components.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>

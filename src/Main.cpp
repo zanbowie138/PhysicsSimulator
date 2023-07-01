@@ -158,12 +158,12 @@ int main()
 		light.transform.worldPos = lightPos;
 		
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
-		tree.ComputePairs();
+		tree.ComputeCollisionPairs();
 
 		const auto boxes = tree.GetAllBoxes(false);
 
 		collideBox.Clear();
-		const auto collidedEntities = tree.ComputePairs();
+		const auto collidedEntities = tree.ComputeCollisionPairs();
 		for (const auto entity : collidedEntities)
 		{
 			collideBox.PushBack(tree.GetBoundingBox(entity));

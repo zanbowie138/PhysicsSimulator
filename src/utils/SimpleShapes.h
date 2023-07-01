@@ -1,8 +1,6 @@
 #pragma once
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+
 #include <vector>
-#include <utility>
 #include "../core/GlobalTypes.h"
 
 namespace Utils
@@ -77,7 +75,7 @@ namespace Utils
 	static ModelData UVSphereData(uint8_t latitudes, uint8_t longitudes)
 	{
 #define RADIUS 1
-#define PI 3.1415
+#define PI 3.1415f
 
         if (longitudes < 3)
             longitudes = 3;

@@ -1,11 +1,13 @@
 #pragma once
 
-#include<filesystem>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
-#include<glad/glad.h>
-#include<stb/stb_image.h>
+#include <stb/stb_image.h>
 
-#include"shaderClass.h"
+#include <filesystem>
+
+#include "shaderClass.h"
 
 class Texture
 {

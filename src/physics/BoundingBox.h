@@ -1,8 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
-#include <memory>
 
-#include "BoundingBox.h"
 #include "BoundingBox.h"
 
 class BoundingBox
