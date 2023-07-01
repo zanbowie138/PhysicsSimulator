@@ -8,7 +8,6 @@
 #include "../renderer/VBO.h"
 #include "../renderer/VAO.h"
 
-#include "../physics/Collidable.h"
 #include "../utils/MeshImport.h"
 #include "../physics/StaticTree.h"
 #include "../utils/Timer.h"

@@ -8,6 +8,9 @@
 #include "../core/System.h"
 #include "../core/ComponentManager.h"
 
+#define GRAVITY -9.81
+
+// http://graphics.stanford.edu/papers/rigid_bodies-sig03/
 class PhysicsSystem : public System
 {
 public:

@@ -118,9 +118,6 @@
     <ClInclude Include="src\physics\BoundingBoxTree.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="src\physics\Collidable.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\components\Components.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
@@ -255,6 +252,12 @@
     </ClInclude>
     <ClInclude Include="src\utils\ThreadPool.h">
       <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components\Collider.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics\Solver.h">
+      <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

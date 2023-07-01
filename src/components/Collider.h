@@ -1,0 +1,7 @@
+namespace Components
+{
+	struct Collider
+	{
+		
+	};
+}

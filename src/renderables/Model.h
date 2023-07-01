@@ -9,7 +9,6 @@
 #include "../renderer/VAO.h"
 #include "../renderer/Texture.h"
 #include "Renderable.h"
-#include "../physics/Collidable.h"
 
 class Model: public Renderable
 {

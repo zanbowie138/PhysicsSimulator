@@ -6,5 +6,7 @@ namespace Components
 	{
 	    float mass;
 		glm::vec3 velocity;
+
+		bool sleeping;
 	};
 }

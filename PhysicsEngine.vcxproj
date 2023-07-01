@@ -186,6 +186,7 @@
     <Image Include="Resources\Textures\squarecat.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\components\Collider.h" />
     <ClInclude Include="src\components\Rigidbody.h" />
     <ClInclude Include="src\core\GUI.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
@@ -212,9 +213,9 @@
     <ClInclude Include="src\core\WindowManager.h" />
     <ClInclude Include="src\physics\BoundingBox.h" />
     <ClInclude Include="src\physics\BoundingBoxTree.h" />
-    <ClInclude Include="src\physics\Collidable.h" />
     <ClInclude Include="src\physics\DynamicTree.h" />
     <ClInclude Include="src\physics\PhysicsSystem.h" />
+    <ClInclude Include="src\physics\Solver.h" />
     <ClInclude Include="src\physics\StaticTree.h" />
     <ClInclude Include="src\renderables\Lines.h" />
     <ClInclude Include="src\renderables\Model.h" />

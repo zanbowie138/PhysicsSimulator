@@ -30,6 +30,7 @@ int main()
 	// TODO: Combine VBO, EBO into one class
 
 	Utils::Timer timer("Setup");
+
 	// Window creation
 	Core::WindowManager windowManager;
 	windowManager.Init("OpenGL Window", 900, 900);
@@ -40,7 +41,7 @@ int main()
 	GUI.Init(window);
 
 	// Camera creation
-	Camera cam{windowDimensions.first,windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f)};
+	Camera cam{ windowDimensions.first,windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f) };
 
 	// Initialize ECS
 	ecsController.Init();
@@ -59,10 +60,12 @@ int main()
 	auto& tree = physicsSystem->tree;
 
 	// Set RenderSystem signature
-	Signature signature;
-	signature.set(ecsController.GetComponentType<Components::Transform>());
-	signature.set(ecsController.GetComponentType<Components::RenderInfo>());
-	ecsController.SetSystemSignature<RenderSystem>(signature);
+	{
+		Signature signature;
+		signature.set(ecsController.GetComponentType<Components::Transform>());
+		signature.set(ecsController.GetComponentType<Components::RenderInfo>());
+		ecsController.SetSystemSignature<RenderSystem>(signature);
+	}
 
 	Shader basicShader("basic.vert", "basic.frag");
 	Shader flatShader("flat.vert", "flat.frag");
@@ -97,12 +100,14 @@ int main()
 	cube.transform.scale = glm::vec3(0.3f);
 	cube.ShaderID = flatShader.ID;
 	cube.InitECS();
+
 	auto& cubePos = ecsController.GetComponent<Components::Transform>(light.mEntityID);
 	tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
 
 	const ModelData sphereData = Utils::UVSphereData(20,20);
 	Model sphere(sphereData);
-	sphere.transform.scale = glm::vec3(0.1f);
+	sphere.transform.scale = glm::vec3(0.5f);
+	sphere.transform.worldPos = glm::vec3(0.0f, 1.0f, 0.0f);
 	sphere.ShaderID = flatShader.ID;
 	sphere.mColor = glm::vec3(0.5f, 0.3f, 1.0f);
 	sphere.InitECS();

@@ -5,6 +5,12 @@
 constexpr unsigned int MAX_ENTITIES = 500;
 constexpr unsigned int MAX_COMPONENTS = 10;
 
+namespace Constants
+{
+	const glm::vec3 UP = glm::vec3(0.0f, 1.0f, 0.0f);
+}
+
+
 // EntityID
 using Entity = unsigned int;
 
