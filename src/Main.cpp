@@ -53,6 +53,7 @@ int main()
 	ecsController.RegisterComponent<Components::Transform>();
 	ecsController.RegisterComponent<Components::RenderInfo>();
 	ecsController.RegisterComponent<Components::TextureInfo>();
+	ecsController.RegisterComponent<Components::Rigidbody>();
 
 	// Create RenderSystem and add dependencies
 	auto renderSystem = ecsController.RegisterSystem<RenderSystem>();
@@ -68,6 +69,14 @@ int main()
 		signature.set(ecsController.GetComponentType<Components::Transform>());
 		signature.set(ecsController.GetComponentType<Components::RenderInfo>());
 		ecsController.SetSystemSignature<RenderSystem>(signature);
+	}
+
+	// Set PhysicsSystem signature
+	{
+		Signature signature;
+		signature.set(ecsController.GetComponentType<Components::Transform>());
+		signature.set(ecsController.GetComponentType<Components::Rigidbody>());
+		ecsController.SetSystemSignature<PhysicsSystem>(signature);
 	}
 
 	Shader basicShader("basic.vert", "basic.frag");
@@ -94,7 +103,6 @@ int main()
 	light.transform.scale = glm::vec3(0.07f);
 	light.ShaderID = basicShader.ID;
 	light.InitECS();
-	tree.InsertEntity(light.mEntityID, light.CalcBoundingBox());
 	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
 
@@ -104,9 +112,6 @@ int main()
 	cube.ShaderID = flatShader.ID;
 	cube.InitECS();
 
-	auto& cubePos = ecsController.GetComponent<Components::Transform>(light.mEntityID);
-	tree.InsertEntity(cube.mEntityID, cube.CalcBoundingBox());
-
 	const ModelData sphereData = Utils::UVSphereData(20,20);
 	Model sphere(sphereData);
 	sphere.transform.scale = glm::vec3(0.5f);
@@ -114,7 +119,10 @@ int main()
 	sphere.ShaderID = flatShader.ID;
 	sphere.mColor = glm::vec3(0.5f, 0.3f, 1.0f);
 	sphere.InitECS();
-	tree.InsertEntity(sphere.mEntityID, sphere.CalcBoundingBox());
+
+	physicsSystem->AddToTree(light);
+	physicsSystem->AddToTree(cube);
+	physicsSystem->AddRigidbody(sphere);
 
 	Lines collideBox(1000);
 	collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -152,14 +160,13 @@ int main()
 	float time, mspf, fps;
 	time = mspf = fps = 0.0f;
 
-	bool debugBoundingBoxes = false;
-
-
-
 	std::cout << timer.ToString() << std::endl;
 	while (!glfwWindowShouldClose(window))
 	{
 		renderSystem->PreUpdate();
+
+		float dt_s = static_cast<float>(glfwGetTime() - currentTime);
+		float dt_mill = dt_s * 1000;
 
 		// Move entities
 		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 2.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
@@ -167,10 +174,12 @@ int main()
 		light.transform.worldPos = lightPos;
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
 
+		physicsSystem->Update(dt_s);
+
 		boxRenderer.Clear();
-		if (debugBoundingBoxes)
+		if (GUI.mConfigInfo.debugBoundingBoxes)
 		{
-			boxRenderer.PushBack(tree.GetAllBoxes(true));
+			boxRenderer.PushBack(tree.GetAllBoxes(GUI.mConfigInfo.showOnlyLeafNodes));
 		}
 		
 
@@ -180,8 +189,6 @@ int main()
 		{
 			collideBox.PushBack(tree.GetBoundingBox(entity));
 		}
-
-		float dt = static_cast<float>(glfwGetTime() - currentTime) * 1000.0f;
 
 		currentTime = glfwGetTime();
 		fpsFrameCount++;
@@ -196,13 +203,13 @@ int main()
 			lastFPSTime += 1.0;
 		}
 
-		time += dt;
+		time += dt_mill;
 
 		// Update window input bitset
 		windowManager.ProcessInputs(!GUI.MouseOver());
 		GUI.SetMouse(windowManager.mouseShown);
 		// Move camera based on window inputs
-		cam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos(), dt);
+		cam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos(), dt_mill);
 		// Update camera matrix
 		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 		// Update uniform buffer
@@ -217,9 +224,7 @@ int main()
 		GUI.Text(fpsString.c_str());
 		GUI.EndWindow();
 
-		GUI.StartWindow("Config");
-		GUI.Checkbox("Show Bounding Boxes", &debugBoundingBoxes);
-		GUI.EndWindow();
+		GUI.ShowConfigWindow();
 
 		GUI.Render();
 		renderSystem->PostUpdate();

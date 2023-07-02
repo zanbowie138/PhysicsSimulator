@@ -10,6 +10,12 @@
 class GUI
 {
 public:
+	struct configInfo
+	{
+		bool debugBoundingBoxes;
+		bool showOnlyLeafNodes;
+	} mConfigInfo;
+
 	bool MouseOver() const;
 	void SetMouse(bool value);
 
@@ -22,6 +28,10 @@ public:
 
 	void Text(const char* text);
 	void Checkbox(const char* label, bool* variable);
+
+	void ShowConfigWindow();
+
+	void Demo();
 
 	void Render();
 
@@ -65,7 +75,7 @@ inline void GUI::NewFrame()
 
 inline void GUI::StartWindow(const char* windowName)
 {
-	ImGui::Begin(windowName);
+	assert(ImGui::Begin(windowName) && "Gui window did not start corrently...");
 }
 
 inline void GUI::EndWindow()
@@ -81,6 +91,23 @@ inline void GUI::Text(const char* text)
 inline void GUI::Checkbox(const char* label, bool* variable)
 {
 	ImGui::Checkbox(label, variable);
+}
+
+inline void GUI::ShowConfigWindow()
+{
+	StartWindow("Config");
+	if (ImGui::CollapsingHeader("BVH Tree"))
+	{
+		Checkbox("Show Bounding Boxes", &mConfigInfo.debugBoundingBoxes);
+		Checkbox("Show only leaf nodes", &mConfigInfo.showOnlyLeafNodes);
+	}
+	
+	EndWindow();
+}
+
+inline void GUI::Demo()
+{
+	ImGui::ShowDemoWindow();
 }
 
 inline void GUI::Render()

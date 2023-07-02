@@ -12,6 +12,8 @@
 #include "../physics/StaticTree.h"
 #include "../utils/Timer.h"
 
+#include "Renderable.h"
+
 class Mesh: public Renderable
 {
 public:
@@ -27,6 +29,8 @@ public:
 
 	BoundingBox CalcBoundingBox();
 	void InitTree();
+
+	void AddRigidbody();
 
 private:
 	void InitVAO() override;

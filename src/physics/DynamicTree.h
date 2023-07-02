@@ -34,9 +34,9 @@ namespace Physics {
 
 	public:
 		// Queried to get entity
-		std::unordered_map<size_t, Entity> nodeToEntityMap;
+		std::unordered_map<size_t, Entity> nodeIdxToEntityMap;
 		// Queried to get node
-		std::unordered_map<Entity, size_t> entityToNodeMap;
+		std::unordered_map<Entity, size_t> entityToNodeIdxMap;
 
 		// Stack of free nodes
 		std::stack<size_t> mFreeList;
@@ -46,6 +46,7 @@ namespace Physics {
 		void InsertEntity(Entity entity, BoundingBox box);
 		void RemoveEntity(Entity entity);
 		void UpdateEntity(Entity entity, BoundingBox box);
+		void UpdateEntity(Entity entity, glm::vec3 transform);
 
 		// Uses TreeQuery to compute all box pairs
 		std::vector<Entity> ComputeCollisionPairs();
@@ -57,6 +58,8 @@ namespace Physics {
 		// Bool decides whether non-leaf boxes are added
 		std::vector<BoundingBox> GetAllBoxes(const bool onlyLeaf) const;
 	private:
+		Node& GetNode(Entity entity);
+		
 		// Allocates a space for a new node
 		// Returns the index position of the allocated node
 		size_t AllocateNode();
@@ -109,8 +112,8 @@ namespace Physics {
 		mNodes[newNodeIndex].box = box;
 		mNodes[newNodeIndex].height = 0;
 
-		nodeToEntityMap.emplace(newNodeIndex, entity);
-		entityToNodeMap.emplace(entity, newNodeIndex);
+		nodeIdxToEntityMap.emplace(newNodeIndex, entity);
+		entityToNodeIdxMap.emplace(entity, newNodeIndex);
 
 		InsertLeaf(newNodeIndex);
 	}
@@ -118,16 +121,16 @@ namespace Physics {
 
 	inline void DynamicBBTree::RemoveEntity(const Entity entity)
 	{
-		const auto enIterator = entityToNodeMap.find(entity);
-		assert(enIterator != entityToNodeMap.end() && "Trying to remove entity not in map");
+		const auto enIterator = entityToNodeIdxMap.find(entity);
+		assert(enIterator != entityToNodeIdxMap.end() && "Trying to remove entity not in map");
 
-		const auto neIterator = nodeToEntityMap.find(enIterator->second);
-		assert(neIterator != nodeToEntityMap.end() && "Trying to remove node not in map");
+		const auto neIterator = nodeIdxToEntityMap.find(enIterator->second);
+		assert(neIterator != nodeIdxToEntityMap.end() && "Trying to remove node not in map");
 
 		size_t node = enIterator->second;
 
-		entityToNodeMap.erase(enIterator);
-		nodeToEntityMap.erase(neIterator);
+		entityToNodeIdxMap.erase(enIterator);
+		nodeIdxToEntityMap.erase(neIterator);
 
 		if (node == rootIndex)
 		{
@@ -163,6 +166,15 @@ namespace Physics {
 
 	inline void DynamicBBTree::UpdateEntity(Entity entity, BoundingBox box)
 	{
+		RemoveEntity(entity);
+		InsertEntity(entity, box);
+	}
+
+	inline void DynamicBBTree::UpdateEntity(Entity entity, glm::vec3 transform)
+	{
+		BoundingBox box = GetNode(entity).box;
+		box.max += transform;
+		box.min += transform;
 		RemoveEntity(entity);
 		InsertEntity(entity, box);
 	}
@@ -272,8 +284,8 @@ namespace Physics {
 
 	inline Entity DynamicBBTree::GetObject(size_t nodeIndex)
 	{
-		const auto iterator = nodeToEntityMap.find(nodeIndex);
-		assert(iterator != nodeToEntityMap.end() && "Trying to get node not in map");
+		const auto iterator = nodeIdxToEntityMap.find(nodeIndex);
+		assert(iterator != nodeIdxToEntityMap.end() && "Trying to get node not in map");
 
 		return iterator->second;
 	}
@@ -572,8 +584,8 @@ namespace Physics {
 
 	inline const BoundingBox& DynamicBBTree::GetBoundingBox(const Entity object) const
 	{
-		const auto enIterator = entityToNodeMap.find(object);
-		assert(enIterator != entityToNodeMap.end() && "Trying to get object not in map");
+		const auto enIterator = entityToNodeIdxMap.find(object);
+		assert(enIterator != entityToNodeIdxMap.end() && "Trying to get object not in map");
 
 		return mNodes[enIterator->second].box;
 	}
@@ -587,6 +599,13 @@ namespace Physics {
 				output.emplace_back(mNodes[i].box);
 		}
 		return output;
+	}
+
+	inline DynamicBBTree::Node& DynamicBBTree::GetNode(Entity entity)
+	{
+		const auto enIterator = entityToNodeIdxMap.find(entity);
+		assert(enIterator != entityToNodeIdxMap.end() && "Trying to find entity not in map");
+		return mNodes[enIterator->second];
 	}
 
 
