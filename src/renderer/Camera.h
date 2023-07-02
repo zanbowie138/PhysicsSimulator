@@ -22,7 +22,7 @@ public:
 	float speed = 0.0001f;
 	float sensitivity = 100.0f;
 
-	Camera(unsigned int width, unsigned int height, glm::vec3 position);
+	Camera(unsigned int width, unsigned int height, glm::vec3 position): width(width), height(height), position(position){}
 
 	void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
 
@@ -31,13 +31,6 @@ public:
 	//Sends camera matrix to inputted shader to update position
 	void Matrix(const Shader& shader, const char* uniform) const;
 };
-
-inline Camera::Camera(const unsigned int width, const unsigned int height, const glm::vec3 position)
-{
-	Camera::width = width;
-	Camera::height = height;
-	Camera::position = position;
-}
 
 inline void Camera::UpdateMatrix(const float FOVdeg, const float nearPlane, const float farPlane)
 {

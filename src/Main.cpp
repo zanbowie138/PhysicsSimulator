@@ -34,14 +34,17 @@ int main()
 	// Window creation
 	Core::WindowManager windowManager;
 	windowManager.Init("OpenGL Window", 900, 900);
-	const auto& windowDimensions = windowManager.GetWindowDimensions();
 	GLFWwindow* window = windowManager.GetWindow();
 
 	GUI GUI;
 	GUI.Init(window);
 
 	// Camera creation
+	const auto& windowDimensions = windowManager.GetWindowDimensions();
 	Camera cam{ windowDimensions.first,windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f) };
+	// Used to update camera dimensions
+	// TODO: Make window resizing and other initialization cleaner
+	windowManager.SetCameraPointer(&cam);
 
 	// Initialize ECS
 	ecsController.Init();
@@ -149,6 +152,8 @@ int main()
 	float time, mspf, fps;
 	time = mspf = fps = 0.0f;
 
+	bool debugBoundingBoxes = false;
+
 
 
 	std::cout << timer.ToString() << std::endl;
@@ -163,7 +168,10 @@ int main()
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
 
 		boxRenderer.Clear();
-		boxRenderer.PushBack(tree.GetAllBoxes(false));
+		if (debugBoundingBoxes)
+		{
+			boxRenderer.PushBack(tree.GetAllBoxes(true));
+		}
 		
 
 		collideBox.Clear();
@@ -207,6 +215,10 @@ int main()
 
 		GUI.StartWindow("Performance");
 		GUI.Text(fpsString.c_str());
+		GUI.EndWindow();
+
+		GUI.StartWindow("Config");
+		GUI.Checkbox("Show Bounding Boxes", &debugBoundingBoxes);
 		GUI.EndWindow();
 
 		GUI.Render();
