@@ -111,19 +111,23 @@ int main()
 	sphere.ShaderID = flatShader.ID;
 	sphere.mColor = glm::vec3(0.5f, 0.3f, 1.0f);
 	sphere.InitECS();
+	tree.InsertEntity(sphere.mEntityID, sphere.CalcBoundingBox());
 
 	Lines collideBox(1000);
 	collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
 	collideBox.ShaderID = basicShader.ID;
 	collideBox.InitECS();
 
+	Lines boundsBox(10000);
+	boundsBox.ShaderID = basicShader.ID;
+	boundsBox.InitECS();
+
 	Lines boxRenderer(20000);
 	boxRenderer.ShaderID = basicShader.ID;
-	boxRenderer.mColor = glm::vec3(0.7f);
 	boxRenderer.InitECS();
 
-	boxRenderer.Clear();
-	boxRenderer.PushBack(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });
+	boundsBox.Clear();
+	boundsBox.PushBack(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO; 
@@ -156,11 +160,11 @@ int main()
 		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 2.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
 		//lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f)) / 3.0f + 1.0f, 0.7f, 0.0f);
 		light.transform.worldPos = lightPos;
-		
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
-		tree.ComputeCollisionPairs();
 
-		const auto boxes = tree.GetAllBoxes(false);
+		boxRenderer.Clear();
+		boxRenderer.PushBack(tree.GetAllBoxes(false));
+		
 
 		collideBox.Clear();
 		const auto collidedEntities = tree.ComputeCollisionPairs();
@@ -196,13 +200,15 @@ int main()
 		// Update uniform buffer
 		UBO.UpdateData(cam, ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos);
 
-		std::string fpsString("FPS: " + std::to_string(fps) + "\nMSPF: " + std::to_string(mspf));
+		std::string fpsString("FPS: " + std::to_string(static_cast<int>(fps)) + "\nMSPF: " + std::to_string(mspf));
 
 		renderSystem->Update();
 		GUI.NewFrame();
-		GUI.Write("FPSCounter", fpsString.c_str());
-		GUI.Write("Collisions", std::to_string(collidedEntities.size()).c_str());
-		GUI.Write("Box Amount", std::to_string(tree.GetBoundingBox(cube.mEntityID).IsColliding(tree.GetBoundingBox(light.mEntityID))).c_str());
+
+		GUI.StartWindow("Performance");
+		GUI.Text(fpsString.c_str());
+		GUI.EndWindow();
+
 		GUI.Render();
 		renderSystem->PostUpdate();
 	}

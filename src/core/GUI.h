@@ -16,7 +16,13 @@ public:
 
 	void Init(GLFWwindow* window);
 	void NewFrame();
-	void Write(const char* windowName, const char* text);
+
+	void StartWindow(const char* windowName);
+	void EndWindow();
+
+	void Text(const char* text);
+	void Checkbox(const char* label, bool* variable);
+
 	void Render();
 
 	void Clean();
@@ -57,11 +63,24 @@ inline void GUI::NewFrame()
 	ImGui::NewFrame();
 }
 
-inline void GUI::Write(const char* windowName, const char* text)
+inline void GUI::StartWindow(const char* windowName)
 {
 	ImGui::Begin(windowName);
-	ImGui::Text(text);
+}
+
+inline void GUI::EndWindow()
+{
 	ImGui::End();
+}
+
+inline void GUI::Text(const char* text)
+{
+	ImGui::Text(text);
+}
+
+inline void GUI::Checkbox(const char* label, bool* variable)
+{
+	ImGui::Checkbox(label, variable);
 }
 
 inline void GUI::Render()

@@ -107,6 +107,7 @@ namespace Physics {
 		size_t newNodeIndex = AllocateNode();
 
 		mNodes[newNodeIndex].box = box;
+		mNodes[newNodeIndex].height = 0;
 
 		nodeToEntityMap.emplace(newNodeIndex, entity);
 		entityToNodeMap.emplace(entity, newNodeIndex);
@@ -580,9 +581,9 @@ namespace Physics {
 	inline std::vector<BoundingBox> DynamicBBTree::GetAllBoxes(const bool onlyLeaf) const
 	{
 		std::vector<BoundingBox> output;
-		for (size_t i = 0; i < mNodes.size(); i++)
+		for (size_t i = 0; i < nodeCount; i++)
 		{
-			if (mNodes[i].box.min != glm::vec3(0.0f) && mNodes[i].box.max != glm::vec3(0.0f) && (!onlyLeaf || IsLeaf(i)))
+			if ((!onlyLeaf || IsLeaf(i)) && mNodes[i].height != NULL_NODE)
 				output.emplace_back(mNodes[i].box);
 		}
 		return output;
@@ -595,7 +596,7 @@ namespace Physics {
 		mNodes[nodeIndex].parent = NULL_NODE;
 		mNodes[nodeIndex].left = NULL_NODE;
 		mNodes[nodeIndex].right = NULL_NODE;
-		mNodes[nodeIndex].height = 0;
+		mNodes[nodeIndex].height = NULL_NODE;
 	}
 }
 

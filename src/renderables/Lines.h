@@ -14,7 +14,8 @@ class Lines : public Renderable
 {
 public:
 	const GLuint mCapacity;
-	GLuint mCount = 0;
+	GLuint mIndexAmount = 0;
+	GLuint mVertexAmount = 0;
 
 	VBO VBO;
 	EBO EBO;
@@ -49,7 +50,7 @@ private:
 
 	static std::vector<glm::vec3> GetCubeVertices(const BoundingBox& box)
 	{
-		return std::vector<glm::vec3>
+		return std::vector
 		{
 			glm::vec3(box.max),
 			glm::vec3(box.max.x, box.max.y, box.min.z),
@@ -85,7 +86,9 @@ inline void Lines::PushToBuffer(const std::vector<glm::vec3>& vertices, const st
 	VBO.Unbind();
 	EBO.Unbind();
 
-	mCount += static_cast<GLuint>(indices.size());
+	mIndexAmount += static_cast<GLuint>(indices.size());
+	mVertexAmount += static_cast<GLuint>(vertices.size());
+
 	UpdateSize();
 }
 
@@ -97,13 +100,13 @@ inline void Lines::PushBack(const BoundingBox& box)
 	tempVertices.resize(8);
 	tempIndices.resize(24);
 
-	for (size_t i = 0; i < 24; ++i)
-	{
-		tempIndices[i] = cubeIdxOffset[i];
-	}
-
 	auto cubeVerts = GetCubeVertices(box);
 	std::copy(cubeVerts.begin(), cubeVerts.end(), tempVertices.begin());
+
+	for (size_t i = 0; i < 24; ++i)
+	{
+		tempIndices[i] = cubeIdxOffset[i] + mVertexAmount;
+	}
 
 	PushToBuffer(tempVertices, tempIndices);
 }
@@ -121,7 +124,7 @@ inline void Lines::PushBack(const std::vector<BoundingBox>& boxes)
 	{
 		for (size_t i = 0; i < 24; ++i)
 		{
-			tempIndices[iIdx] = static_cast<GLuint>(vIdx) + cubeIdxOffset[i];
+			tempIndices[iIdx] = static_cast<GLuint>(vIdx) + cubeIdxOffset[i] + mVertexAmount;
 			++iIdx;
 		}
 
@@ -138,7 +141,8 @@ inline void Lines::Clear()
 	VBO.ClearData();
 	EBO.ClearData();
 
-	mCount = 0;
+	mIndexAmount = 0;
+	mVertexAmount = 0;
 
 	UpdateSize();
 }
@@ -164,5 +168,5 @@ inline void Lines::InitVAO()
 
 inline size_t Lines::GetSize()
 {
-	return mCount;
+	return mIndexAmount;
 }

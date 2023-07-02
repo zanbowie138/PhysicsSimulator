@@ -23,6 +23,22 @@ public:
 
     void Clean() override;
 private:
+    /*
+     * Process collision.
+     *  Compute candidate positions of bodies.
+			For each intersecting pair of bodies:
+				Determine interpenetrating points.
+				Sort points by penetration depth (deepest first). 
+				For each point in order:
+					Apply frictional impulse (unless bodies receding).
+				Repeat above a number of times.
+					Resolving one collision might create new ones.
+					Applies series of impulses rather than simultaneously resolving all collisions.
+		Update velocity.
+		Process contact.
+			Determine contacts and prevent penetration.
+		Update position
+     */
     void ResolveCollisions();
 };
 
