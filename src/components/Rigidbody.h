@@ -1,16 +1,25 @@
 #pragma once
 #include "glm/glm.hpp"
+#include "Collider.h"
 namespace Components
 {
 	struct Rigidbody 
 	{
 	    float inverseMass = 1.0f/100.0f;
 
+		glm::vec3 centroid;
+		glm::mat3 orientation;
+
 		// TODO: Use transform position
 		glm::vec3 position;
-	    glm::vec3 velocity;
 
-		glm::vec3 forceAccum;
+	    glm::vec3 linearVelocity;
+		glm::vec3 angularVelocity;
+
+		glm::vec3 forceAccumulator;
+		glm::vec3 torqueAccumulator;
+
+		Collider* m_collider;
 
 	    bool sleeping;
 
@@ -26,12 +35,12 @@ namespace Components
 
 		void ClearAccumulator()
 		{
-			forceAccum = glm::vec3(0.0f);
+			forceAccumulator = glm::vec3(0.0f);
 		}
 
 		void AddForce(const glm::vec3& force)
 		{
-			forceAccum += force;
+			forceAccumulator += force;
 		}
 	};
 }

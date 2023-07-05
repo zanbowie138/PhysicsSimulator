@@ -117,6 +117,8 @@ namespace Core {
 
 		glEnable(GL_DEPTH_TEST);
 
+		glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+
 		// Enable anti-aliasing
 		glEnable(GL_MULTISAMPLE);
 	}

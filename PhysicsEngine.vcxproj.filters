@@ -256,6 +256,12 @@
     <ClInclude Include="src\physics\Solver.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="src\physics\Solvers.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics\MeshCollider.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\renderer\RenderSystem.cpp">

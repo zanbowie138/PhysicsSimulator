@@ -1,7 +1,4 @@
 #pragma once
-
-#include <vector>
-
 #include "Renderable.h"
 #include "../renderer/VBO.h"
 #include "../renderer/EBO.h"
@@ -10,41 +7,99 @@
 class Points : public Renderable
 {
 public:
-	std::vector<glm::vec3> points;
+	const GLuint mCapacity;
+
+	GLuint mVertexAmount = 0;
 
 	VBO VBO;
 
-	explicit inline Points(GLuint amount);
+	Points(GLuint capacity);
 
-	inline void PushBack(const std::vector<glm::vec3>& pts);
+	void PushBack(const std::vector<glm::vec3>& vertices, const glm::mat4& modelMat);
+	void PushBack(const std::vector<MeshPt>& vertices, const glm::mat4& modelMat);
+	void PushBack(const std::vector<ModelPt>& vertices, const glm::mat4& modelMat);
+
+	void PushToBuffer(const std::vector<glm::vec3>& points);
+
+	void UpdateSize();
+
+	void Clear();
 
 private:
 	void InitVAO() override;
 	size_t GetSize() override;
 };
 
-Points::Points(const GLuint amount)
+inline Points::Points(const GLuint capacity): mCapacity(capacity)
 {
-	points = std::vector<glm::vec3>();
-
 	primitiveType = GL_POINTS;
 
 	InitVAO();
 }
 
-void Points::PushBack(const std::vector<glm::vec3>& pts)
+inline void Points::PushBack(const std::vector<glm::vec3>& vertices, const glm::mat4& modelMat)
 {
-	VBO.Bind();
-	points.insert(points.end(), pts.begin(), pts.end());
-	VBO.PushData(pts);
-	VBO.Unbind();
+	std::vector<glm::vec3> temp(vertices.size());
+	for (size_t i = 0; i < vertices.size(); ++i)
+	{
+		temp[i] = modelMat * glm::vec4(vertices[i], 1.0);
+	}
+
+	PushToBuffer(temp);
 }
 
-inline void Points::InitVAO
+inline void Points::PushBack(const std::vector<MeshPt>& vertices, const glm::mat4& modelMat)
+{
+	std::vector<glm::vec3> temp(vertices.size());
+	for (size_t i = 0; i < vertices.size(); ++i)
+	{
+		temp[i] = modelMat * glm::vec4(vertices[i].position, 1.0);
+	}
+
+	PushToBuffer(temp);
+}
+
+inline void Points::PushBack(const std::vector<ModelPt>& vertices, const glm::mat4& modelMat)
+{
+	std::vector<glm::vec3> temp(vertices.size());
+	for (size_t i = 0; i < vertices.size(); ++i)
+	{
+		temp[i] = modelMat * glm::vec4(vertices[i].position, 1.0);
+	}
+
+	PushToBuffer(temp);
+}
+
+inline void Points::PushToBuffer(const std::vector<glm::vec3>& points)
+{
+	mVertexAmount += points.size();
+
+	VBO.Bind();
+	VBO.PushData(points);
+	VBO.Unbind();
+
+	UpdateSize();
+}
+
+inline void Points::Clear()
+{
+	VBO.ClearData();
+
+	mVertexAmount = 0;
+
+	UpdateSize();
+}
+
+inline void Points::UpdateSize()
+{
+	ecsController.GetComponent<Components::RenderInfo>(mEntityID).size = GetSize();
+}
+
+inline void Points::InitVAO()
 {
 	mVAO.Bind();
 
-	VBO.AllocBuffer(amount * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
+	VBO.AllocBuffer(mCapacity * sizeof(glm::vec3), GL_DYNAMIC_DRAW);
 
 	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(glm::vec3), nullptr);
 
@@ -52,7 +107,7 @@ inline void Points::InitVAO
 	VBO.Unbind();
 }
 
-inline void Points::GetSize
+inline size_t Points::GetSize()
 {
-	return points.size();
+	return mVertexAmount;
 }

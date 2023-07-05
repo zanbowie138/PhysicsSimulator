@@ -213,8 +213,10 @@
     <ClInclude Include="src\core\WindowManager.h" />
     <ClInclude Include="src\physics\BoundingBox.h" />
     <ClInclude Include="src\physics\DynamicTree.h" />
+    <ClInclude Include="src\physics\MeshCollider.h" />
     <ClInclude Include="src\physics\PhysicsSystem.h" />
     <ClInclude Include="src\physics\Solver.h" />
+    <ClInclude Include="src\physics\Solvers.h" />
     <ClInclude Include="src\physics\StaticTree.h" />
     <ClInclude Include="src\renderables\Lines.h" />
     <ClInclude Include="src\renderables\Model.h" />

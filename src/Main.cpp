@@ -19,6 +19,7 @@
 #include "renderables/Lines.h"
 #include "renderables/Mesh.h"
 #include "renderables/Model.h"
+#include "renderables/Points.h"
 
 #include "utils/SimpleShapes.h"
 #include "utils/Timer.h"
@@ -120,22 +121,41 @@ int main()
 	sphere.mColor = glm::vec3(0.5f, 0.3f, 1.0f);
 	sphere.InitECS();
 
+	Mesh bunny("bunny.stl", true);
+	bunny.transform.scale = glm::vec3(0.01f);
+	bunny.transform.worldPos = glm::vec3(1.0f, 0.5f, 0.0f);
+	bunny.ShaderID = flatShader.ID;
+	bunny.transform.SetRotationEuler(glm::vec3(-90.0f, 0.0f, 0.0f));
+	bunny.InitECS();
+
 	physicsSystem->AddToTree(light);
 	physicsSystem->AddToTree(cube);
-	physicsSystem->AddRigidbody(sphere);
+	//physicsSystem->AddRigidbody(sphere);
+	physicsSystem->AddToTree(sphere);
 
+	// Box showing collision between objects
 	Lines collideBox(1000);
 	collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
 	collideBox.ShaderID = basicShader.ID;
 	collideBox.InitECS();
 
+	// Constraint bounding box
 	Lines boundsBox(10000);
 	boundsBox.ShaderID = basicShader.ID;
 	boundsBox.InitECS();
 
+	// Debug bounding boxes
 	Lines boxRenderer(20000);
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.InitECS();
+
+	// Shows how complicated the mesh is
+	Lines meshRenderer(1000000);
+	meshRenderer.ShaderID = basicShader.ID;
+	meshRenderer.InitECS();
+
+	bunny.transform.CalculateModelMat();
+	meshRenderer.PushBack(MeshData{ bunny.vertices, bunny.indices }, bunny.transform.modelMat);
 
 	boundsBox.Clear();
 	boundsBox.PushBack(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });

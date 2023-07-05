@@ -38,7 +38,7 @@ namespace Components
 
 		void SetRotationEuler(glm::vec3 eulerRot)
 		{
-			rotation = glm::quat(eulerRot);
+			rotation = glm::quat(glm::radians(eulerRot));
 		}
 	};
 }

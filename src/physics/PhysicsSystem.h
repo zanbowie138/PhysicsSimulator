@@ -44,14 +44,14 @@ private:
 					Repeat above a number of times.
 						Resolving one collision might create new ones.
 						Applies series of impulses rather than simultaneously resolving all collisions.
-		Update velocity.
+		Update linearVelocity.
 		Process contact.
 			Determine contacts and prevent penetration.
 		Update position
      */
     void ResolveCollisions();
 
-	// Iterates through all rigidbodies updating position and velocity based on dt
+	// Iterates through all rigidbodies updating position and linearVelocity based on dt
 	void Integrate(float dt);
 };
 
@@ -98,6 +98,11 @@ inline void PhysicsSystem::Clean()
 
 }
 
+inline void PhysicsSystem::ResolveCollisions()
+{
+	const auto broadCollisions = tree.ComputeCollisionPairs();
+}
+
 inline void PhysicsSystem::Integrate(float dt)
 {
 	for (const auto entity : mEntities)
@@ -105,13 +110,13 @@ inline void PhysicsSystem::Integrate(float dt)
 		auto& rb = ecsController.GetComponent<Components::Rigidbody>(entity);
 
 		glm::vec3 posOld = rb.position;
-		rb.position += rb.velocity * dt;
+		rb.position += rb.linearVelocity * dt;
 
-		glm::vec3 acceleration = rb.forceAccum * rb.inverseMass;
+		glm::vec3 acceleration = rb.forceAccumulator * rb.inverseMass;
 		acceleration += glm::vec3(0, GRAVITY, 0);
 
-		rb.velocity += acceleration * dt;
-		rb.velocity *= pow(0.9,dt);
+		rb.linearVelocity += acceleration * dt;
+		rb.linearVelocity *= pow(0.9,dt);
 
 		rb.ClearAccumulator();
 
