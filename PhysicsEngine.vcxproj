@@ -231,6 +231,8 @@
     <ClInclude Include="src\renderer\VAO.h" />
     <ClInclude Include="src\renderer\VBO.h" />
     <ClInclude Include="src\utils\MeshImport.h" />
+    <ClInclude Include="src\utils\MeshProcessing.h" />
+    <ClInclude Include="src\utils\MeshSimplify.h" />
     <ClInclude Include="src\utils\SimpleShapes.h" />
     <ClInclude Include="src\utils\ThreadPool.h" />
     <ClInclude Include="src\utils\Timer.h" />

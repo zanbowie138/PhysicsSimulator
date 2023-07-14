@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_impl_glfw.h"
 #include "../imgui/imgui_impl_opengl3.h"
@@ -14,6 +16,7 @@ public:
 	{
 		bool debugBoundingBoxes;
 		bool showOnlyLeafNodes;
+		bool showStaticBoxes;
 	} mConfigInfo;
 
 	bool MouseOver() const;
@@ -28,6 +31,7 @@ public:
 
 	void Text(const char* text);
 	void Checkbox(const char* label, bool* variable);
+	void Button(const char* text, std::function<void()> func);
 
 	void ShowConfigWindow();
 
@@ -93,10 +97,18 @@ inline void GUI::Checkbox(const char* label, bool* variable)
 	ImGui::Checkbox(label, variable);
 }
 
+inline void GUI::Button(const char* text, std::function<void()> func)
+{
+	if (ImGui::Button(text))
+	{
+		func();
+	}
+}
+
 inline void GUI::ShowConfigWindow()
 {
 	StartWindow("Config");
-	if (ImGui::CollapsingHeader("BVH Tree"))
+	if (ImGui::CollapsingHeader("Dynamic BVH Tree"))
 	{
 		Checkbox("Show Bounding Boxes", &mConfigInfo.debugBoundingBoxes);
 		Checkbox("Show only leaf nodes", &mConfigInfo.showOnlyLeafNodes);

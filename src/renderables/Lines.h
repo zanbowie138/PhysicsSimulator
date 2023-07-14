@@ -7,6 +7,7 @@
 #include "../renderer/VBO.h"
 #include "../renderer/EBO.h"
 #include "../physics/BoundingBox.h"
+#include "../utils/MeshProcessing.h"
 
 extern ECSController ecsController;
 
@@ -50,13 +51,6 @@ private:
 		1,5,
 		2,6,
 		3,7
-	};
-
-	const std::vector<GLuint> triIdxOffset =
-	{
-		0,1,
-		1,2,
-		2,0
 	};
 
 	static std::vector<glm::vec3> GetCubeVertices(const BoundingBox& box)
@@ -149,23 +143,9 @@ inline void Lines::PushBack(const std::vector<BoundingBox>& boxes)
 
 inline void Lines::PushBack(const MeshData& data, const glm::mat4& modelMat)
 {
-	std::vector<glm::vec3> positions(data.vertices.size());
-	std::vector<GLuint> indices(data.indices.size() * 2);
+	const auto meshOutline = Utils::CalculatePairs(data, modelMat);
 
-	for (size_t i = 0; i < data.vertices.size(); ++i)
-	{
-		positions[i] = modelMat * glm::vec4(data.vertices[i].position, 1.0);
-	}
-
-	for (size_t i = 0; i < data.indices.size(); i+=3)
-	{
-		for (size_t j = 0; j < 6; j++)
-		{
-			indices[i * 2 + j] = data.indices[i + triIdxOffset[j]];
-		}
-	}
-
-	PushToBuffer(positions, indices);
+	PushToBuffer(meshOutline.vertices, meshOutline.indices);
 }
 
 inline void Lines::PushBack(const ModelData& data, const glm::mat4& modelMat)

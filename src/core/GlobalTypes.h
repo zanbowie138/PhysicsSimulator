@@ -71,6 +71,13 @@ struct ModelPt
 	glm::vec2 uv;
 };
 
+// Position information
+struct ShapeData
+{
+	std::vector<glm::vec3> vertices;
+	std::vector<GLuint> indices;
+};
+
 // Position and normal information
 struct MeshData
 {
