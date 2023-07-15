@@ -143,7 +143,7 @@ inline void Lines::PushBack(const std::vector<BoundingBox>& boxes)
 
 inline void Lines::PushBack(const MeshData& data, const glm::mat4& modelMat)
 {
-	const auto meshOutline = Utils::CalculatePairs(data, modelMat);
+	const auto meshOutline = Utils::CalculateEdges(data, modelMat);
 
 	PushToBuffer(meshOutline.vertices, meshOutline.indices);
 }

@@ -17,7 +17,7 @@ namespace Utils
 		2,0
 	};
 
-	static ShapeData CalculatePairs(const MeshData& inputData)
+	static ShapeData CalculateEdges(const MeshData& inputData)
 	{
 		std::vector<glm::vec3> positions(inputData.vertices.size());
 		std::vector<unsigned> indices(inputData.indices.size() * 2);
@@ -38,7 +38,7 @@ namespace Utils
 		return ShapeData{ positions, indices };
 	}
 
-	static ShapeData CalculatePairs(const MeshData& inputData, const glm::mat4& modelMat)
+	static ShapeData CalculateEdges(const MeshData& inputData, const glm::mat4& modelMat)
 	{
 		std::vector<glm::vec3> positions(inputData.vertices.size());
 		std::vector<unsigned> indices(inputData.indices.size() * 2);

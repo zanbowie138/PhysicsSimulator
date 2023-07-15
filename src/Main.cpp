@@ -33,6 +33,7 @@ int main()
 	Utils::Timer timer("Setup");
 
 	// Window creation
+	// TODO: Add callbacks
 	Core::WindowManager windowManager;
 	windowManager.Init("OpenGL Window", 900, 900);
 	GLFWwindow* window = windowManager.GetWindow();
