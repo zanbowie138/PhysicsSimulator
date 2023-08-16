@@ -22,6 +22,7 @@
 #include "renderables/Points.h"
 
 #include "utils/SimpleShapes.h"
+#include "utils/MeshSimplify.h"
 #include "utils/Timer.h"
 
 ECSController ecsController;
@@ -157,6 +158,11 @@ int main()
 
 	bunny.transform.CalculateModelMat();
 	meshRenderer.PushBack(MeshData{ bunny.vertices, bunny.indices }, bunny.transform.modelMat);
+
+	Utils::Timer tmd("Mesh Decimation");
+	Utils::DecimateMesh(MeshData{ bunny.vertices, bunny.indices });
+	std::cout << tmd.ToString() << std::endl;
+
 
 	boundsBox.Clear();
 	boundsBox.PushBack(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });

@@ -10,6 +10,7 @@
 
 namespace Utils
 {
+	// Defines what index offsets define the edges of a triangle
 	const std::vector<unsigned> triIdxOffset =
 	{
 		0,1,
@@ -17,6 +18,8 @@ namespace Utils
 		2,0
 	};
 
+	// Returns the positions and indices that make up the triangle edges
+	// Also removes normal data
 	static ShapeData CalculateEdges(const MeshData& inputData)
 	{
 		std::vector<glm::vec3> positions(inputData.vertices.size());
