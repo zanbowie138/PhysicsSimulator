@@ -100,6 +100,9 @@ namespace Utils
 
 		std::cout << errors.top().first << std::endl;
 
+		auto outputData = inputData;
+
+		// Remove vertices until target vertex count is reached
 		for (size_t i = 0; i < inputData.vertices.size() - targetVertexCount; ++i)
 		{
 			// Get the pair with the lowest error
@@ -119,13 +122,13 @@ namespace Utils
 			newVertex.normal = glm::normalize(v1.normal + v2.normal);
 
 			// Add the new vertex to the mesh
-			inputData.vertices.push_back(newVertex);
+			outputData.vertices.push_back(newVertex);
 
 			// Update the indices
-			for (size_t j = 0; j < inputData.indices.size(); ++j)
+			for (size_t j = 0; j < outputData.indices.size(); ++j)
 			{
-				if (inputData.indices[j] == pairs[pair.second + 1])
-					inputData.indices[j] = inputData.vertices.size() - 1;
+				if (outputData.indices[j] == pairs[pair.second + 1])
+					outputData.indices[j] = outputData.vertices.size() - 1;
 			}
 
 			// Update the quadrics
@@ -151,7 +154,7 @@ namespace Utils
 					0, 0, 0, 1
 				};
 
-				glm::vec3 contractionPoint = glm::vec
+				glm::vec3 contractionPoint = glm::vec4(0, 0, 0, 1) * glm::inverse(temp);
 			}
 
 
