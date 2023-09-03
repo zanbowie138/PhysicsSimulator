@@ -14,7 +14,7 @@
 // https://users.csc.calpoly.edu/~zwood/teaching/csc570/final06/jseeba/
 namespace Utils
 {
-	inline void DecimateMesh(const MeshData& inputData)
+	inline MeshData DecimateMesh(const MeshData& inputData, size_t targetVertexCount)
 	{
 		const float threshold = 0;
 
@@ -27,7 +27,7 @@ namespace Utils
 
 		// Calculate quadric for each triangle
 		// https://math.stackexchange.com/questions/2686606/equation-of-a-plane-passing-through-3-points
-		for (size_t i = 0; i < inputData.indices.size(); i+=3)
+		for (size_t i = 0; i < inputData.indices.size(); i += 3)
 		{
 			// Add all edges of the triangle to the pairs list (triIdxOffset is defined in MeshProcessing.h)
 			// TODO: Organize files better
@@ -56,7 +56,7 @@ namespace Utils
 			auto d = offset;
 
 			// Based on plane equation, calculate quadric matrix for triangle 
-			quadrics[i/3] = glm::mat4
+			quadrics[i / 3] = glm::mat4
 			{
 				a * a, a * b, a * c, a * d,
 				a * b, b * b, b * c, b * d,
@@ -66,7 +66,7 @@ namespace Utils
 		}
 
 		// Accumulate quadric for every vertice of all the quadrics of the triangles it is a part of
-		std::vector verticeQuadrics(inputData.vertices.size(), glm::mat4(0));
+		std::vector<glm::mat4> verticeQuadrics(inputData.vertices.size(), glm::mat4(0));
 		for (size_t i = 0; i < inputData.indices.size(); ++i)
 		{
 			// Add current triangle's quadric to each vertex's quadric accumulation
@@ -76,10 +76,11 @@ namespace Utils
 		// Calculate error for each pair of vertices
 		typedef std::pair<float, size_t> errorPair;
 		std::priority_queue <errorPair, std::vector<errorPair>, std::greater<>> errors;
-		for (size_t i = 0; i < pairs.size(); i+=2)
+		std::vector<glm::vec3> contractionPoints;
+		for (size_t i = 0; i < pairs.size(); i += 2)
 		{
 			glm::mat4 q = verticeQuadrics[pairs[i]];
-			
+
 			glm::mat4 temp =
 			{
 				q[0][0], q[0][1], q[0][2], q[0][3],
@@ -91,6 +92,7 @@ namespace Utils
 			//assert(glm::determinant(temp) != 0);
 
 			glm::vec3 contractionPoint = glm::vec4(0, 0, 0, 1) * glm::inverse(temp);
+			contractionPoints.push_back(contractionPoint);
 
 			float error = glm::dot(glm::vec4(contractionPoint, 1.0f) * q, glm::vec4(contractionPoint, 1.0f)); // TODO: check algorithm
 			errors.push(std::make_pair(error, i));
@@ -98,17 +100,73 @@ namespace Utils
 
 		std::cout << errors.top().first << std::endl;
 
-		/*glm::mat4 q = verticeQuadrics[pairs[errors.top().second]] + verticeQuadrics[pairs[errors.top().second + 1]];
-		glm::mat4 temp =
+		for (size_t i = 0; i < inputData.vertices.size() - targetVertexCount; ++i)
 		{
-			q[0][0], q[0][1], q[0][2], q[0][3],
-			q[1][0], q[1][1], q[1][2], q[1][3],
-			q[2][0], q[2][1], q[2][2], q[2][3],
-			0, 0, 0, 1
-		};
+			// Get the pair with the lowest error
+			auto pair = errors.top();
+			errors.pop();
 
-		glm::vec3 v = glm::vec4(0, 0, 0, 1) * glm::inverse(temp);
+			// Get the two vertices of the pair
+			auto v1 = inputData.vertices[pairs[pair.second]];
+			auto v2 = inputData.vertices[pairs[pair.second + 1]];
 
-		std::cout << glm::to_string(v) << std::endl;*/
+			// Calculate the contraction point
+			glm::vec3 contractionPoint = contractionPoints[pair.second / 2];
+
+			// Calculate the new vertex
+			MeshPt newVertex;
+			newVertex.position = contractionPoint;
+			newVertex.normal = glm::normalize(v1.normal + v2.normal);
+
+			// Add the new vertex to the mesh
+			inputData.vertices.push_back(newVertex);
+
+			// Update the indices
+			for (size_t j = 0; j < inputData.indices.size(); ++j)
+			{
+				if (inputData.indices[j] == pairs[pair.second + 1])
+					inputData.indices[j] = inputData.vertices.size() - 1;
+			}
+
+			// Update the quadrics
+			verticeQuadrics.push_back(verticeQuadrics[pairs[pair.second]] + verticeQuadrics[pairs[pair.second + 1]]);
+
+			// Update the pairs
+			for (size_t j = 0; j < pairs.size(); j += 2)
+			{
+				if (pairs[j] == pairs[pair.second + 1])
+					pairs[j] = inputData.vertices.size() - 1;
+			}
+
+			// Update the errors
+			for (size_t j = 0; j < pairs.size(); j += 2)
+			{
+				glm::mat4 q = verticeQuadrics[pairs[j]];
+
+				glm::mat4 temp =
+				{
+					q[0][0], q[0][1], q[0][2], q[0][3],
+					q[1][0], q[1][1], q[1][2], q[1][3],
+					q[2][0], q[2][1], q[2][2], q[2][3],
+					0, 0, 0, 1
+				};
+
+				glm::vec3 contractionPoint = glm::vec
+			}
+
+
+
+			/*glm::mat4 q = verticeQuadrics[pairs[errors.top().second]] + verticeQuadrics[pairs[errors.top().second + 1]];
+			glm::mat4 temp =
+			{
+				q[0][0], q[0][1], q[0][2], q[0][3],
+				q[1][0], q[1][1], q[1][2], q[1][3],
+				q[2][0], q[2][1], q[2][2], q[2][3],
+				0, 0, 0, 1
+			};
+
+			glm::vec3 v = glm::vec4(0, 0, 0, 1) * glm::inverse(temp);
+
+			std::cout << glm::to_string(v) << std::endl;*/
+		}
 	}
-}
