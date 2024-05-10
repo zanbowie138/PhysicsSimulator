@@ -7,7 +7,7 @@
 
 #include <filesystem>
 
-#include "shaderClass.h"
+#include "Shader.h"
 
 class Texture
 {

@@ -20,7 +20,6 @@ using Signature = std::bitset<MAX_COMPONENTS>;
 // Component ID
 using ComponentType = uint8_t;
 
-
 // Input
 enum class InputButtons
 {
@@ -45,17 +44,6 @@ enum class UniformBlockConfig
 };
 using UBBitset = std::bitset<static_cast<size_t>(UniformBlockConfig::ENUM_LENGTH)>;
 
-enum ChessPiece
-{
-	empty,
-	pawn,
-	rook,
-	knight,
-	bishop,
-	queen,
-	king
-};
-
 // For interpreting stl files or models without textures
 struct MeshPt
 {
@@ -78,16 +66,42 @@ struct ShapeData
 	std::vector<GLuint> indices;
 };
 
-// Position and normal information
+/**
+ * @struct MeshData
+ * @brief The MeshData struct is used to store the data of a 3D model without texture coordinates.
+ *
+ * @var std::vector<ModelPt> vertices Stores the position, normal, and uv information for each vertex
+ */
 struct MeshData
 {
+	/**
+	 * @var std::vector<ModelPt> vertices
+	 * @brief Stores the position, normal, and uv information for each vertex
+	 */
 	std::vector<MeshPt> vertices;
+
+	/**
+	 * @var std::vector<GLuint> indices
+	 * @brief Stores the indices of the vertices that form each triangle
+	 */
 	std::vector<GLuint> indices;
 };
 
-// Position, normal, and uv information
+/**
+ * @struct ModelData
+ * @brief The ModelData struct is used to store the data of a 3D model with texture coordinates.
+ */
 struct ModelData
 {
+	/**
+	 * @var std::vector<ModelPt> vertices
+	 * @brief Stores the position, normal, and uv information for each vertex
+	 */
 	std::vector<ModelPt> vertices;
+
+	/**
+	 * @var std::vector<GLuint> indices
+	 * @brief Stores the indices of the vertices that form each triangle
+	 */
 	std::vector<GLuint> indices;
 };

@@ -9,9 +9,7 @@
 #include "../physics/BoundingBox.h"
 #include "../utils/MeshProcessing.h"
 
-extern ECSController ecsController;
-
-class Lines : public Renderable
+class Lines: public Renderable
 {
 public:
 	const GLuint mCapacity;
@@ -37,6 +35,7 @@ private:
 	void InitVAO() override;
 	void UpdateSize();
 
+	// TODO: Move cube functionality to seperate utils class
 	const std::vector<GLuint> cubeIdxOffset =
 	{
 		0,1,
@@ -99,11 +98,8 @@ inline void Lines::PushToBuffer(const std::vector<glm::vec3>& vertices, const st
 
 inline void Lines::PushBack(const BoundingBox& box)
 {
-	std::vector<glm::vec3> tempVertices;
-	std::vector<GLuint> tempIndices;
-
-	tempVertices.resize(8);
-	tempIndices.resize(24);
+	std::vector<glm::vec3> tempVertices(8);
+	std::vector<GLuint> tempIndices(24);
 
 	auto cubeVerts = GetCubeVertices(box);
 	std::copy(cubeVerts.begin(), cubeVerts.end(), tempVertices.begin());

@@ -14,7 +14,6 @@
 namespace Core {
 	class WindowManager
 	{
-	private:
 		unsigned int screenWidth = 0;
 		unsigned int screenHeight = 0;
 
@@ -28,16 +27,17 @@ namespace Core {
 
 		bool firstClick = false;
 	public:
+		WindowManager(const char* windowTitle, unsigned windowWidth, unsigned windowHeight);
+
 		const InputBitset& GetInputs() const;
 		const glm::vec2& GetMousePos() const;
 		std::pair<unsigned int, unsigned int> GetWindowDimensions() const;
 
-		void SetCameraPointer(Camera* cam);
+		void SetCamera(Camera* cam);
 		void UpdateWindowDimensions(int width, int height);
 
 		bool mouseShown = true;
 
-		void Init(const char* windowTitle, unsigned int windowWidth, unsigned int windowHeight);
 		void ImGuiInit();
 
 		void ProcessInputs(bool);
@@ -47,40 +47,7 @@ namespace Core {
 		GLFWwindow* GetWindow() const;
 	};
 
-	inline const InputBitset& WindowManager::GetInputs() const
-	{
-		return mButtons;
-	}
-
-	inline const glm::vec2& WindowManager::GetMousePos() const
-	{
-		return mMousePos;
-	}
-
-	inline std::pair<unsigned, unsigned> WindowManager::GetWindowDimensions() const
-	{
-		return std::make_pair(screenWidth, screenHeight);
-	}
-
-	inline void WindowManager::SetCameraPointer(Camera* cam)
-	{
-		mCamera = cam;
-	}
-
-	inline void WindowManager::UpdateWindowDimensions(int width, int height)
-	{
-		screenWidth = static_cast<unsigned>(width);
-		screenHeight = static_cast<unsigned>(height);
-
-		// Update viewport
-		glViewport(0, 0, screenWidth, screenHeight);
-
-		// Update camera dimensions
-		mCamera->width = screenWidth;
-		mCamera->height = screenHeight;
-	}
-
-	inline void WindowManager::Init(const char* windowTitle, unsigned windowWidth, unsigned windowHeight)
+	inline WindowManager::WindowManager(const char* windowTitle, unsigned windowWidth, unsigned windowHeight)
 	{
 		screenHeight = windowHeight;
 		screenWidth = windowWidth;
@@ -107,9 +74,9 @@ namespace Core {
 
 		// Define function that will be called when window is resized
 		auto resizeWindowCallback = [](GLFWwindow* w, int width, int height)
-		{
-			static_cast<WindowManager*>(glfwGetWindowUserPointer(w))->UpdateWindowDimensions(width, height);
-		};
+			{
+				static_cast<WindowManager*>(glfwGetWindowUserPointer(w))->UpdateWindowDimensions(width, height);
+			};
 		glfwSetWindowSizeCallback(mWindow, resizeWindowCallback);
 
 		//Specifies the transformation from normalized coordinates (0-1) to screen coordinates
@@ -121,6 +88,39 @@ namespace Core {
 
 		// Enable anti-aliasing
 		glEnable(GL_MULTISAMPLE);
+	}
+
+	inline const InputBitset& WindowManager::GetInputs() const
+	{
+		return mButtons;
+	}
+
+	inline const glm::vec2& WindowManager::GetMousePos() const
+	{
+		return mMousePos;
+	}
+
+	inline std::pair<unsigned, unsigned> WindowManager::GetWindowDimensions() const
+	{
+		return std::make_pair(screenWidth, screenHeight);
+	}
+
+	inline void WindowManager::SetCamera(Camera* cam)
+	{
+		mCamera = cam;
+	}
+
+	inline void WindowManager::UpdateWindowDimensions(int width, int height)
+	{
+		screenWidth = static_cast<unsigned>(width);
+		screenHeight = static_cast<unsigned>(height);
+
+		// Update viewport
+		glViewport(0, 0, screenWidth, screenHeight);
+
+		// Update camera dimensions
+		mCamera->width = screenWidth;
+		mCamera->height = screenHeight;
 	}
 
 	inline void WindowManager::ProcessInputs(bool active)

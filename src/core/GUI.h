@@ -12,6 +12,8 @@
 class GUI
 {
 public:
+	inline GUI(GLFWwindow* window);
+
 	struct configInfo
 	{
 		bool debugBoundingBoxes;
@@ -42,6 +44,19 @@ public:
 	void Clean();
 };
 
+inline GUI::GUI(GLFWwindow* window)
+{
+	// Setup ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	auto& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+}
+
 inline bool GUI::MouseOver() const
 {
 	return ImGui::GetIO().WantCaptureMouse;
@@ -55,19 +70,6 @@ inline void GUI::SetMouse(const bool value)
 	{
 		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 	}
-}
-
-inline void GUI::Init(GLFWwindow* window)
-{
-	// Setup ImGui context
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	auto& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 inline void GUI::NewFrame()

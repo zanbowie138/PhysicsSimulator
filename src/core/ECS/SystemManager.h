@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "GlobalTypes.h"
+#include "../GlobalTypes.h"
 
 #include "EntityManager.h"
 #include "ComponentManager.h"

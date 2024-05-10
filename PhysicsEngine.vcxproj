@@ -188,6 +188,12 @@
   <ItemGroup>
     <ClInclude Include="src\components\Collider.h" />
     <ClInclude Include="src\components\Rigidbody.h" />
+    <ClInclude Include="src\core\ECS\ComponentArray.h" />
+    <ClInclude Include="src\core\ECS\ComponentManager.h" />
+    <ClInclude Include="src\core\ECS\ECSController.h" />
+    <ClInclude Include="src\core\ECS\EntityManager.h" />
+    <ClInclude Include="src\core\ECS\System.h" />
+    <ClInclude Include="src\core\ECS\SystemManager.h" />
     <ClInclude Include="src\core\GUI.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />
@@ -202,13 +208,7 @@
     <ClInclude Include="src\components\RenderInfo.h" />
     <ClInclude Include="src\components\TextureInfo.h" />
     <ClInclude Include="src\components\Transform.h" />
-    <ClInclude Include="src\core\ComponentArray.h" />
-    <ClInclude Include="src\core\ComponentManager.h" />
-    <ClInclude Include="src\core\ECS.h" />
-    <ClInclude Include="src\core\EntityManager.h" />
     <ClInclude Include="src\core\GlobalTypes.h" />
-    <ClInclude Include="src\core\System.h" />
-    <ClInclude Include="src\core\SystemManager.h" />
     <ClInclude Include="src\core\UniformBufferManager.h" />
     <ClInclude Include="src\core\WindowManager.h" />
     <ClInclude Include="src\physics\BoundingBox.h" />
@@ -226,7 +226,7 @@
     <ClInclude Include="src\renderer\Camera.h" />
     <ClInclude Include="src\renderer\EBO.h" />
     <ClInclude Include="src\renderer\RenderSystem.h" />
-    <ClInclude Include="src\renderer\shaderClass.h" />
+    <ClInclude Include="src\renderer\Shader.h" />
     <ClInclude Include="src\renderer\Texture.h" />
     <ClInclude Include="src\renderer\VAO.h" />
     <ClInclude Include="src\renderer\VBO.h" />

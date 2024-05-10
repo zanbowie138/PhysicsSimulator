@@ -72,15 +72,12 @@ namespace Utils
 	}
 
 	// Algorithm source: https://gist.github.com/Pikachuxxxx/5c4c490a7d7679824e0e18af42918efc
-	static ModelData UVSphereData(uint8_t latitudes, uint8_t longitudes)
+	static ModelData UVSphereData(uint8_t latitudes, uint8_t longitudes, unsigned radius)
 	{
-#define RADIUS 1
-#define PI 3.1415f
+		constexpr float PI = 3.1415f;
 
-        if (longitudes < 3)
-            longitudes = 3;
-        if (latitudes < 2)
-            latitudes = 2;
+		if (longitudes < 3) { longitudes = 3; }
+		if (latitudes < 2) { latitudes = 2; }
 
         std::vector<ModelPt> vertexes;
         std::vector<unsigned int> indices;
@@ -88,7 +85,7 @@ namespace Utils
 		vertexes.reserve(static_cast<size_t>(latitudes + 1) * (longitudes + 1));
 		// TODO: reserve indices
 
-        const float lengthInv = 1.0f / RADIUS;    // normal
+        const float lengthInv = 1.0f / radius;    // normal
 
         const float deltaLatitude = PI / latitudes;
         const float deltaLongitude = 2 * PI / longitudes;
@@ -97,8 +94,8 @@ namespace Utils
         for (int i = 0; i <= latitudes; ++i)
         {
             float latitudeAngle = PI / 2 - i * deltaLatitude; /* Starting -pi/2 to pi/2 */
-            float xy = RADIUS * cosf(latitudeAngle);    /* r * cos(phi) */
-            float z = RADIUS * sinf(latitudeAngle);     /* r * sin(phi )*/
+            float xy = radius * cosf(latitudeAngle);    /* r * cos(phi) */
+            float z = radius * sinf(latitudeAngle);     /* r * sin(phi )*/
 
             /*
              * We add (latitudes + 1) vertices per longitude because of equator,
@@ -157,4 +154,6 @@ namespace Utils
 		}
 		return ModelData{ vertexes, indices };
 	}
+
+
 }

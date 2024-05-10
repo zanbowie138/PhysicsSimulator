@@ -3,7 +3,7 @@
 #include "../core/GlobalTypes.h"
 #include "../components/Components.h"
 #include "../renderer/VAO.h"
-#include "../core/ECS.h"
+#include "../core/ECS/ECSController.h"
 
 extern ECSController ecsController;
 
@@ -18,8 +18,8 @@ public:
 	GLenum primitiveType = GL_TRIANGLES;
 	glm::vec3 mColor = glm::vec3(1.0f);
 
-	void InitECS();
-	void UpdateECSTransform();
+	void AddToECS();
+	void UpdateECSTransform() const;
 
 	virtual void InitVAO() = 0;
 	virtual size_t GetSize() = 0;
@@ -29,7 +29,7 @@ public:
 	Components::Transform transform;
 };
 
-inline void Renderable::InitECS()
+inline void Renderable::AddToECS()
 {
 	// Initialize entity
 	mEntityID = ecsController.CreateEntity();
@@ -39,7 +39,7 @@ inline void Renderable::InitECS()
 	ecsController.AddComponent(mEntityID, Components::RenderInfo{ primitiveType, mVAO.ID, ShaderID, GetSize(), mColor});
 }
 
-inline void Renderable::UpdateECSTransform()
+inline void Renderable::UpdateECSTransform() const
 {
 	ecsController.GetComponent<Components::Transform>(mEntityID) = transform;
 }

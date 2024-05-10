@@ -6,8 +6,6 @@
 class ECSController
 {
 public:
-	ECSController() = default;
-
 	void Init()
 	{
 		// Create pointers to each manager

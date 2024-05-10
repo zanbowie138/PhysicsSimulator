@@ -1,7 +1,7 @@
 #pragma once
 #include <set>
 
-#include "GlobalTypes.h"
+#include "../GlobalTypes.h"
 
 // A system is any functionality that iterates through a list of entities with a certain set of components
 class System 

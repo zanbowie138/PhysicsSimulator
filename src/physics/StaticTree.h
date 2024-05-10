@@ -340,8 +340,7 @@ namespace Physics
 			size_t leftCount[BINS_AMT - 1], rightCount[BINS_AMT - 1];
 			size_t leftSum = 0, rightSum = 0;
 
-			BoundingBox leftBox;
-			BoundingBox rightBox;
+			BoundingBox leftBox, rightBox;
 
 			for (size_t i = 0; i < BINS_AMT - 1; ++i)
 			{
@@ -384,7 +383,7 @@ namespace Physics
 		return mCentroids[mTriIdx[index]];
 	}
 
-	inline const typename StaticTree::Triangle& StaticTree::GetTriangle(const size_t index) const
+	inline const StaticTree::Triangle& StaticTree::GetTriangle(const size_t index) const
 	{
 		return mTriangles[mTriIdx[index]];
 	}

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-#include "core/ECS.h"
+#include "core/ECS/ECSController.h"
 #include "core/UniformBufferManager.h"
 #include "core/WindowManager.h"
 #include "core/GUI.h"
@@ -35,19 +35,17 @@ int main()
 
 	// Window creation
 	// TODO: Add callbacks
-	Core::WindowManager windowManager;
-	windowManager.Init("OpenGL Window", 900, 900);
+	Core::WindowManager windowManager("OpenGL Window", 900, 900);
 	GLFWwindow* window = windowManager.GetWindow();
 
-	GUI GUI;
-	GUI.Init(window);
+	GUI GUI{ window };
 
 	// Camera creation
 	const auto& windowDimensions = windowManager.GetWindowDimensions();
-	Camera cam{ windowDimensions.first,windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f) };
+	Camera cam { windowDimensions.first,windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f) };
 	// Used to update camera dimensions
 	// TODO: Make window resizing and other initialization cleaner
-	windowManager.SetCameraPointer(&cam);
+	windowManager.SetCamera(&cam);
 
 	// Initialize ECS
 	ecsController.Init();
@@ -105,7 +103,7 @@ int main()
 	light.transform.worldPos = glm::vec3(0.0f, 1.0f, 0.0f);
 	light.transform.scale = glm::vec3(0.07f);
 	light.ShaderID = basicShader.ID;
-	light.InitECS();
+	light.AddToECS();
 	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
 
@@ -113,9 +111,9 @@ int main()
 	cube.transform.worldPos = glm::vec3(-1.0f, 1.0f, static_cast<float>(1));
 	cube.transform.scale = glm::vec3(0.3f);
 	cube.ShaderID = flatShader.ID;
-	cube.InitECS();
+	cube.AddToECS();
 
-	const ModelData sphereData = Utils::UVSphereData(20,20);
+	const ModelData sphereData = Utils::UVSphereData(20,20, 1);
 	Model sphere(sphereData);
 	sphere.transform.scale = glm::vec3(0.5f);
 	sphere.transform.worldPos = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -128,7 +126,7 @@ int main()
 	bunny.transform.worldPos = glm::vec3(1.0f, 0.5f, 0.0f);
 	bunny.ShaderID = flatShader.ID;
 	bunny.transform.SetRotationEuler(glm::vec3(-90.0f, 0.0f, 0.0f));
-	bunny.InitECS();
+	bunny.AddToECS();
 
 	physicsSystem->AddToTree(light);
 	physicsSystem->AddToTree(cube);
@@ -139,22 +137,22 @@ int main()
 	Lines collideBox(1000);
 	collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
 	collideBox.ShaderID = basicShader.ID;
-	collideBox.InitECS();
+	collideBox.AddToECS();
 
 	// Constraint bounding box
 	Lines boundsBox(10000);
 	boundsBox.ShaderID = basicShader.ID;
-	boundsBox.InitECS();
+	boundsBox.AddToECS();
 
 	// Debug bounding boxes
 	Lines boxRenderer(20000);
 	boxRenderer.ShaderID = basicShader.ID;
-	boxRenderer.InitECS();
+	boxRenderer.AddToECS();
 
 	// Shows how complicated the mesh is
 	Lines meshRenderer(1000000);
 	meshRenderer.ShaderID = basicShader.ID;
-	meshRenderer.InitECS();
+	meshRenderer.AddToECS();
 
 	bunny.transform.CalculateModelMat();
 	meshRenderer.PushBack(MeshData{ bunny.vertices, bunny.indices }, bunny.transform.modelMat);
@@ -249,6 +247,7 @@ int main()
 		GUI.ShowConfigWindow();
 
 		GUI.Render();
+
 		renderSystem->PostUpdate();
 	}
 

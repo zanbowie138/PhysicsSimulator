@@ -16,23 +16,14 @@ namespace Physics {
 		struct Node
 		{
 			BoundingBox box;
-
-			size_t height;
-
-			size_t parent;
-
-			size_t left;
-			size_t right;
+			size_t height, parent, left, right;
 		};
 
 	public:
 		std::vector<Node> mNodes;
 
-		size_t nodeCapacity;
-		size_t nodeCount;
-		size_t rootIndex;
+		size_t nodeCapacity, nodeCount, rootIndex;
 
-	public:
 		// Queried to get entity
 		std::unordered_map<size_t, Entity> nodeIdxToEntityMap;
 		// Queried to get node
@@ -40,7 +31,7 @@ namespace Physics {
 
 		// Stack of free nodes
 		std::stack<size_t> mFreeList;
-	public:
+
 		explicit DynamicBBTree(size_t initialCapacity = 1);
 
 		void InsertEntity(Entity entity, BoundingBox box);
@@ -57,6 +48,7 @@ namespace Physics {
 		// Returns a vector of all active bounding boxes
 		// Bool decides whether non-leaf boxes are added
 		std::vector<BoundingBox> GetAllBoxes(const bool onlyLeaf) const;
+
 	private:
 		Node& GetNode(Entity entity);
 		

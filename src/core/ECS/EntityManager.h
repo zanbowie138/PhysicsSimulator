@@ -5,11 +5,15 @@
 #include <cassert>
 #include <stack>
 
-#include "GlobalTypes.h"
+#include "../GlobalTypes.h"
 
 // In charge of distributing Entity IDs and keeping track of what entities are in use
 class EntityManager
 {
+	std::stack<Entity> availableEntities{};
+	std::array<Signature, MAX_ENTITIES> signatures{};
+	unsigned int livingEntityCount;
+
 public:
 	EntityManager(){}
 
@@ -52,9 +56,4 @@ public:
 		// Get this entity's signature from the array
 		return signatures[entity];
 	}
-
-private:
-	std::stack<Entity> availableEntities{};
-	std::array<Signature, MAX_ENTITIES> signatures{};
-	unsigned int livingEntityCount{};
 };

@@ -4,16 +4,12 @@
 
 #include "DynamicTree.h"
 
-#include "../core/ECS.h"
-#include "../core/System.h"
-#include "../core/ComponentManager.h"
+#include "../core/ECS/ECSController.h"
 
 #include "../renderables/Mesh.h"
 #include "../renderables/Model.h"
 
 #define GRAVITY -9.81
-
-extern ECSController ecsController;
 
 // http://graphics.stanford.edu/papers/rigid_bodies-sig03/
 class PhysicsSystem : public System
