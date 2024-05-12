@@ -194,6 +194,7 @@
     <ClInclude Include="src\core\ECS\EntityManager.h" />
     <ClInclude Include="src\core\ECS\System.h" />
     <ClInclude Include="src\core\ECS\SystemManager.h" />
+    <ClInclude Include="src\core\EventManager.h" />
     <ClInclude Include="src\core\GUI.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />

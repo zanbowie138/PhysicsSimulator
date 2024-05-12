@@ -9,6 +9,19 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+class Changed
+{
+	public:
+	bool oldVal, changed = false;
+
+	Changed() = default;
+	inline void Update(bool newValue)
+	{
+		changed = oldVal != newValue;
+		oldVal = newValue;
+	}
+};
+
 class GUI
 {
 public:
@@ -16,10 +29,12 @@ public:
 
 	struct configInfo
 	{
-		bool debugBoundingBoxes;
-		bool showOnlyLeafNodes;
+		bool showDynamicBoxes;
+		bool showOnlyDynamicLeaf;
 		bool showStaticBoxes;
+		bool showOnlyStaticLeaf;
 	} mConfigInfo;
+	
 
 	bool MouseOver() const;
 	void SetMouse(bool value);
@@ -112,8 +127,13 @@ inline void GUI::ShowConfigWindow()
 	StartWindow("Config");
 	if (ImGui::CollapsingHeader("Dynamic BVH Tree"))
 	{
-		Checkbox("Show Bounding Boxes", &mConfigInfo.debugBoundingBoxes);
-		Checkbox("Show only leaf nodes", &mConfigInfo.showOnlyLeafNodes);
+		Checkbox("Show Bounding Boxes", &mConfigInfo.showDynamicBoxes);
+		Checkbox("Show only leaf nodes", &mConfigInfo.showOnlyDynamicLeaf);
+	}
+	if (ImGui::CollapsingHeader("Static BVH Tree"))
+	{
+		Checkbox("Show Bounding Boxes", &mConfigInfo.showStaticBoxes);
+		Checkbox("Show only leaf nodes", &mConfigInfo.showOnlyStaticLeaf);
 	}
 	
 	EndWindow();

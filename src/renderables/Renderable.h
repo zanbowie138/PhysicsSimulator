@@ -21,6 +21,12 @@ public:
 	void AddToECS();
 	void UpdateECSTransform() const;
 
+	void Scale(float scale) { transform.scale = glm::vec3(scale); }
+	void Scale(glm::vec3 scale) { transform.scale = scale; }
+	void SetPosition(glm::vec3 position) { transform.worldPos = position; }
+	void SetRotation(glm::vec3 eulerRotation) { transform.SetRotationEuler(eulerRotation); }
+	void SetColor(glm::vec3 color) { mColor = color; }
+
 	virtual void InitVAO() = 0;
 	virtual size_t GetSize() = 0;
 
@@ -43,3 +49,4 @@ inline void Renderable::UpdateECSTransform() const
 {
 	ecsController.GetComponent<Components::Transform>(mEntityID) = transform;
 }
+

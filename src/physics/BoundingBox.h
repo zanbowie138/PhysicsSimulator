@@ -12,7 +12,6 @@ public:
 
 	float surfaceArea;
 
-public:
 	BoundingBox();
 	BoundingBox(const glm::vec3 min, const glm::vec3 max);
 

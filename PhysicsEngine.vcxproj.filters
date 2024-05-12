@@ -268,6 +268,9 @@
     <ClInclude Include="src\core\ECS\SystemManager.h">
       <Filter>Header Files\Core\ECS</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\EventManager.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\renderer\RenderSystem.cpp">

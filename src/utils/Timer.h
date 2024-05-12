@@ -17,19 +17,19 @@ namespace Utils
 		void Reset();
 
 	private:
-		std::string myName;
+		std::string mName;
 		double initTime;
 	};
 
 	inline Timer::Timer()
 	{
-		myName = "Timer";
+		mName = "Timer";
 		Reset();
 	}
 
 	inline Timer::Timer(const char* name)
 	{
-		myName = std::string(name);
+		mName = std::string(name);
 		Reset();
 	}
 
@@ -41,7 +41,7 @@ namespace Utils
 
 	inline std::string Timer::ToString() const
 	{
-		return std::string(myName + ": " + std::to_string(GetElapsed()) + "s");
+		return std::string(mName + ": " + std::to_string(GetElapsed()) + "s");
 	}
 
 	inline void Timer::Reset()

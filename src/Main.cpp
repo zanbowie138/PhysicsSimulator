@@ -95,42 +95,41 @@ int main()
 	std::vector<Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
 	Model floor(planeVerts, planeInds, tex);
 	floor.ShaderID = defaultShader.ID;
-	floor.transform.scale = glm::vec3(10.0f);
+	floor.Scale(10.0f);
 	floor.InitECS();
 
 	const auto cubeData = Utils::CubeData(true);
 	Mesh light(cubeData.vertices, cubeData.indices);
-	light.transform.worldPos = glm::vec3(0.0f, 1.0f, 0.0f);
-	light.transform.scale = glm::vec3(0.07f);
+	light.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
+	light.Scale(0.07f);
 	light.ShaderID = basicShader.ID;
 	light.AddToECS();
 	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
 
 	Mesh cube(cubeData.vertices, cubeData.indices);
-	cube.transform.worldPos = glm::vec3(-1.0f, 1.0f, static_cast<float>(1));
-	cube.transform.scale = glm::vec3(0.3f);
+	cube.SetPosition(glm::vec3(-1.0f, 1.0f, 1.0f));
+	cube.Scale(0.3f);
 	cube.ShaderID = flatShader.ID;
 	cube.AddToECS();
 
 	const ModelData sphereData = Utils::UVSphereData(20,20, 1);
 	Model sphere(sphereData);
-	sphere.transform.scale = glm::vec3(0.5f);
-	sphere.transform.worldPos = glm::vec3(0.0f, 1.0f, 0.0f);
+	sphere.Scale(0.5f);
+	sphere.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
 	sphere.ShaderID = flatShader.ID;
-	sphere.mColor = glm::vec3(0.5f, 0.3f, 1.0f);
+	sphere.SetColor(glm::vec3(0.5f, 0.3f, 1.0f));
 	sphere.InitECS();
 
 	Mesh bunny("bunny.stl", true);
-	bunny.transform.scale = glm::vec3(0.01f);
-	bunny.transform.worldPos = glm::vec3(1.0f, 0.5f, 0.0f);
+	bunny.Scale(0.01f);
+	bunny.SetPosition(glm::vec3(1.0f, 0.5f, 0.0f));
 	bunny.ShaderID = flatShader.ID;
 	bunny.transform.SetRotationEuler(glm::vec3(-90.0f, 0.0f, 0.0f));
 	bunny.AddToECS();
 
 	physicsSystem->AddToTree(light);
 	physicsSystem->AddToTree(cube);
-	//physicsSystem->AddRigidbody(sphere);
 	physicsSystem->AddToTree(sphere);
 
 	// Box showing collision between objects
@@ -150,15 +149,19 @@ int main()
 	boxRenderer.AddToECS();
 
 	// Shows how complicated the mesh is
-	Lines meshRenderer(1000000);
+	Lines meshRenderer(10000000);
 	meshRenderer.ShaderID = basicShader.ID;
 	meshRenderer.AddToECS();
 
+
 	bunny.transform.CalculateModelMat();
-	meshRenderer.PushBack(MeshData{ bunny.vertices, bunny.indices }, bunny.transform.modelMat);
+	//meshRenderer.PushModelOutline(MeshData{ bunny.vertices, bunny.indices }, bunny.transform.modelMat);
+	bunny.InitTree();
+	meshRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, true));
+
 
 	boundsBox.Clear();
-	boundsBox.PushBack(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });
+	boundsBox.PushBoundingBox(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO; 
@@ -185,8 +188,7 @@ int main()
 	{
 		renderSystem->PreUpdate();
 
-		float dt_s = static_cast<float>(glfwGetTime() - currentTime);
-		float dt_mill = dt_s * 1000;
+		float dt_mill = static_cast<float>(glfwGetTime() - currentTime) * 1000;
 
 		// Move entities
 		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 2.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
@@ -194,12 +196,12 @@ int main()
 		light.transform.worldPos = lightPos;
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
 
-		physicsSystem->Update(dt_s);
+		physicsSystem->Update(dt_mill);
 
 		boxRenderer.Clear();
-		if (GUI.mConfigInfo.debugBoundingBoxes)
+		if (GUI.mConfigInfo.showDynamicBoxes)
 		{
-			boxRenderer.PushBack(tree.GetAllBoxes(GUI.mConfigInfo.showOnlyLeafNodes));
+			boxRenderer.PushBoundingBoxes(tree.GetAllBoxes(GUI.mConfigInfo.showOnlyDynamicLeaf));
 		}
 		
 
@@ -207,7 +209,7 @@ int main()
 		const auto collidedEntities = tree.ComputeCollisionPairs();
 		for (const auto entity : collidedEntities)
 		{
-			collideBox.PushBack(tree.GetBoundingBox(entity));
+			collideBox.PushBoundingBox(tree.GetBoundingBox(entity));
 		}
 
 		currentTime = glfwGetTime();

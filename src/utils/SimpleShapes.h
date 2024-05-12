@@ -154,6 +154,4 @@ namespace Utils
 		}
 		return ModelData{ vertexes, indices };
 	}
-
-
 }
