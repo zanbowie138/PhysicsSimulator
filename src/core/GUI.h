@@ -34,46 +34,47 @@ public:
 		bool showStaticBoxes;
 		bool showOnlyStaticLeaf;
 	} mConfigInfo;
-	
 
-	bool MouseOver() const;
-	void SetMouse(bool value);
+
+	static bool MouseOver();
+	static void SetMouse(bool value);
 
 
 	void Init(GLFWwindow* window);
-	void NewFrame();
+	static void NewFrame();
 
-	void StartWindow(const char* windowName);
-	void EndWindow();
+	static void StartWindow(const char* windowName);
+	static void EndWindow() { ImGui::End(); }
 
-	void Text(const char* text);
-	void Checkbox(const char* label, bool* variable);
-	void Button(const char* text, std::function<void()> func);
+	static void Text(const char* text) { ImGui::Text(text); }
+	static void Checkbox(const char* label, bool* variable) { ImGui::Checkbox(label, variable); }
+	static void Button(const char* text, std::function<void()> func);
 
 	void ShowConfigWindow();
 
-	void Demo();
+	static void Demo() { ImGui::ShowDemoWindow(); }
 
-	void Render();
+	static void Render();
 
-	void Clean();
+	static void Clean();
 };
 
-inline GUI::GUI(GLFWwindow* window)
+inline GUI::GUI(GLFWwindow* window): mConfigInfo()
 {
 	// Setup ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	auto& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	auto& io = ImGui::GetIO();
+	(void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 	io.FontGlobalScale = 2.0f;
 }
 
-inline bool GUI::MouseOver() const
+inline bool GUI::MouseOver()
 {
 	return ImGui::GetIO().WantCaptureMouse;
 }
@@ -100,21 +101,6 @@ inline void GUI::StartWindow(const char* windowName)
 	assert(ImGui::Begin(windowName) && "Gui window did not start corrently...");
 }
 
-inline void GUI::EndWindow()
-{
-	ImGui::End();
-}
-
-inline void GUI::Text(const char* text)
-{
-	ImGui::Text(text);
-}
-
-inline void GUI::Checkbox(const char* label, bool* variable)
-{
-	ImGui::Checkbox(label, variable);
-}
-
 inline void GUI::Button(const char* text, std::function<void()> func)
 {
 	if (ImGui::Button(text))
@@ -138,11 +124,6 @@ inline void GUI::ShowConfigWindow()
 	}
 	
 	EndWindow();
-}
-
-inline void GUI::Demo()
-{
-	ImGui::ShowDemoWindow();
 }
 
 inline void GUI::Render()

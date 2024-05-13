@@ -7,8 +7,7 @@ namespace Utils
 	class Timer
 	{
 	public:
-		Timer();
-		Timer(const char* name);
+		explicit Timer(const char* name);
 
 		double GetElapsed() const;
 
@@ -18,16 +17,10 @@ namespace Utils
 
 	private:
 		std::string mName;
-		double initTime;
+		double initTime{};
 	};
 
-	inline Timer::Timer()
-	{
-		mName = "Timer";
-		Reset();
-	}
-
-	inline Timer::Timer(const char* name)
+	inline Timer::Timer(const char* name = "Timer")
 	{
 		mName = std::string(name);
 		Reset();

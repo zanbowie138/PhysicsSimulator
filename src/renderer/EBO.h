@@ -1,81 +1,48 @@
 #pragma once
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-#include <vector>
-#include <iostream>
 
 class EBO
 {
 public:
-	mutable GLuint ID{};
-	GLuint bufSize = 0;
-	size_t currentBufSize = 0;
+    mutable GLuint ID{};
+    GLuint bufSize = 0;
+    size_t currentBufSize = 0;
 
-	inline EBO();
-	explicit inline EBO(const std::vector<GLuint>& indices);
+    // Constructors that generates a Element Buffer Object and links it to indices
+    EBO() { glGenBuffers(1, &ID); }
 
-	inline void AllocBuffer(GLint size, GLenum type);
-	inline void PushData(const std::vector<GLuint>& indices);
+    template <typename T>
+    explicit EBO(const std::vector<T>& indices);
 
-	inline void ClearData();
+    inline void PushData(const std::vector<GLuint>& indices);
+    inline void AllocBuffer(GLint size, GLenum type);
+    void ClearData() { currentBufSize = 0; }
 
-	inline void Bind() const;
-	static inline void Unbind();
-	inline void Delete() const;
+    void Bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID); }
+    static void Unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+    void Delete() const { glDeleteBuffers(1, &ID); }
 };
 
-// Constructor that generates a Vertex Buffer Object and links it to vertices
-inline EBO::EBO()
+template <typename T>
+EBO::EBO(const std::vector<T>& indices)
 {
-	glGenBuffers(1, &ID);
-}
-
-inline EBO::EBO(const std::vector<GLuint>& indices)
-{
-	glGenBuffers(1, &ID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+    glGenBuffers(1, &ID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(T), indices.data(), GL_STATIC_DRAW);
 }
 
 inline void EBO::PushData(const std::vector<GLuint>& indices)
 {
-	if (indices.size() * sizeof(GLuint) > bufSize)
-	{
-		std::cout << "EBO Buffer Overflow..." << std::endl;
-		return;
-	}
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, currentBufSize, indices.size() * sizeof(GLuint), indices.data());
-	currentBufSize += indices.size() * sizeof(GLuint);
-}
+    assert(currentBufSize + indices.size() * sizeof(GLuint) < bufSize && "EBO Overflow");
 
-inline void EBO::ClearData()
-{
-	currentBufSize = 0;
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, currentBufSize, indices.size() * sizeof(GLuint), indices.data());
+    currentBufSize += static_cast<GLuint>(indices.size() * sizeof(GLuint));
 }
 
 inline void EBO::AllocBuffer(const GLint size, const GLenum type)
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, type);
-	bufSize = size;
-}
-
-// Binds the EBO
-inline void EBO::Bind() const
-{
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-}
-
-// Unbinds the EBO
-inline void EBO::Unbind()
-{
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-// Deletes the EBO
-inline void EBO::Delete() const
-{
-	glDeleteBuffers(1, &ID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, type);
+    bufSize = size;
 }

@@ -107,7 +107,7 @@ namespace Utils
             {
                 float longitudeAngle = j * deltaLongitude;
 
-                ModelPt temp;
+                ModelPt temp{};
 
                 temp.position.x = xy * cosf(longitudeAngle);       /* x = r * cos(phi) * cos(theta)  */
                 temp.position.y = xy * sinf(longitudeAngle);       /* y = r * cos(phi) * sin(theta) */

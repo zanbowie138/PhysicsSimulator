@@ -13,20 +13,19 @@
 #include "../core/ECS/System.h"
 #include "../core/ECS/ComponentManager.h"
 
-class RenderSystem: public System 
+class RenderSystem final : public System
 {
-private:
     GLFWwindow* mWindow;
 public:
     explicit RenderSystem(): mWindow(nullptr){}
 
-    void PreUpdate();
+    void PreUpdate() const;
 
-    void Update();
+    void Update() const;
 
-    void PostUpdate();
+    void PostUpdate() const { glfwSwapBuffers(mWindow); }
 
-    void SetWindow(GLFWwindow* window);
+    void SetWindow(GLFWwindow* window) { mWindow = window; }
 
     void Clean() override;
 };

@@ -32,7 +32,7 @@ inline Texture::Texture(const char* image, const GLenum texFormat, const GLenum 
 	// Flips the image so it appears right side up
 	stbi_set_flip_vertically_on_load(true);
 
-	const std::string localDir = "/Resources/Textures/";
+	const std::string localDir = "/res/textures/";
 
 	// Reads the image from a file and stores it in bytes
 	unsigned char* bytes = stbi_load((BASE_DIR + localDir + image).c_str(), &widthImg,

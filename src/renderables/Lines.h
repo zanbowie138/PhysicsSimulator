@@ -31,7 +31,7 @@ public:
 	void PushShapeData(const ShapeData& shapeData);
 
 	void Clear();
-	size_t GetSize() override;
+	size_t GetSize() override { return mIndexAmount; }
 private:
 	void InitVAO() override;
 	void UpdateSize();
@@ -131,9 +131,4 @@ inline void Lines::InitVAO()
 	mVAO.Unbind();
 	VBO.Unbind();
 	EBO.Unbind();
-}
-
-inline size_t Lines::GetSize()
-{
-	return mIndexAmount;
 }

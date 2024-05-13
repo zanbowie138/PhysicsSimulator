@@ -15,8 +15,7 @@ public:
 	glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::mat4 cameraMatrix = glm::mat4(1.0f);
 
-	unsigned int width;
-	unsigned int height;
+	unsigned int width, height;
 
 	float baseSpeed = 0.001f;
 	float speed = 0.0001f;
@@ -26,7 +25,9 @@ public:
 
 	void UpdateMatrix(float FOVdeg, float nearPlane, float farPlane);
 
-	void MoveCam(const InputBitset& buttons, const glm::vec2& mousePos, const float dt);
+	void MoveCam(const InputBitset& buttons, const glm::vec2& mousePos, float dt);
+
+	static bool KeyPressed(const InputBitset& buttons, InputButtons key) { return buttons.test(static_cast<std::size_t>(key)); }
 
 	//Sends camera matrix to inputted shader to update position
 	void Matrix(const Shader& shader, const char* uniform) const;
@@ -34,35 +35,30 @@ public:
 
 inline void Camera::UpdateMatrix(const float FOVdeg, const float nearPlane, const float farPlane)
 {
-	auto view = glm::mat4(1.0f);
-	auto proj = glm::mat4(1.0f);
-
-	view = lookAt(position, position + orientation, Constants::UP);
-	proj = glm::perspective(glm::radians(FOVdeg), static_cast<float>(width) / height, nearPlane, farPlane);
+	auto view = lookAt(position, position + orientation, Constants::UP);
+	auto proj = glm::perspective(glm::radians(FOVdeg), static_cast<float>(width) / height, nearPlane, farPlane);
 
 	cameraMatrix = proj * view;
 }
 
 inline void Camera::MoveCam(const InputBitset& buttons, const glm::vec2& mousePos, const float dt)
 {
-	if (buttons.test((static_cast<std::size_t>(InputButtons::W))))
+	if (KeyPressed(buttons, InputButtons::W))
 		position += speed * orientation * dt;
-	if (buttons.test((static_cast<std::size_t>(InputButtons::A))))
+	if (KeyPressed(buttons, InputButtons::A))
 		position += speed * -normalize(cross(orientation, Constants::UP)) * dt;
-	if (buttons.test((static_cast<std::size_t>(InputButtons::S))))
+	if (KeyPressed(buttons, InputButtons::S))
 		position += speed * -orientation * dt;
-	if (buttons.test((static_cast<std::size_t>(InputButtons::D))))
+	if (KeyPressed(buttons, InputButtons::D))
 		position += speed * normalize(cross(orientation, Constants::UP)) * dt;
-	if (buttons.test((static_cast<std::size_t>(InputButtons::SPACE))))
+	if (KeyPressed(buttons, InputButtons::SPACE))
 		position += speed * Constants::UP * dt;
-	if (buttons.test((static_cast<std::size_t>(InputButtons::CONTROL))))
+	if (KeyPressed(buttons, InputButtons::CONTROL))
 		position += speed * -Constants::UP * dt;
-	if (buttons.test((static_cast<std::size_t>(InputButtons::SHIFT))))
-		speed = baseSpeed * 5;
-	else
-		speed = baseSpeed;
 
-	if (buttons.test((static_cast<std::size_t>(InputButtons::RIGHT_MOUSE))))
+	speed = baseSpeed * (KeyPressed(buttons, InputButtons::SHIFT) ? 5.0f : 1.0f);
+
+	if (KeyPressed(buttons, InputButtons::RIGHT_MOUSE))
 	{
 		// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
 		// and then "transforms" them into degrees 

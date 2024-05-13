@@ -20,14 +20,14 @@ public:
 
 	inline Shader(const char* vertexFile, const char* fragmentFile);
 
-	inline void Activate() const;
-	inline void Delete() const;
+	void Activate() const { glUseProgram(ID); }
+	void Delete() const { glDeleteProgram(ID); }
 
 	inline GLint GetUniformLocation(const char* name) const;
 	inline GLuint GetUniformBlockIndex(const char* name) const;
 
 private:
-	static inline void CompileErrors(const unsigned int shader, const char* name, const char* type);
+	static inline void CompileErrors(unsigned int shader, const char* name, const char* type);
 };
 
 // Reads a text file and outputs a string with everything in the text file
@@ -35,18 +35,19 @@ inline std::string get_file_contents(const char* filename)
 {
 	const std::string localDir = "/shaders/";
 	// TODO: Maybe have backup in case BASE_DIR is not defined
-	std::ifstream in((BASE_DIR + localDir + filename).c_str(), std::ios::binary);
-	if (in)
+	std::string filePath = BASE_DIR + localDir + filename;
+	std::ifstream fileText(filePath.c_str(), std::ios::binary);
+	if (fileText)
 	{
 		std::string contents;
-		in.seekg(0, std::ios::end);
-		contents.resize(in.tellg());
-		in.seekg(0, std::ios::beg);
-		in.read(contents.data(), contents.size());
-		in.close();
+		fileText.seekg(0, std::ios::end);
+		contents.resize(fileText.tellg());
+		fileText.seekg(0, std::ios::beg);
+		fileText.read(contents.data(), contents.size());
+		fileText.close();
 		return (contents);
 	}
-	std::cout << "Failed to read file: " << (BASE_DIR + localDir + filename).c_str() << std::endl;
+	std::cerr << "Failed to read file: " << filePath.c_str() << std::endl;
 	throw(errno);
 }
 
@@ -88,21 +89,10 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	glDeleteShader(fragmentShader);
 }
 
-void Shader::Activate() const
-{
-	glUseProgram(ID);
-}
-
-void Shader::Delete() const
-{
-	glDeleteProgram(ID);
-}
-
 GLint Shader::GetUniformLocation(const char* name) const
 {
-	GLint location =  glGetUniformLocation(ID, name);
+	const GLint location =  glGetUniformLocation(ID, name);
 
-	// Check if error
 	assert(location != -1 && "Uniform location not found.");
 
 	return location;

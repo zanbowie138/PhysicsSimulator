@@ -7,10 +7,10 @@ class BoundingBox
 {
 public:
 	// Corner points
-	glm::vec3 min;
-	glm::vec3 max;
+	glm::vec3 min{};
+	glm::vec3 max{};
 
-	float surfaceArea;
+	float surfaceArea{};
 
 	BoundingBox();
 	BoundingBox(const glm::vec3 min, const glm::vec3 max);

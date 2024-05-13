@@ -6,24 +6,23 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules)
 
-project(PhysicsEngine)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(-DBASE_DIR="${CMAKE_SOURCE_DIR}")
+project(PhysicsEngine)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 set(DEPENDENCIES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies)
+add_definitions(-DBASE_DIR="${CMAKE_SOURCE_DIR}")
+
 
 add_subdirectory(${DEPENDENCIES_DIR}/glfw-3.4)
 
 include_directories(${DEPENDENCIES_DIR}/include)
 
-# Add your source files here
 file(GLOB_RECURSE SRC_FILES "src/*.cpp")
 
 find_package(glad CONFIG REQUIRED)
@@ -33,5 +32,4 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME} PRIVATE
         glfw
         glad::glad
-
 )

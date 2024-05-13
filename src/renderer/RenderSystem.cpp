@@ -2,13 +2,13 @@
 
 extern ECSController ecsController;
 
-void RenderSystem::PreUpdate()
+void RenderSystem::PreUpdate() const
 {
 	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void RenderSystem::Update()
+void RenderSystem::Update() const
 {
 	assert(mWindow && "Window not set.");
 
@@ -39,7 +39,7 @@ void RenderSystem::Update()
 		{
 			const auto& [diffuse_ID, specular_ID] = ecsController.GetComponent<Components::TextureInfo>(entity);
 			
-			// Textures
+			// textures
 			// Set texture uniform value
 			glUniform1i(glGetUniformLocation(renderInfo.shader_ID, "diffuse0"), 0);
 			// Activate texture unit
@@ -65,17 +65,8 @@ void RenderSystem::Update()
 	}
 }
 
-void RenderSystem::PostUpdate()
-{
-	glfwSwapBuffers(mWindow);
-}
-
 void RenderSystem::Clean()
 {
 	
 }
 
-void RenderSystem::SetWindow(GLFWwindow* window)
-{
-	mWindow = window;
-}

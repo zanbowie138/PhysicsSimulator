@@ -13,7 +13,6 @@ namespace Utils
     static MeshData ReadSTL(const char* filepath)
     {
         // STL File format: https://people.sc.fsu.edu/~jburkardt/data/stlb/stlb.html
-
         std::vector<MeshPt> points;
         std::vector<unsigned int> indices;
 

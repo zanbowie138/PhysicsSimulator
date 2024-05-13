@@ -25,7 +25,7 @@ public:
 	// Initializes the object
 	Mesh(const char* filename, bool is_stl);
 	Mesh(std::vector<MeshPt> vertices, std::vector<unsigned int> indices);
-	Mesh(const MeshData& data);
+	explicit Mesh(const MeshData& data);
 
 	BoundingBox CalcBoundingBox();
 	void InitTree();
@@ -39,7 +39,7 @@ private:
 
 inline Mesh::Mesh(const char* filename, const bool is_stl)
 {
-	const auto localDir = "/Resources/Models/";
+	const auto localDir = "/res/models/";
 	MeshData data;
 
 	if (!is_stl) 
@@ -50,18 +50,18 @@ inline Mesh::Mesh(const char* filename, const bool is_stl)
 	vertices = std::vector(data.vertices);
 	indices = std::vector(data.indices);
 
-	InitVAO();
+	Mesh::InitVAO();
 }
 
 inline Mesh::Mesh(std::vector<MeshPt> vertices, std::vector<unsigned> indices): vertices(std::move(vertices)), indices(
 	std::move(indices))
 {
-	InitVAO();
+	Mesh::InitVAO();
 }
 
 inline Mesh::Mesh(const MeshData& data): vertices(data.vertices), indices(data.indices)
 {
-	InitVAO();
+	Mesh::InitVAO();
 }
 
 inline BoundingBox Mesh::CalcBoundingBox()
@@ -98,9 +98,9 @@ inline void Mesh::InitVAO()
 	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(MeshPt), nullptr);
 	mVAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(MeshPt), (void*)(3 * sizeof(float)));
 
-	mVAO.Unbind();
-	VBO.Unbind();
-	EBO.Unbind();
+	VAO::Unbind();
+	VBO::Unbind();
+	EBO::Unbind();
 }
 
 inline size_t Mesh::GetSize()

@@ -7,59 +7,34 @@
 class VAO
 {
 public:
-	GLuint ID{};
-	inline VAO();
+    GLuint ID{};
+    // Constructor that generates a VAO ID
+    VAO() { glGenVertexArrays(1, &ID); }
 
-	/// <summary>
-	/// </summary>
-	/// <param name="VBO"></param>
-	/// <param name="layout">Specifies the index of the generic vertex attribute to be modified.</param>
-	/// <param name="numComponents">Number of components per vertex</param>
-	/// <param name="type">data type of each component in array</param>
-	/// <param name="stride">byte offset of each consecutive vertex</param>
-	/// <param name="offset">Specifies a offset of the first component of the first generic vertex attribute</param>
-	inline void LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride, const void* offset);
-	inline void Bind() const;
-	static inline void Unbind();
-	inline void Delete() const;
+    /**
+     * @brief Links a VBO to the VAO using a certain layout
+     *
+     * @param VBO ID of the VBO to link
+     * @param layout Specifies the index of the generic vertex attribute to be modified.
+     * @param numComponents Number of components per vertex
+     * @param type Data type of each component in array
+     * @param stride Byte offset of each consecutive vertex
+     * @param offset Specifies an offset of the first component of the first generic vertex attribute
+    */
+    static inline void LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride,
+                                  const void* offset);
+
+    void Bind() const { glBindVertexArray(ID); }
+    static void Unbind() { glBindVertexArray(0); }
+    void Delete() const { glDeleteVertexArrays(1, &ID); }
 };
 
-// Constructor that generates a VAO ID
-inline VAO::VAO()
-{
-	glGenVertexArrays(1, &ID);
-}
-
 // Links a VBO to the VAO using a certain layout
-inline void VAO::LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride, const void* offset)
+inline void VAO::LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride,
+                            const void* offset)
 {
-	/*
-	* layout: Specifies the index of the generic vertex attribute to be modified.
-	* numComponents: Number of components per vertex
-	* type: data type of each component in array
-	* stride: byte offset of each consecutive vertex
-	* offset: Specifies a offset of the first component of the first generic vertex attribute
-	*/
-	VBO.Bind();
-	glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
-	glEnableVertexAttribArray(layout);
-	VBO.Unbind();
-}
-
-// Binds the VAO
-inline void VAO::Bind() const
-{
-	glBindVertexArray(ID);
-}
-
-// Unbinds the VAO
-inline void VAO::Unbind()
-{
-	glBindVertexArray(0);
-}
-
-// Deletes the VAO
-inline void VAO::Delete() const
-{
-	glDeleteVertexArrays(1, &ID);
+    VBO.Bind();
+    glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
+    glEnableVertexAttribArray(layout);
+    VBO::Unbind();
 }

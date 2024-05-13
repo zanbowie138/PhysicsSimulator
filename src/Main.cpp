@@ -99,15 +99,14 @@ int main()
 	floor.InitECS();
 
 	const auto cubeData = Utils::CubeData(true);
-	Mesh light(cubeData.vertices, cubeData.indices);
+	Mesh light(cubeData);
 	light.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
 	light.Scale(0.07f);
 	light.ShaderID = basicShader.ID;
 	light.AddToECS();
 	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
-
-	Mesh cube(cubeData.vertices, cubeData.indices);
+	Mesh cube(cubeData);
 	cube.SetPosition(glm::vec3(-1.0f, 1.0f, 1.0f));
 	cube.Scale(0.3f);
 	cube.ShaderID = flatShader.ID;

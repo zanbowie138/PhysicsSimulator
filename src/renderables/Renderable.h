@@ -11,6 +11,8 @@ extern ECSController ecsController;
 class Renderable
 {
 public:
+	virtual ~Renderable() = default;
+
 	VAO mVAO;
 	Entity mEntityID = 999;
 
