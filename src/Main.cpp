@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 
-
 #include "core/ECS/ECSController.h"
 #include "core/UniformBufferManager.h"
 #include "core/WindowManager.h"
@@ -36,7 +35,7 @@ int main()
 
 	// Window creation
 	// TODO: Add callbacks
-	Core::WindowManager windowManager("OpenGL Window", 900, 900);
+	Core::WindowManager windowManager("OpenGL Window", 900, 900, true);
 	GLFWwindow* window = windowManager.GetWindow();
 
 	GUI GUI{ window };

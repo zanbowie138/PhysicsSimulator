@@ -24,13 +24,13 @@ namespace Core {
 
 		bool firstClick = false;
 	public:
-		WindowManager(const char* windowTitle, unsigned windowWidth, unsigned windowHeight);
+		WindowManager(const char* windowTitle, unsigned windowWidth, unsigned windowHeight, bool maximized);
 
 		const InputBitset& GetInputs() const;
 		const glm::vec2& GetMousePos() const;
 		std::pair<unsigned int, unsigned int> GetWindowDimensions() const;
 
-		void SetCamera(Camera* cam);
+		void SetCamera(Camera* cam) { mCamera = cam; };
 		void UpdateWindowDimensions(int width, int height);
 
 		bool mouseShown = true;
@@ -44,11 +44,8 @@ namespace Core {
 		GLFWwindow* GetWindow() const;
 	};
 
-	inline WindowManager::WindowManager(const char* windowTitle, unsigned windowWidth, unsigned windowHeight)
+	inline WindowManager::WindowManager(const char* windowTitle, unsigned windowWidth, unsigned windowHeight, bool maximized = false)
 	{
-		screenHeight = windowHeight;
-		screenWidth = windowWidth;
-
 		// Initialize GLFW
 		glfwInit();
 
@@ -57,10 +54,22 @@ namespace Core {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_SAMPLES, aliasingSamples);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_MAXIMIZED, maximized?GLFW_TRUE:GLFW_FALSE);
+
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
 		// Creates window, if window is null, throw error
-		mWindow = glfwCreateWindow(screenWidth, screenHeight, "OpenGLWindow", nullptr, nullptr);
+		mWindow = glfwCreateWindow(windowWidth, windowHeight, "OpenGLWindow", nullptr, nullptr);
 		assert(mWindow != nullptr && "GLFW window failed to initialize");
+
+		// Get maximized window dimensions
+		int width, height;
+		glfwGetWindowSize(mWindow, &width, &height);
+
+		screenWidth = static_cast<unsigned>(width);
+		screenHeight = static_cast<unsigned>(height);
 
 		// Creates object that stores the state of this instance of OpenGL (i think)
 		glfwMakeContextCurrent(mWindow);
@@ -76,6 +85,17 @@ namespace Core {
 			};
 		glfwSetWindowSizeCallback(mWindow, resizeWindowCallback);
 
+		auto maximizeWindowCallback = [](GLFWwindow* w, int maximized)
+			{
+				if (maximized)
+				{
+					int width, height;
+					glfwGetWindowSize(w, &width, &height);
+					static_cast<WindowManager*>(glfwGetWindowUserPointer(w))->UpdateWindowDimensions(width, height);
+				}
+			};
+		glfwSetWindowMaximizeCallback(mWindow, maximizeWindowCallback);
+
 		//Specifies the transformation from normalized coordinates (0-1) to screen coordinates
 		glViewport(0, 0, screenWidth, screenHeight);
 
@@ -85,6 +105,11 @@ namespace Core {
 
 		// Enable anti-aliasing
 		glEnable(GL_MULTISAMPLE);
+
+		// Initially set the screen to black to prevent getting flashed
+		glClearColor(0.00f, 0.00f, 0.00f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glfwSwapBuffers(mWindow);
 	}
 
 	inline const InputBitset& WindowManager::GetInputs() const
@@ -102,22 +127,22 @@ namespace Core {
 		return std::make_pair(screenWidth, screenHeight);
 	}
 
-	inline void WindowManager::SetCamera(Camera* cam)
-	{
-		mCamera = cam;
-	}
-
 	inline void WindowManager::UpdateWindowDimensions(int width, int height)
 	{
 		screenWidth = static_cast<unsigned>(width);
 		screenHeight = static_cast<unsigned>(height);
 
-		// Update viewport
-		glViewport(0, 0, screenWidth, screenHeight);
+		// Ensures that the window is not minimized
+		if (width && height)
+		{
+			std::cout << "Window resized to width: " << screenWidth << " and height: " << screenHeight << std::endl;
+			// Update viewport
+			glViewport(0, 0, screenWidth, screenHeight);
 
-		// Update camera dimensions
-		mCamera->width = screenWidth;
-		mCamera->height = screenHeight;
+			// Update camera dimensions
+			mCamera->width = screenWidth;
+			mCamera->height = screenHeight;
+		}
 	}
 
 	inline void WindowManager::ProcessInputs(bool active)
