@@ -1,5 +1,6 @@
 #pragma once
 #include <bitset>
+#include <vector>
 #include "glm/glm.hpp"
 
 constexpr unsigned int MAX_ENTITIES = 500;

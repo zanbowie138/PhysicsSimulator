@@ -35,8 +35,14 @@ inline Texture::Texture(const char* image, const GLenum texFormat, const GLenum 
 	const std::string localDir = "/Resources/Textures/";
 
 	// Reads the image from a file and stores it in bytes
-	unsigned char* bytes = stbi_load((std::filesystem::current_path().string() + localDir + image).c_str(), &widthImg,
+	unsigned char* bytes = stbi_load((BASE_DIR + localDir + image).c_str(), &widthImg,
 	                                 &heightImg, &numColCh, 0);
+
+	if (stbi_failure_reason())
+	{
+		std::cerr << "Can't open texture " << image << " because: " << stbi_failure_reason() << std::endl;
+	}
+
 
 	// Generates an OpenGL texture object
 	glGenTextures(1, &ID);

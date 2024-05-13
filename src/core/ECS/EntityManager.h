@@ -15,7 +15,7 @@ class EntityManager
 	unsigned int livingEntityCount;
 
 public:
-	EntityManager(){}
+	EntityManager() = default;
 
 	Entity CreateEntity()
 	{

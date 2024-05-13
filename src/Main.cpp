@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+
 #include "core/ECS/ECSController.h"
 #include "core/UniformBufferManager.h"
 #include "core/WindowManager.h"
@@ -164,7 +165,7 @@ int main()
 	boundsBox.PushBoundingBox(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });
 
 	// Manage Uniform Buffer
-	Core::UniformBufferManager UBO; 
+	Core::UniformBufferManager UBO;
 	// Allocate buffer in OpenGL
 	UBO.AllocateBuffer();
 	// Bind uniform ranges in the buffer
@@ -203,7 +204,7 @@ int main()
 		{
 			boxRenderer.PushBoundingBoxes(tree.GetAllBoxes(GUI.mConfigInfo.showOnlyDynamicLeaf));
 		}
-		
+
 
 		collideBox.Clear();
 		const auto collidedEntities = tree.ComputeCollisionPairs();

@@ -27,14 +27,15 @@ public:
 	inline GLuint GetUniformBlockIndex(const char* name) const;
 
 private:
-	static inline void CompileErrors(unsigned int shader, const char* type);
+	static inline void CompileErrors(const unsigned int shader, const char* name, const char* type);
 };
 
 // Reads a text file and outputs a string with everything in the text file
 inline std::string get_file_contents(const char* filename)
 {
 	const std::string localDir = "/shaders/";
-	std::ifstream in((std::filesystem::current_path().string() + localDir + filename).c_str(), std::ios::binary);
+	// TODO: Maybe have backup in case BASE_DIR is not defined
+	std::ifstream in((BASE_DIR + localDir + filename).c_str(), std::ios::binary);
 	if (in)
 	{
 		std::string contents;
@@ -45,6 +46,7 @@ inline std::string get_file_contents(const char* filename)
 		in.close();
 		return (contents);
 	}
+	std::cout << "Failed to read file: " << (BASE_DIR + localDir + filename).c_str() << std::endl;
 	throw(errno);
 }
 
@@ -64,21 +66,22 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	const GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexSource, nullptr);
 	glCompileShader(vertexShader);
-	CompileErrors(vertexShader, "VERTEX");
+	CompileErrors(vertexShader, vertexFile, "VERTEX");
 
 	// Create and compile fragment shader
 	// This controls how the shape is colored
 	const GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
 	glCompileShader(fragmentShader);
-	CompileErrors(fragmentShader, "FRAGMENT");
+	CompileErrors(fragmentShader, fragmentFile, "FRAGMENT");
 
 	// Create a shader program wrapping the two shaders together
 	ID = glCreateProgram();
 	glAttachShader(ID, vertexShader);
 	glAttachShader(ID, fragmentShader);
 	glLinkProgram(ID);
-	CompileErrors(ID, "PROGRAM");
+	// TODO: This is pretty horrific
+	CompileErrors(ID, (std::string(vertexFile) + std::string(", ").append(fragmentFile)).c_str(), "PROGRAM");
 
 	// Clean up
 	glDeleteShader(vertexShader);
@@ -110,7 +113,7 @@ inline GLuint Shader::GetUniformBlockIndex(const char* name) const
 	return glGetUniformBlockIndex(ID, name);
 }
 
-void Shader::CompileErrors(const unsigned int shader, const char* type)
+void Shader::CompileErrors(const unsigned int shader, const char* name, const char* type)
 {
 	GLint hasCompiled;
 	char infolog[1024];
@@ -120,16 +123,16 @@ void Shader::CompileErrors(const unsigned int shader, const char* type)
 		if (hasCompiled == GL_FALSE)
 		{
 			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
-			std::cerr << "SHADER_COMPILATION_ERROR for: " << type << "\n" << infolog << std::endl;
+			std::cerr << "SHADER_COMPILATION_ERROR for: " << type << " using " << name <<"\n" << infolog << std::endl;
 		}
 	}
 	else
 	{
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
+		glGetProgramiv(shader, GL_LINK_STATUS, &hasCompiled);
 		if (hasCompiled == GL_FALSE)
 		{
-			glGetShaderInfoLog(shader, 1024, nullptr, infolog);
-			std::cerr << "SHADER_LINKING_ERROR for: " << type << "\n" << infolog << std::endl;
+			glGetProgramInfoLog(shader, 1024, nullptr, infolog);
+			std::cerr << "SHADER_LINKING_ERROR for: " << type << " using " << name  << "\n" << infolog << std::endl;
 		}
 	}
 }

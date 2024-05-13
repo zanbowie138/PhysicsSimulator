@@ -31,8 +31,8 @@ void RenderSystem::Update()
 
 		auto entitySignature = ecsController.GetEntitySignature(entity);
 
-		glUniformMatrix4fv(glGetUniformLocation(renderInfo.shader_ID, "model"), 1, GL_FALSE, value_ptr(transform.modelMat));
-		glUniform3fv(glGetUniformLocation(renderInfo.shader_ID, "color"), 1, value_ptr(renderInfo.color));
+		glUniformMatrix4fv(glGetUniformLocation(renderInfo.shader_ID, "model"), 1, GL_FALSE, glm::value_ptr(transform.modelMat));
+		glUniform3fv(glGetUniformLocation(renderInfo.shader_ID, "color"), 1, glm::value_ptr(renderInfo.color));
 
 		// Test if entity has a texture
 		if (entitySignature.test(tex))
