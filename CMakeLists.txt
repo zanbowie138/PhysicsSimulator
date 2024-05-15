@@ -11,25 +11,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(PhysicsEngine)
 
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-set(DEPENDENCIES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies)
+# Defines the BASE_DIR macro for the project as the root directory
 add_definitions(-DBASE_DIR="${CMAKE_SOURCE_DIR}")
 
+# Add the core library
+add_subdirectory(${CMAKE_SOURCE_DIR}/core)
 
-add_subdirectory(${DEPENDENCIES_DIR}/glfw-3.4)
+add_executable(${PROJECT_NAME} src/Main.cpp)
 
-include_directories(${DEPENDENCIES_DIR}/include)
-
-file(GLOB_RECURSE SRC_FILES "src/*.cpp")
-
-find_package(glad CONFIG REQUIRED)
-
-add_executable(${PROJECT_NAME} ${SRC_FILES})
-
-target_link_libraries(${PROJECT_NAME} PRIVATE
-        glfw
-        glad::glad
-)
+target_include_directories(${PROJECT_NAME} PUBLIC
+        ${CMAKE_SOURCE_DIR}/core/src
+        ${CMAKE_SOURCE_DIR}/core/dependencies/include)
+target_link_libraries(${PROJECT_NAME} PUBLIC CoreEngine)
