@@ -10,16 +10,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(PhysicsEngine)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 # Defines the BASE_DIR macro for the project as the root directory
 add_definitions(-DBASE_DIR="${CMAKE_SOURCE_DIR}")
 
 # Add the core library
-add_subdirectory(${CMAKE_SOURCE_DIR}/core)
-
-add_executable(${PROJECT_NAME} src/Main.cpp)
-
-target_include_directories(${PROJECT_NAME} PUBLIC
-        ${CMAKE_SOURCE_DIR}/core/src
-        ${CMAKE_SOURCE_DIR}/core/dependencies/include)
-target_link_libraries(${PROJECT_NAME} PUBLIC CoreEngine)
+add_subdirectory(src/core)
+add_subdirectory(src/app)
