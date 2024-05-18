@@ -9,6 +9,8 @@
 #include "../renderables/Mesh.h"
 #include "../renderables/Model.h"
 
+#include "../utils/Logger.h"
+
 #define GRAVITY -9.81
 
 // http://graphics.stanford.edu/papers/rigid_bodies-sig03/
@@ -54,6 +56,7 @@ private:
 inline PhysicsSystem::PhysicsSystem()
 {
     tree = Physics::DynamicBBTree{ 1 };
+    LOG(logger, LOG_INFO) << "PhysicsSystem initialized.\n";
 }
 
 inline void PhysicsSystem::AddRigidbody(Mesh& object)
@@ -63,6 +66,7 @@ inline void PhysicsSystem::AddRigidbody(Mesh& object)
 
 	world.AddComponent(object.mEntityID, newRb);
 	AddToTree(object);
+    LOG(logger, LOG_INFO) << "Rigidbody added to Mesh object.\n";
 }
 
 inline void PhysicsSystem::AddRigidbody(Model& object)
@@ -72,31 +76,36 @@ inline void PhysicsSystem::AddRigidbody(Model& object)
 
 	world.AddComponent(object.mEntityID, newRb);
 	AddToTree(object);
+    LOG(logger, LOG_INFO) << "Rigidbody added to Model object.\n";
 }
 
 inline void PhysicsSystem::AddToTree(Mesh& object)
 {
 	tree.InsertEntity(object.mEntityID, object.CalcBoundingBox());
+    LOG(logger, LOG_INFO) << "Mesh object added to DynamicBBTree.\n";
 }
 
 inline void PhysicsSystem::AddToTree(Model& object)
 {
 	tree.InsertEntity(object.mEntityID, object.CalcBoundingBox());
+    LOG(logger, LOG_INFO) << "Model object added to DynamicBBTree.\n";
 }
 
 inline void PhysicsSystem::Update(float dt)
 {
 	Integrate(dt);
+    LOG(logger, LOG_INFO) << "PhysicsSystem updated with dt: " << dt << ".\n";
 }
 
 inline void PhysicsSystem::Clean()
 {
-
+    LOG(logger, LOG_INFO) << "PhysicsSystem cleaned.\n";
 }
 
 inline void PhysicsSystem::ResolveCollisions()
 {
 	const auto broadCollisions = tree.ComputeCollisionPairs();
+    LOG(logger, LOG_INFO) << "Collisions resolved.\n";
 }
 
 inline void PhysicsSystem::Integrate(float dt)
@@ -119,5 +128,6 @@ inline void PhysicsSystem::Integrate(float dt)
 		auto& transform = world.GetComponent<Components::Transform>(entity);
 		transform.worldPos = rb.position;
 		tree.UpdateEntity(entity, rb.position - posOld);
+        LOG(logger, LOG_INFO) << "Rigidbody integrated for entity: " << entity << ".\n";
 	}
 }

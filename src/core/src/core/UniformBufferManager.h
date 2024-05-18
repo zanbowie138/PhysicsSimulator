@@ -1,6 +1,10 @@
 #pragma once
 #include "GlobalTypes.h"
 #include "../renderer/Camera.h"
+#include "../utils/Logger.h"
+
+extern Utils::Logger logger;
+
 namespace Core {
     // Global Uniforms
     struct UniformBlock
@@ -35,16 +39,19 @@ namespace Core {
     inline UniformBufferManager::UniformBufferManager()
     {
         glGenBuffers(1, &ID);
+        LOG(logger, LOG_INFO) << "UniformBufferManager buffer generated.\n";
     }
 
     inline void UniformBufferManager::BindBuffer()
     {
         glBindBuffer(GL_UNIFORM_BUFFER, ID);
+        LOG(logger, LOG_INFO) << "UniformBufferManager buffer bound.\n";
     }
 
     inline void UniformBufferManager::UnbindBuffer()
     {
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        LOG(logger, LOG_INFO) << "UniformBufferManager buffer unbound.\n";
     }
     
     inline void UniformBufferManager::AllocateBuffer()
@@ -52,6 +59,7 @@ namespace Core {
         BindBuffer();
         glBufferData(GL_UNIFORM_BUFFER, 112, nullptr, GL_DYNAMIC_DRAW);
         UnbindBuffer();
+        LOG(logger, LOG_INFO) << "UniformBufferManager buffer allocated.\n";
     }
 
     inline void UniformBufferManager::DefineRanges()
@@ -60,6 +68,7 @@ namespace Core {
         BindBuffer();
         glBindBufferRange(GL_UNIFORM_BUFFER, 0, ID, 0, sizeof(glm::mat4));	
         glBindBufferRange(GL_UNIFORM_BUFFER, 1, ID, 64, 48);	
+        LOG(logger, LOG_INFO) << "UniformBufferManager buffer ranges defined.\n";
     }
 
     inline void UniformBufferManager::BindShader(const Shader& shader)
@@ -69,6 +78,7 @@ namespace Core {
             glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Camera"), 0);
         if (shader.mUniforms.test((static_cast<std::size_t>(UniformBlockConfig::LIGHTING))))
             glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Lighting"), 1);
+        LOG(logger, LOG_INFO) << "UniformBufferManager shader bound.\n";
     }
 
     inline void UniformBufferManager::UpdateData(const Camera& cam, const glm::vec3& lightPos)
@@ -84,11 +94,13 @@ namespace Core {
         memcpy(ub_char, &ub, sizeof(ub));
 
         glBufferData(GL_UNIFORM_BUFFER, sizeof(ub), ub_char, GL_DYNAMIC_DRAW);
+        LOG(logger, LOG_INFO) << "UniformBufferManager data updated.\n";
     }
 
     // Deletes the UBO
     inline void UniformBufferManager::Clean()
     {
         glDeleteBuffers(1, &ID);
+        LOG(logger, LOG_INFO) << "UniformBufferManager cleaned.\n";
     }
 };

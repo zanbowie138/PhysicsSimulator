@@ -7,6 +7,9 @@
 #include <bitset>
 
 #include "GlobalTypes.h"
+#include "../utils/Logger.h"
+
+extern Utils::Logger logger;
 
 namespace Core {
 	class WindowManager
@@ -46,6 +49,8 @@ namespace Core {
 
 	inline WindowManager::WindowManager(const char* windowTitle, unsigned windowWidth, unsigned windowHeight, bool maximized = false)
 	{
+		LOG(logger, LOG_INFO) << "Initializing GLFW for WindowManager.";
+
 		// Initialize GLFW
 		glfwInit();
 
@@ -110,6 +115,8 @@ namespace Core {
 		glClearColor(0.00f, 0.00f, 0.00f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glfwSwapBuffers(mWindow);
+
+		LOG(logger, LOG_INFO) << "GLFW initialized and window created for WindowManager.";
 	}
 
 	inline const InputBitset& WindowManager::GetInputs() const
@@ -135,7 +142,7 @@ namespace Core {
 		// Ensures that the window is not minimized
 		if (width && height)
 		{
-			std::cout << "Window resized to width: " << screenWidth << " and height: " << screenHeight << std::endl;
+			LOG(logger, LOG_INFO) << "Window resized to width: " << screenWidth << " and height: " << screenHeight << ".";
 			// Update viewport
 			glViewport(0, 0, screenWidth, screenHeight);
 
@@ -205,6 +212,8 @@ namespace Core {
 
 	inline void WindowManager::Shutdown() const
 	{
+		LOG(logger, LOG_INFO) << "Shutting down WindowManager and terminating GLFW.";
+
 		// Delete window
 		glfwDestroyWindow(mWindow);
 

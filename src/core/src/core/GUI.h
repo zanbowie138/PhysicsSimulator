@@ -9,6 +9,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "utils/Logger.h"
+
+extern Utils::Logger logger;
+
 class Changed
 {
 	public:
@@ -72,6 +76,7 @@ inline GUI::GUI(GLFWwindow* window): mConfigInfo()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 	io.FontGlobalScale = 2.0f;
+	LOG(logger, LOG_INFO) << "GUI initialized.\n";
 }
 
 inline bool GUI::MouseOver()
@@ -94,12 +99,14 @@ inline void GUI::NewFrame()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	LOG(logger, LOG_INFO) << "GUI new frame started.\n";
 }
 
 inline void GUI::StartWindow(const char* windowName)
 {
 	bool windowInitialized = ImGui::Begin(windowName);
 	assert(windowInitialized && "Gui window did not start corrently...");
+	LOG(logger, LOG_INFO) << "GUI window started: " << windowName << ".\n";
 }
 
 inline void GUI::Button(const char* text, std::function<void()> func)
@@ -107,6 +114,7 @@ inline void GUI::Button(const char* text, std::function<void()> func)
 	if (ImGui::Button(text))
 	{
 		func();
+		LOG(logger, LOG_INFO) << "GUI button clicked: " << text << ".\n";
 	}
 }
 
@@ -124,12 +132,14 @@ inline void GUI::ShowConfigWindow()
 		Checkbox("Show only leaf nodes", &mConfigInfo.showOnlyStaticLeaf);
 	}
 	EndWindow();
+	LOG(logger, LOG_INFO) << "GUI config window displayed.\n";
 }
 
 inline void GUI::Render()
 {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	LOG(logger, LOG_INFO) << "GUI rendered.\n";
 }
 
 inline void GUI::Clean()
@@ -137,4 +147,5 @@ inline void GUI::Clean()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+	LOG(logger, LOG_INFO) << "GUI cleaned up.\n";
 }

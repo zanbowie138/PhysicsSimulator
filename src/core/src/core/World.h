@@ -27,11 +27,13 @@ public:
 	// Entity methods
 	Entity CreateEntity() const
 	{
+		LOG(logger, LOG_INFO) << "Creating new entity.\n";
 		return mEntityManager->CreateEntity();
 	}
 
 	void DestroyEntity(Entity entity) const
 	{
+		LOG(logger, LOG_INFO) << "Destroying entity: " << entity << ".\n";
 		mEntityManager->DestroyEntity(entity);
 		mComponentManager->EntityDestroyed(entity);
 		mSystemManager->EntityDestroyed(entity);
@@ -41,12 +43,14 @@ public:
 	template<typename T>
 	void RegisterComponent() const
 	{
+		LOG(logger, LOG_INFO) << "Registering component.\n";
 		mComponentManager->RegisterComponent<T>();
 	}
 
 	template<typename T>
 	void AddComponent(Entity entity, T component)
 	{
+		LOG(logger, LOG_INFO) << "Adding component to entity: " << entity << ".\n";
 		mComponentManager->AddComponent<T>(entity, component);
 
 		auto signature = mEntityManager->GetSignature(entity);
@@ -59,6 +63,7 @@ public:
 	template<typename T>
 	void RemoveComponent(Entity entity) const
 	{
+		LOG(logger, LOG_INFO) << "Removing component from entity: " << entity << ".\n";
 		mComponentManager->RemoveComponent<T>(entity);
 
 		auto signature = mEntityManager->GetSignature(entity);
@@ -90,12 +95,14 @@ public:
 	template<typename T>
 	std::shared_ptr<T> RegisterSystem()
 	{
+		LOG(logger, LOG_INFO) << "Registering system.\n";
 		return mSystemManager->RegisterSystem<T>();
 	}
 
 	template<typename T>
 	void SetSystemSignature(Signature signature) const
 	{
+		LOG(logger, LOG_INFO) << "Setting system signature.\n";
 		mSystemManager->SetSignature<T>(signature);
 	}
 
