@@ -3,9 +3,9 @@
 #include "../core/GlobalTypes.h"
 #include "../components/Components.h"
 #include "../renderer/VAO.h"
-#include "../core/ECS/ECSController.h"
+#include "../core/World.h"
 
-extern ECSController ecsController;
+extern World world;
 
 // This class serves as a template to initialize OpenGL data and ECS.
 class Renderable
@@ -40,15 +40,15 @@ public:
 inline void Renderable::AddToECS()
 {
 	// Initialize entity
-	mEntityID = ecsController.CreateEntity();
+	mEntityID = world.CreateEntity();
 
 	// Add components
-	ecsController.AddComponent(mEntityID, transform);
-	ecsController.AddComponent(mEntityID, Components::RenderInfo{ primitiveType, mVAO.ID, ShaderID, GetSize(), mColor});
+	world.AddComponent(mEntityID, transform);
+	world.AddComponent(mEntityID, Components::RenderInfo{ primitiveType, mVAO.ID, ShaderID, GetSize(), mColor});
 }
 
 inline void Renderable::UpdateECSTransform() const
 {
-	ecsController.GetComponent<Components::Transform>(mEntityID) = transform;
+	world.GetComponent<Components::Transform>(mEntityID) = transform;
 }
 

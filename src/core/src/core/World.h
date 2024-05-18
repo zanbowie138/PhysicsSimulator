@@ -1,17 +1,27 @@
 #pragma once
-#include "ComponentManager.h"
-#include "SystemManager.h"
+#include <utils/Logger.h>
 
+#include "core/ECS/ComponentManager.h"
+#include "core/ECS/SystemManager.h"
 
-class ECSController
+class World
 {
+	std::unique_ptr<ComponentManager> mComponentManager;
+	std::unique_ptr<EntityManager> mEntityManager;
+	std::unique_ptr<SystemManager> mSystemManager;
+
 public:
-	void Init()
+	Utils::Logger logger;
+
+	World(const std::string& loggingFilePath):
+	logger(loggingFilePath, true)
 	{
 		// Create pointers to each manager
 		mComponentManager = std::make_unique<ComponentManager>();
 		mEntityManager = std::make_unique<EntityManager>();
 		mSystemManager = std::make_unique<SystemManager>();
+
+		LOG(logger, LOG_INFO) << "World created.\n";
 	}
 
 	// Entity methods
@@ -23,12 +33,9 @@ public:
 	void DestroyEntity(Entity entity) const
 	{
 		mEntityManager->DestroyEntity(entity);
-
 		mComponentManager->EntityDestroyed(entity);
-
 		mSystemManager->EntityDestroyed(entity);
 	}
-
 
 	// Component methods
 	template<typename T>
@@ -96,9 +103,4 @@ public:
 	{
 		mSystemManager->CleanSystems();
 	}
-
-private:
-	std::unique_ptr<ComponentManager> mComponentManager;
-	std::unique_ptr<EntityManager> mEntityManager;
-	std::unique_ptr<SystemManager> mSystemManager;
 };

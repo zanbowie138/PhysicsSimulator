@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "../core/GlobalTypes.h"
+#include "core/GlobalTypes.h"
 
 namespace Utils
 {

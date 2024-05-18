@@ -1,6 +1,6 @@
 ﻿#include "RenderSystem.h"
 
-extern ECSController ecsController;
+extern World world;
 
 void RenderSystem::PreUpdate() const
 {
@@ -12,15 +12,15 @@ void RenderSystem::Update() const
 {
 	assert(mWindow && "Window not set.");
 
-	auto tex = ecsController.GetComponentType<Components::TextureInfo>();
+	auto tex = world.GetComponentType<Components::TextureInfo>();
 
 	for (const auto& entity : mEntities)
 	{
 
-		const auto& renderInfo = ecsController.GetComponent<Components::RenderInfo>(entity);
+		const auto& renderInfo = world.GetComponent<Components::RenderInfo>(entity);
 
 		// Update transform
-		auto& transform = ecsController.GetComponent<Components::Transform>(entity);
+		auto& transform = world.GetComponent<Components::Transform>(entity);
 		transform.CalculateModelMat();
 
 		// Bind vertex array
@@ -29,7 +29,7 @@ void RenderSystem::Update() const
 		// Bind shader
 		glUseProgram(renderInfo.shader_ID);
 
-		auto entitySignature = ecsController.GetEntitySignature(entity);
+		auto entitySignature = world.GetEntitySignature(entity);
 
 		glUniformMatrix4fv(glGetUniformLocation(renderInfo.shader_ID, "model"), 1, GL_FALSE, glm::value_ptr(transform.modelMat));
 		glUniform3fv(glGetUniformLocation(renderInfo.shader_ID, "color"), 1, glm::value_ptr(renderInfo.color));
@@ -37,7 +37,7 @@ void RenderSystem::Update() const
 		// Test if entity has a texture
 		if (entitySignature.test(tex))
 		{
-			const auto& [diffuse_ID, specular_ID] = ecsController.GetComponent<Components::TextureInfo>(entity);
+			const auto& [diffuse_ID, specular_ID] = world.GetComponent<Components::TextureInfo>(entity);
 			
 			// textures
 			// Set texture uniform value

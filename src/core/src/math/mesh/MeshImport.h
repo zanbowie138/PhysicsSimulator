@@ -6,7 +6,7 @@
 #include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/hash.hpp>
-#include "../core/GlobalTypes.h"
+#include "core/GlobalTypes.h"
 
 namespace Utils
 {

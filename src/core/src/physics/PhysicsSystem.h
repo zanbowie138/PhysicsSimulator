@@ -4,7 +4,7 @@
 
 #include "DynamicTree.h"
 
-#include "../core/ECS/ECSController.h"
+#include "../core/World.h"
 
 #include "../renderables/Mesh.h"
 #include "../renderables/Model.h"
@@ -61,7 +61,7 @@ inline void PhysicsSystem::AddRigidbody(Mesh& object)
 	Components::Rigidbody newRb{};
 	newRb.position = object.transform.worldPos;
 
-	ecsController.AddComponent(object.mEntityID, newRb);
+	world.AddComponent(object.mEntityID, newRb);
 	AddToTree(object);
 }
 
@@ -70,7 +70,7 @@ inline void PhysicsSystem::AddRigidbody(Model& object)
 	Components::Rigidbody newRb{};
 	newRb.position = object.transform.worldPos;
 
-	ecsController.AddComponent(object.mEntityID, newRb);
+	world.AddComponent(object.mEntityID, newRb);
 	AddToTree(object);
 }
 
@@ -103,7 +103,7 @@ inline void PhysicsSystem::Integrate(float dt)
 {
 	for (const auto entity : mEntities)
 	{
-		auto& rb = ecsController.GetComponent<Components::Rigidbody>(entity);
+		auto& rb = world.GetComponent<Components::Rigidbody>(entity);
 
 		glm::vec3 posOld = rb.position;
 		rb.position += rb.linearVelocity * dt;
@@ -116,7 +116,7 @@ inline void PhysicsSystem::Integrate(float dt)
 
 		rb.ClearAccumulator();
 
-		auto& transform = ecsController.GetComponent<Components::Transform>(entity);
+		auto& transform = world.GetComponent<Components::Transform>(entity);
 		transform.worldPos = rb.position;
 		tree.UpdateEntity(entity, rb.position - posOld);
 	}

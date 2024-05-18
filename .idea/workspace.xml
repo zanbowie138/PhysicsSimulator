@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="ANALYZE_INJECTED_CODE" value="false" />
+    <option name="SCOPE_TYPE" value="3" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
@@ -21,11 +25,16 @@
   <component name="CMakeSettings">
     <configurations>
       <configuration PROFILE_NAME="Debug" ENABLED="true" GENERATION_DIR="bin/Debug" CONFIG_NAME="Debug" />
-      <configuration PROFILE_NAME="Release" ENABLED="true" GENERATION_DIR="bin/Release" CONFIG_NAME="Release" GENERATION_OPTIONS="-DVCPKG_TARGET_TRIPLET=x64-mingw-static" />
+      <configuration PROFILE_NAME="Release" ENABLED="true" GENERATION_DIR="bin/Release" CONFIG_NAME="Release" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8b673701-dd10-4bea-b602-fdce080b26c2" name="Changes" comment="Merge branch 'refactoring' of https://github.com/zanbowie138/PhysicsEngine into refactoring" />
+    <list default="true" id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="tentative logging">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/core/World.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/core/World.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/renderer/EBO.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/renderer/EBO.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/utils/Logger.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/Logger.h" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,151 +43,157 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "zanbowie138"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;zanbowie138&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/zanbowie138/PhysicsEngine.git",
-    "accountId": "45a245ef-4556-47e9-bded-926a81b5571d"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/zanbowie138/PhysicsEngine.git&quot;,
+    &quot;accountId&quot;: &quot;45a245ef-4556-47e9-bded-926a81b5571d&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 8
-}]]></component>
-  <component name="ProjectId" id="2gX7ACrnVWiRXBZR81H2Mf3NUe8" />
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/glfw-3.4/include/GLFW/glfw3.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/glfw-3.4/src/input.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/glfw-3.4/src/x11_init.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/glfw-3.4/src/x11_init.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/imgui/imgui_demo.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/imgui/imgui_demo.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/imgui/imgui_draw.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/imgui/imstb_truetype.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshImport.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshProcessing.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshSimplify.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/SimpleShapes.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/renderables/Lines.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/renderables/Mesh.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/utils/Logger.h" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2024" />
+    <option name="minorVersion" value="1.1" />
+    <option name="productBranch" value="Classic" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2gYK0WoKbQKO4lXnkxxHnR1kEpV" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "CMake Application.PhysicsEngine.executor": "Run",
-    "RunOnceActivity.RadMigrateCodeStyle": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/bin/Release",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "CMakeSettings",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;CMake Application.PhysicsEngine.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/bin/Release&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Alex\Documents\Projects\C++\PhysicsEngine\src\core\src\core" />
+      <recent name="C:\Users\Alex\Documents\Projects\C++\PhysicsEngine\src\core\src\math\mesh" />
+      <recent name="C:\Users\Alex\Documents\Projects\C++\PhysicsEngine\src\core\src\utils" />
+    </key>
+  </component>
+  <component name="RunManager" selected="CMake Application.PhysicsEngine">
+    <configuration name="CoreEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PhysicsEngine" TARGET_NAME="CoreEngine" CONFIG_NAME="Debug">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PhysicsEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PhysicsEngine" TARGET_NAME="PhysicsEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PhysicsEngine" RUN_TARGET_NAME="PhysicsEngine">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="glfw" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PhysicsEngine" TARGET_NAME="glfw" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="uninstall" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PhysicsEngine" TARGET_NAME="uninstall" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="update_mappings" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PhysicsEngine" TARGET_NAME="update_mappings" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.CoreEngine" />
+      <item itemvalue="CMake Application.PhysicsEngine" />
+      <item itemvalue="CMake Application.glfw" />
+      <item itemvalue="CMake Application.uninstall" />
+      <item itemvalue="CMake Application.update_mappings" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="8b673701-dd10-4bea-b602-fdce080b26c2" name="Changes" comment="" />
-      <created>1715559182619</created>
+      <changelist id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="" />
+      <created>1715868848993</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1715559182619</updated>
-      <workItem from="1715559183946" duration="9139000" />
-      <workItem from="1715569995455" duration="4882000" />
-      <workItem from="1715627171816" duration="2480000" />
-      <workItem from="1715791982467" duration="2553000" />
-      <workItem from="1715817521818" duration="8972000" />
-      <workItem from="1715828467509" duration="226000" />
-      <workItem from="1715828703249" duration="3167000" />
-      <workItem from="1715831926138" duration="238000" />
+      <updated>1715868848993</updated>
+      <workItem from="1715868851036" duration="384000" />
+      <workItem from="1715869248397" duration="1470000" />
+      <workItem from="1715870741721" duration="2920000" />
+      <workItem from="1715890463102" duration="186000" />
+      <workItem from="1715960474358" duration="9818000" />
+      <workItem from="1716040858721" duration="26000" />
+      <workItem from="1716040896518" duration="917000" />
+      <workItem from="1716054444691" duration="3574000" />
     </task>
-    <task id="LOCAL-00001" summary="extremely goofy cmake">
+    <task id="LOCAL-00001" summary="tentative logging">
       <option name="closed" value="true" />
-      <created>1715565532884</created>
+      <created>1716055050511</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1715565532884</updated>
+      <updated>1716055050511</updated>
     </task>
-    <task id="LOCAL-00002" summary="automatically full screen">
+    <task id="LOCAL-00002" summary="tentative logging">
       <option name="closed" value="true" />
-      <created>1715570656745</created>
+      <created>1716055219673</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1715570656745</updated>
+      <updated>1716055219673</updated>
     </task>
-    <task id="LOCAL-00003" summary="deleting unnessecary files and code cleanup">
-      <option name="closed" value="true" />
-      <created>1715574214484</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1715574214484</updated>
-    </task>
-    <task id="LOCAL-00004" summary="cmake??">
-      <option name="closed" value="true" />
-      <created>1715792296942</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1715792296942</updated>
-    </task>
-    <task id="LOCAL-00005" summary="fixed cmake errors">
-      <option name="closed" value="true" />
-      <created>1715817578531</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1715817578531</updated>
-    </task>
-    <task id="LOCAL-00006" summary="organization">
-      <option name="closed" value="true" />
-      <created>1715826537131</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1715826537131</updated>
-    </task>
-    <task id="LOCAL-00007" summary="organization">
-      <option name="closed" value="true" />
-      <created>1715827866427</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1715827866427</updated>
-    </task>
-    <task id="LOCAL-00008" summary="Merge remote-tracking branch 'origin/refactoring' into refactoring&#10;&#10;# Conflicts:&#10;#&#9;src/app/Main.cpp&#10;#&#9;src/core/dependencies/imgui/imconfig.h&#10;#&#9;src/core/dependencies/imgui/imgui.cpp&#10;#&#9;src/core/dependencies/imgui/imgui.h&#10;#&#9;src/core/dependencies/imgui/imgui_demo.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_draw.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_impl_glfw.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_impl_glfw.h&#10;#&#9;src/core/dependencies/imgui/imgui_impl_opengl3.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_impl_opengl3.h&#10;#&#9;src/core/dependencies/imgui/imgui_impl_opengl3_loader.h&#10;#&#9;src/core/dependencies/imgui/imgui_internal.h&#10;#&#9;src/core/dependencies/imgui/imgui_tables.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_widgets.cpp&#10;#&#9;src/core/dependencies/imgui/imstb_rectpack.h&#10;#&#9;src/core/dependencies/imgui/imstb_textedit.h&#10;#&#9;src/core/dependencies/imgui/imstb_truetype.h&#10;#&#9;src/core/src/components/Collider.h&#10;#&#9;src/core/src/components/Components.h&#10;#&#9;src/core/src/components/RenderInfo.h&#10;#&#9;src/core/src/components/Rigidbody.h&#10;#&#9;src/core/src/components/TextureInfo.h&#10;#&#9;src/core/src/components/Transform.h&#10;#&#9;src/core/src/core/ECS/ComponentArray.h&#10;#&#9;src/core/src/core/ECS/ComponentManager.h&#10;#&#9;src/core/src/core/ECS/ECSController.h&#10;#&#9;src/core/src/core/ECS/EntityManager.h&#10;#&#9;src/core/src/core/ECS/System.h&#10;#&#9;src/core/src/core/ECS/SystemManager.h&#10;#&#9;src/core/src/core/EventManager.h&#10;#&#9;src/core/src/core/GUI.h&#10;#&#9;src/core/src/core/GlobalTypes.h&#10;#&#9;src/core/src/core/UniformBufferManager.h&#10;#&#9;src/core/src/core/WindowManager.h&#10;#&#9;src/core/src/glad.c&#10;#&#9;src/core/src/physics/BoundingBox.h&#10;#&#9;src/core/src/physics/DynamicTree.h&#10;#&#9;src/core/src/physics/MeshCollider.h&#10;#&#9;src/core/src/physics/PhysicsSystem.h&#10;#&#9;src/core/src/physics/Solver.h&#10;#&#9;src/core/src/physics/Solvers.h&#10;#&#9;src/core/src/physics/StaticTree.h&#10;#&#9;src/core/src/renderables/Lines.h&#10;#&#9;src/core/src/renderables/Mesh.h&#10;#&#9;src/core/src/renderables/Model.h&#10;#&#9;src/core/src/renderables/Points.h&#10;#&#9;src/core/src/renderables/Renderable.h&#10;#&#9;src/core/src/renderer/Camera.h&#10;#&#9;src/core/src/renderer/EBO.h&#10;#&#9;src/core/src/renderer/RenderSystem.cpp&#10;#&#9;src/core/src/renderer/RenderSystem.h&#10;#&#9;src/core/src/renderer/Shader.h&#10;#&#9;src/core/src/renderer/Texture.h&#10;#&#9;src/core/src/renderer/VAO.h&#10;#&#9;src/core/src/renderer/VBO.h&#10;#&#9;src/core/src/stb.cpp&#10;#&#9;src/core/src/utils/MeshImport.h&#10;#&#9;src/core/src/utils/MeshProcessing.h&#10;#&#9;src/core/src/utils/MeshSimplify.h&#10;#&#9;src/core/src/utils/SimpleShapes.h&#10;#&#9;src/core/src/utils/ThreadPool.h&#10;#&#9;src/core/src/utils/Timer.h">
-      <option name="closed" value="true" />
-      <created>1715828964553</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1715828964553</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Merge branch 'refactoring' of https://github.com/zanbowie138/PhysicsEngine into refactoring">
-      <option name="closed" value="true" />
-      <created>1715830148857</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1715830148857</updated>
-    </task>
-    <option name="localTasksCounter" value="10" />
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -190,14 +205,7 @@
     <isAutomaticReloadCMake value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="extremely goofy cmake" />
-    <MESSAGE value="automatically full screen" />
-    <MESSAGE value="deleting unnessecary files and code cleanup" />
-    <MESSAGE value="cmake??" />
-    <MESSAGE value="fixed cmake errors" />
-    <MESSAGE value="organization" />
-    <MESSAGE value="Merge remote-tracking branch 'origin/refactoring' into refactoring&#10;&#10;# Conflicts:&#10;#&#9;src/app/Main.cpp&#10;#&#9;src/core/dependencies/imgui/imconfig.h&#10;#&#9;src/core/dependencies/imgui/imgui.cpp&#10;#&#9;src/core/dependencies/imgui/imgui.h&#10;#&#9;src/core/dependencies/imgui/imgui_demo.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_draw.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_impl_glfw.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_impl_glfw.h&#10;#&#9;src/core/dependencies/imgui/imgui_impl_opengl3.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_impl_opengl3.h&#10;#&#9;src/core/dependencies/imgui/imgui_impl_opengl3_loader.h&#10;#&#9;src/core/dependencies/imgui/imgui_internal.h&#10;#&#9;src/core/dependencies/imgui/imgui_tables.cpp&#10;#&#9;src/core/dependencies/imgui/imgui_widgets.cpp&#10;#&#9;src/core/dependencies/imgui/imstb_rectpack.h&#10;#&#9;src/core/dependencies/imgui/imstb_textedit.h&#10;#&#9;src/core/dependencies/imgui/imstb_truetype.h&#10;#&#9;src/core/src/components/Collider.h&#10;#&#9;src/core/src/components/Components.h&#10;#&#9;src/core/src/components/RenderInfo.h&#10;#&#9;src/core/src/components/Rigidbody.h&#10;#&#9;src/core/src/components/TextureInfo.h&#10;#&#9;src/core/src/components/Transform.h&#10;#&#9;src/core/src/core/ECS/ComponentArray.h&#10;#&#9;src/core/src/core/ECS/ComponentManager.h&#10;#&#9;src/core/src/core/ECS/ECSController.h&#10;#&#9;src/core/src/core/ECS/EntityManager.h&#10;#&#9;src/core/src/core/ECS/System.h&#10;#&#9;src/core/src/core/ECS/SystemManager.h&#10;#&#9;src/core/src/core/EventManager.h&#10;#&#9;src/core/src/core/GUI.h&#10;#&#9;src/core/src/core/GlobalTypes.h&#10;#&#9;src/core/src/core/UniformBufferManager.h&#10;#&#9;src/core/src/core/WindowManager.h&#10;#&#9;src/core/src/glad.c&#10;#&#9;src/core/src/physics/BoundingBox.h&#10;#&#9;src/core/src/physics/DynamicTree.h&#10;#&#9;src/core/src/physics/MeshCollider.h&#10;#&#9;src/core/src/physics/PhysicsSystem.h&#10;#&#9;src/core/src/physics/Solver.h&#10;#&#9;src/core/src/physics/Solvers.h&#10;#&#9;src/core/src/physics/StaticTree.h&#10;#&#9;src/core/src/renderables/Lines.h&#10;#&#9;src/core/src/renderables/Mesh.h&#10;#&#9;src/core/src/renderables/Model.h&#10;#&#9;src/core/src/renderables/Points.h&#10;#&#9;src/core/src/renderables/Renderable.h&#10;#&#9;src/core/src/renderer/Camera.h&#10;#&#9;src/core/src/renderer/EBO.h&#10;#&#9;src/core/src/renderer/RenderSystem.cpp&#10;#&#9;src/core/src/renderer/RenderSystem.h&#10;#&#9;src/core/src/renderer/Shader.h&#10;#&#9;src/core/src/renderer/Texture.h&#10;#&#9;src/core/src/renderer/VAO.h&#10;#&#9;src/core/src/renderer/VBO.h&#10;#&#9;src/core/src/stb.cpp&#10;#&#9;src/core/src/utils/MeshImport.h&#10;#&#9;src/core/src/utils/MeshProcessing.h&#10;#&#9;src/core/src/utils/MeshSimplify.h&#10;#&#9;src/core/src/utils/SimpleShapes.h&#10;#&#9;src/core/src/utils/ThreadPool.h&#10;#&#9;src/core/src/utils/Timer.h" />
-    <MESSAGE value="Merge branch 'refactoring' of https://github.com/zanbowie138/PhysicsEngine into refactoring" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge branch 'refactoring' of https://github.com/zanbowie138/PhysicsEngine into refactoring" />
+    <MESSAGE value="tentative logging" />
+    <option name="LAST_COMMIT_MESSAGE" value="tentative logging" />
   </component>
 </project>

@@ -3,11 +3,12 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include <vector>
+#include <random>
 
 #include "core/GUI.h"
 #include "core/UniformBufferManager.h"
 #include "core/WindowManager.h"
-#include "core/ECS/ECSController.h"
+#include "core/World.h"
 
 #include "components/Components.h"
 
@@ -21,11 +22,12 @@
 #include "renderables/Model.h"
 #include "renderables/Points.h"
 
-#include "utils/MeshSimplify.h"
-#include "utils/SimpleShapes.h"
+#include "math/mesh/MeshSimplify.h"
+#include "math/mesh/SimpleShapes.h"
 #include "utils/Timer.h"
+#include "utils/Logger.h"
 
-ECSController ecsController;
+World world("log.txt");
 
 int main()
 {
@@ -45,37 +47,34 @@ int main()
 	// TODO: Make window resizing and other initialization cleaner
 	windowManager.SetCamera(&cam);
 
-	// Initialize ECS
-	ecsController.Init();
-
 	// Register components
-	ecsController.RegisterComponent<Components::Transform>();
-	ecsController.RegisterComponent<Components::RenderInfo>();
-	ecsController.RegisterComponent<Components::TextureInfo>();
-	ecsController.RegisterComponent<Components::Rigidbody>();
+	world.RegisterComponent<Components::Transform>();
+	world.RegisterComponent<Components::RenderInfo>();
+	world.RegisterComponent<Components::TextureInfo>();
+	world.RegisterComponent<Components::Rigidbody>();
 
 	// Create RenderSystem and add dependencies
-	auto renderSystem = ecsController.RegisterSystem<RenderSystem>();
+	auto renderSystem = world.RegisterSystem<RenderSystem>();
 	renderSystem->SetWindow(windowManager.GetWindow());
 
 	// Create PhysicsSystem
-	auto physicsSystem = ecsController.RegisterSystem<PhysicsSystem>();
+	auto physicsSystem = world.RegisterSystem<PhysicsSystem>();
 	auto& tree = physicsSystem->tree;
 
 	// Set RenderSystem signature
 	{
 		Signature signature;
-		signature.set(ecsController.GetComponentType<Components::Transform>());
-		signature.set(ecsController.GetComponentType<Components::RenderInfo>());
-		ecsController.SetSystemSignature<RenderSystem>(signature);
+		signature.set(world.GetComponentType<Components::Transform>());
+		signature.set(world.GetComponentType<Components::RenderInfo>());
+		world.SetSystemSignature<RenderSystem>(signature);
 	}
 
 	// Set PhysicsSystem signature
 	{
 		Signature signature;
-		signature.set(ecsController.GetComponentType<Components::Transform>());
-		signature.set(ecsController.GetComponentType<Components::Rigidbody>());
-		ecsController.SetSystemSignature<PhysicsSystem>(signature);
+		signature.set(world.GetComponentType<Components::Transform>());
+		signature.set(world.GetComponentType<Components::Rigidbody>());
+		world.SetSystemSignature<PhysicsSystem>(signature);
 	}
 
 	Shader basicShader("basic.vert", "basic.frag");
@@ -102,13 +101,25 @@ int main()
 	light.Scale(0.07f);
 	light.ShaderID = basicShader.ID;
 	light.AddToECS();
-	auto& lightPos = ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos;
+	auto& lightPos = world.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
-	Mesh cube(cubeData);
-	cube.SetPosition(glm::vec3(-1.0f, 1.0f, 1.0f));
-	cube.Scale(0.3f);
-	cube.ShaderID = flatShader.ID;
-	cube.AddToECS();
+
+	// Initialize random number generator
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(-2, 2); // range for random positions
+
+	// Number of cubes to generate
+	int numCubes = 100;
+
+	for (int i = 0; i < numCubes; ++i) {
+		Mesh cube(cubeData);
+		cube.SetPosition(glm::vec3(dis(gen), abs(dis(gen)), dis(gen))); // random position
+		cube.Scale(0.1f);
+		cube.ShaderID = flatShader.ID;
+		cube.AddToECS();
+		physicsSystem->AddToTree(cube);
+	}
 
 	const ModelData sphereData = Utils::UVSphereData(20,20, 1);
 	Model sphere(sphereData);
@@ -126,11 +137,10 @@ int main()
 	bunny.AddToECS();
 
 	physicsSystem->AddToTree(light);
-	physicsSystem->AddToTree(cube);
 	physicsSystem->AddToTree(sphere);
 
 	// Box showing collision between objects
-	Lines collideBox(1000);
+	Lines collideBox(100000);
 	collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
 	collideBox.ShaderID = basicShader.ID;
 	collideBox.AddToECS();
@@ -191,6 +201,8 @@ int main()
 		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 2.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
 		//lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f)) / 3.0f + 1.0f, 0.7f, 0.0f);
 		light.transform.worldPos = lightPos;
+
+		// TODO: Create better position update system than reinserting into tree
 		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
 
 		physicsSystem->Update(dt_mill);
@@ -232,7 +244,7 @@ int main()
 		// Update camera matrix
 		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 		// Update uniform buffer
-		UBO.UpdateData(cam, ecsController.GetComponent<Components::Transform>(light.mEntityID).worldPos);
+		UBO.UpdateData(cam, world.GetComponent<Components::Transform>(light.mEntityID).worldPos);
 
 		std::string fpsString("FPS: " + std::to_string(static_cast<int>(fps)) + "\nMSPF: " + std::to_string(mspf));
 
@@ -252,7 +264,7 @@ int main()
 		renderSystem->PostUpdate();
 	}
 
-	ecsController.Clean();
+	world.Clean();
 	GUI.Clean();
 	// TODO: Add cleaning for OpenGL objects
 

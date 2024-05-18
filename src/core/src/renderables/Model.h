@@ -81,13 +81,13 @@ inline void Model::InitVAO()
 inline void Model::InitECS()
 {
 	// Initialize entity
-	mEntityID = ecsController.CreateEntity();
+	mEntityID = world.CreateEntity();
 
 	// Add components
-	ecsController.AddComponent(mEntityID, transform);
-	ecsController.AddComponent(mEntityID, Components::RenderInfo{ GL_TRIANGLES,mVAO.ID, ShaderID, indices.size(), mColor});
+	world.AddComponent(mEntityID, transform);
+	world.AddComponent(mEntityID, Components::RenderInfo{ GL_TRIANGLES,mVAO.ID, ShaderID, indices.size(), mColor});
 	if (hasTextures)
-		ecsController.AddComponent(mEntityID, Components::TextureInfo{ textures[0].ID, textures[1].ID });
+		world.AddComponent(mEntityID, Components::TextureInfo{ textures[0].ID, textures[1].ID });
 }
 
 inline size_t Model::GetSize()

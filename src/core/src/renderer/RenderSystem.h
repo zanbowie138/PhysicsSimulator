@@ -9,7 +9,7 @@
 #include "../components/Transform.h"
 #include "../components/TextureInfo.h"
 
-#include "../core/ECS/ECSController.h"
+#include "../core/World.h"
 #include "../core/ECS/System.h"
 #include "../core/ECS/ComponentManager.h"
 

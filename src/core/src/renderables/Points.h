@@ -92,7 +92,7 @@ inline void Points::Clear()
 
 inline void Points::UpdateSize()
 {
-	ecsController.GetComponent<Components::RenderInfo>(mEntityID).size = GetSize();
+	world.GetComponent<Components::RenderInfo>(mEntityID).size = GetSize();
 }
 
 inline void Points::InitVAO()

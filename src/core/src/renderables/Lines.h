@@ -7,7 +7,9 @@
 #include "../renderer/VBO.h"
 #include "../renderer/EBO.h"
 #include "../physics/BoundingBox.h"
-#include "../utils/MeshProcessing.h"
+#include "../math/mesh/MeshProcessing.h"
+
+extern World world;
 
 class Lines: public Renderable
 {
@@ -24,8 +26,8 @@ public:
 	void PushBoundingBox(const BoundingBox& box);
 	void PushBoundingBoxes(const std::vector<BoundingBox>& boxes);
 
-	void PushMeshOutline(const ::MeshData& data, const glm::mat4& modelMat);
-	void PushModelOutline(const ::ModelData& data, const glm::mat4& modelMat);
+	void PushMeshOutline(const::MeshData& data, const glm::mat4& modelMat);
+	void PushModelOutline(const::ModelData& data, const glm::mat4& modelMat);
 
 	void PushData(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& indices);
 	void PushShapeData(const ShapeData& shapeData);
@@ -48,6 +50,7 @@ inline void Lines::PushData(const std::vector<glm::vec3>& vertices, const std::v
 {
 	mVAO.Bind();
 
+	// world.logger.Info("Lines", "Pushing " + std::string(vertices.size()) + "vertices and " + indices.size() + " indices.");
 	VBO.Bind();
 	VBO.PushData(vertices);
 
@@ -116,7 +119,7 @@ inline void Lines::Clear()
 
 inline void Lines::UpdateSize()
 {
-	ecsController.GetComponent<Components::RenderInfo>(mEntityID).size = GetSize();
+	world.GetComponent<Components::RenderInfo>(mEntityID).size = GetSize();
 }
 
 inline void Lines::InitVAO()

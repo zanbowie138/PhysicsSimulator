@@ -8,7 +8,7 @@
 #include "../renderer/VBO.h"
 #include "../renderer/VAO.h"
 
-#include "../utils/MeshImport.h"
+#include "../math/mesh/MeshImport.h"
 #include "../physics/StaticTree.h"
 #include "../utils/Timer.h"
 

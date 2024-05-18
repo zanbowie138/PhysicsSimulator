@@ -8,7 +8,7 @@
 #include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/hash.hpp>
-#include "../core/GlobalTypes.h"
+#include "core/GlobalTypes.h"
 #include "MeshProcessing.h"
 
 // https://users.csc.calpoly.edu/~zwood/teaching/csc570/final06/jseeba/
