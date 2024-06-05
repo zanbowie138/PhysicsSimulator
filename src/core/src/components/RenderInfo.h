@@ -10,5 +10,6 @@ namespace Components
 		GLuint shader_ID;
 		size_t size;
 		glm::vec3 color;
+		bool enabled = true;
 	};
 }

@@ -168,6 +168,7 @@ int main()
 	bunny.transform.CalculateModelMat();
 	bunny.InitTree();
 	rootRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, true));
+	parentRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, false));
 
 
 	boundsBox.Clear();
@@ -211,9 +212,9 @@ int main()
 		physicsSystem->Update(dt_mill);
 
 		boxRenderer.Clear();
-		if (GUI.mConfigInfo.showDynamicBoxes)
+		if (GUI.config.showDynamicBoxes)
 		{
-			boxRenderer.PushBoundingBoxes(tree.GetAllBoxes(GUI.mConfigInfo.showOnlyDynamicLeaf));
+			boxRenderer.PushBoundingBoxes(tree.GetAllBoxes(GUI.config.showOnlyDynamicLeaf));
 		}
 
 		collideBox.Clear();
@@ -221,6 +222,12 @@ int main()
 		for (const auto entity : collidedEntities)
 		{
 			collideBox.PushBoundingBox(tree.GetBoundingBox(entity));
+		}
+
+		if (GUI.config.showStaticBoxes.changed || GUI.config.showOnlyStaticLeaf.changed)
+		{
+			rootRenderer.SetRenderingEnabled(GUI.config.showStaticBoxes.value && GUI.config.showOnlyStaticLeaf.value);
+			parentRenderer.SetRenderingEnabled(GUI.config.showStaticBoxes.value && !GUI.config.showOnlyStaticLeaf.value);
 		}
 
 		currentTime = glfwGetTime();

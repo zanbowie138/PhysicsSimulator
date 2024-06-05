@@ -16,8 +16,9 @@ void RenderSystem::Update() const
 
 	for (const auto& entity : mEntities)
 	{
-
 		const auto& renderInfo = world.GetComponent<Components::RenderInfo>(entity);
+
+		if (!renderInfo.enabled) { continue; }
 
 		// Update transform
 		auto& transform = world.GetComponent<Components::Transform>(entity);

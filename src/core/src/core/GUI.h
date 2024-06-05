@@ -12,13 +12,13 @@
 class Changed
 {
 	public:
-	bool oldVal, changed = false;
+	bool checkboxVal, value, changed;
 
 	Changed() = default;
-	inline void Update(bool newValue)
+	void Update()
 	{
-		changed = oldVal != newValue;
-		oldVal = newValue;
+		changed = value != checkboxVal;
+		value = checkboxVal;
 	}
 };
 
@@ -31,9 +31,9 @@ public:
 	{
 		bool showDynamicBoxes;
 		bool showOnlyDynamicLeaf;
-		bool showStaticBoxes;
-		bool showOnlyStaticLeaf;
-	} mConfigInfo;
+		Changed showStaticBoxes;
+		Changed showOnlyStaticLeaf;
+	} config;
 
 
 	static bool MouseOver();
@@ -59,7 +59,7 @@ public:
 	static void Clean();
 };
 
-inline GUI::GUI(GLFWwindow* window): mConfigInfo()
+inline GUI::GUI(GLFWwindow* window): config()
 {
 	// Setup ImGui context
 	IMGUI_CHECKVERSION();
@@ -115,14 +115,17 @@ inline void GUI::ShowConfigWindow()
 	StartWindow("Config");
 	if (ImGui::CollapsingHeader("Dynamic BVH Tree"))
 	{
-		Checkbox("Show Bounding Boxes", &mConfigInfo.showDynamicBoxes);
-		Checkbox("Show only leaf nodes", &mConfigInfo.showOnlyDynamicLeaf);
+		ImGui::Checkbox("Show Bounding Boxes ##Dynamic", &config.showDynamicBoxes);
+		ImGui::Checkbox("Show only leaf nodes ##Dynamic", &config.showOnlyDynamicLeaf);
 	}
-	if (ImGui::CollapsingHeader("Static BVH Tree"))
+	if (ImGui::CollapsingHeader("Static Bunny BVH Tree"))
 	{
-		Checkbox("Show Bounding Boxes", &mConfigInfo.showStaticBoxes);
-		Checkbox("Show only leaf nodes", &mConfigInfo.showOnlyStaticLeaf);
+		ImGui::Checkbox("Show Bounding Boxes ##Static", &config.showStaticBoxes.checkboxVal);
+		ImGui::Checkbox("Show only leaf nodes ##Static", &config.showOnlyStaticLeaf.checkboxVal);
 	}
+
+	config.showStaticBoxes.Update();
+	config.showOnlyStaticLeaf.Update();
 	EndWindow();
 }
 
