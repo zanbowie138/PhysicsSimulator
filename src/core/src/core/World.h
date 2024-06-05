@@ -11,17 +11,14 @@ class World
 	std::unique_ptr<SystemManager> mSystemManager;
 
 public:
-	Utils::Logger logger;
-
-	World(const std::string& loggingFilePath):
-	logger(loggingFilePath, true)
+	World(const std::string& loggingFilePath)
 	{
 		// Create pointers to each manager
 		mComponentManager = std::make_unique<ComponentManager>();
 		mEntityManager = std::make_unique<EntityManager>();
 		mSystemManager = std::make_unique<SystemManager>();
 
-		LOG(logger, LOG_INFO) << "World created.\n";
+		LOG(LOG_INFO) << "World created.\n";
 	}
 
 	// Entity methods

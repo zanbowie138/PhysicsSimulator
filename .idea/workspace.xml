@@ -31,7 +31,10 @@
   <component name="ChangeListManager">
     <list default="true" id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="tentative logging">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/Main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/src/core/World.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/core/World.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/renderables/Mesh.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/renderables/Mesh.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/renderables/Model.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/renderables/Model.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/src/renderer/EBO.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/renderer/EBO.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/src/utils/Logger.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/Logger.h" afterDir="false" />
     </list>
@@ -60,20 +63,11 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/glfw-3.4/include/GLFW/glfw3.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/glfw-3.4/src/input.c" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/glfw-3.4/src/x11_init.c" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/glfw-3.4/src/x11_init.c" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/imgui/imgui_demo.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/imgui/imgui_demo.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/imgui/imgui_draw.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/dependencies/imgui/imstb_truetype.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/unique_ptr.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshImport.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshProcessing.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshSimplify.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/SimpleShapes.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/renderables/Lines.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/renderables/Mesh.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/Logger.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProblemsViewState">
@@ -176,6 +170,9 @@
       <workItem from="1716040858721" duration="26000" />
       <workItem from="1716040896518" duration="917000" />
       <workItem from="1716054444691" duration="3574000" />
+      <workItem from="1716400172437" duration="1026000" />
+      <workItem from="1716736212928" duration="14000" />
+      <workItem from="1717617448020" duration="1087000" />
     </task>
     <task id="LOCAL-00001" summary="tentative logging">
       <option name="closed" value="true" />

@@ -93,7 +93,7 @@ int main()
 	Model floor(planeVerts, planeInds, tex);
 	floor.ShaderID = defaultShader.ID;
 	floor.Scale(10.0f);
-	floor.InitECS();
+	floor.AddToECS();
 
 	const auto cubeData = Utils::CubeData(true);
 	Mesh light(cubeData);
@@ -110,16 +110,16 @@ int main()
 	std::uniform_real_distribution<> dis(-2, 2); // range for random positions
 
 	// Number of cubes to generate
-	int numCubes = 100;
-
-	for (int i = 0; i < numCubes; ++i) {
-		Mesh cube(cubeData);
-		cube.SetPosition(glm::vec3(dis(gen), abs(dis(gen)), dis(gen))); // random position
-		cube.Scale(0.1f);
-		cube.ShaderID = flatShader.ID;
-		cube.AddToECS();
-		physicsSystem->AddToTree(cube);
-	}
+	// int numCubes = 100;
+	//
+	// for (int i = 0; i < numCubes; ++i) {
+	// 	Mesh cube(cubeData);
+	// 	cube.SetPosition(glm::vec3(dis(gen), abs(dis(gen)), dis(gen))); // random position
+	// 	cube.Scale(0.1f);
+	// 	cube.ShaderID = flatShader.ID;
+	// 	cube.AddToECS();
+	// 	physicsSystem->AddToTree(cube);
+	// }
 
 	const ModelData sphereData = Utils::UVSphereData(20,20, 1);
 	Model sphere(sphereData);
@@ -127,7 +127,7 @@ int main()
 	sphere.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
 	sphere.ShaderID = flatShader.ID;
 	sphere.SetColor(glm::vec3(0.5f, 0.3f, 1.0f));
-	sphere.InitECS();
+	sphere.AddToECS();
 
 	Mesh bunny("bunny.stl", true);
 	bunny.Scale(0.01f);
@@ -135,6 +135,7 @@ int main()
 	bunny.ShaderID = flatShader.ID;
 	bunny.transform.SetRotationEuler(glm::vec3(-90.0f, 0.0f, 0.0f));
 	bunny.AddToECS();
+
 
 	physicsSystem->AddToTree(light);
 	physicsSystem->AddToTree(sphere);
@@ -156,15 +157,17 @@ int main()
 	boxRenderer.AddToECS();
 
 	// Shows how complicated the mesh is
-	Lines meshRenderer(10000000);
-	meshRenderer.ShaderID = basicShader.ID;
-	meshRenderer.AddToECS();
+	Lines rootRenderer(10000000);
+	rootRenderer.ShaderID = basicShader.ID;
+	rootRenderer.AddToECS();
 
+	Lines parentRenderer(10000000);
+	parentRenderer.ShaderID = basicShader.ID;
+	parentRenderer.AddToECS();
 
 	bunny.transform.CalculateModelMat();
-	//meshRenderer.PushModelOutline(MeshData{ bunny.vertices, bunny.indices }, bunny.transform.modelMat);
 	bunny.InitTree();
-	meshRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, true));
+	rootRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, true));
 
 
 	boundsBox.Clear();
@@ -213,7 +216,6 @@ int main()
 			boxRenderer.PushBoundingBoxes(tree.GetAllBoxes(GUI.mConfigInfo.showOnlyDynamicLeaf));
 		}
 
-
 		collideBox.Clear();
 		const auto collidedEntities = tree.ComputeCollisionPairs();
 		for (const auto entity : collidedEntities)
@@ -256,7 +258,6 @@ int main()
 		GUI.EndWindow();
 
 		GUI.ShowConfigWindow();
-
 
 
 		GUI.Render();

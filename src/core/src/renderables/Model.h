@@ -28,7 +28,7 @@ public:
 	Model(const ModelData& data);
 	Model(const ModelData& data, const std::vector<Texture>& textures);
 
-	void InitECS();
+	void AddToECS();
 	BoundingBox CalcBoundingBox();
 	BoundingBox CalcBoundingBox(const glm::mat4& modelMat) const;
 private:
@@ -78,7 +78,7 @@ inline void Model::InitVAO()
 	EBO.Unbind();
 }
 
-inline void Model::InitECS()
+inline void Model::AddToECS()
 {
 	// Initialize entity
 	mEntityID = world.CreateEntity();

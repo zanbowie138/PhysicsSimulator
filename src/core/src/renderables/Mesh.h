@@ -39,13 +39,14 @@ private:
 
 inline Mesh::Mesh(const char* filename, const bool is_stl)
 {
-	const auto localDir = "/res/models/";
+	const std::string localDir = "/res/models/";
+	std::string filepath = BASE_DIR + localDir + filename;
 	MeshData data;
 
 	if (!is_stl) 
-		data = Utils::ReadPackedSTL((std::filesystem::current_path().string() + localDir + filename).c_str());
+		data = Utils::ReadPackedSTL(filepath.c_str());
 	else 
-		data = Utils::ReadSTL((std::filesystem::current_path().string() + localDir + filename).c_str());
+		data = Utils::ReadSTL(filepath.c_str());
 
 	vertices = std::vector(data.vertices);
 	indices = std::vector(data.indices);
