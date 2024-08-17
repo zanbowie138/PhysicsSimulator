@@ -51,6 +51,7 @@ namespace Core {
     {
         BindBuffer();
         glBufferData(GL_UNIFORM_BUFFER, 112, nullptr, GL_DYNAMIC_DRAW);
+        LOG(LOG_INFO) << "Allocated Uniform Buffer of size 112.\n";
         UnbindBuffer();
     }
 
@@ -90,5 +91,6 @@ namespace Core {
     inline void UniformBufferManager::Clean()
     {
         glDeleteBuffers(1, &ID);
+        LOG(LOG_INFO) << "Cleaning Uniform Buffer.\n";
     }
 };

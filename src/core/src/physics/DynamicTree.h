@@ -577,8 +577,11 @@ namespace Physics {
 	inline const BoundingBox& DynamicBBTree::GetBoundingBox(const Entity object) const
 	{
 		const auto enIterator = entityToNodeIdxMap.find(object);
-		assert(enIterator != entityToNodeIdxMap.end() && "Trying to get object not in map");
-
+		if (enIterator != entityToNodeIdxMap.end())
+		{
+			LOG(LOG_ERROR) << "Trying to get object not in map\n";
+			return BoundingBox{};
+		}
 		return mNodes[enIterator->second].box;
 	}
 
@@ -596,7 +599,11 @@ namespace Physics {
 	inline DynamicBBTree::Node& DynamicBBTree::GetNode(Entity entity)
 	{
 		const auto enIterator = entityToNodeIdxMap.find(entity);
-		assert(enIterator != entityToNodeIdxMap.end() && "Trying to find entity not in map");
+		if (enIterator != entityToNodeIdxMap.end())
+		{
+			LOG(LOG_ERROR) << "Trying to find entity not in map\n";
+			return mNodes[NULL_NODE];
+		}
 		return mNodes[enIterator->second];
 	}
 

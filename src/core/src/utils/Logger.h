@@ -19,8 +19,10 @@
 #define LOG_INIT(filename) Utils::Logger::GetInstance().SetLogFile(filename)
 #define LOG_CLOSE Utils::Logger::GetInstance().CloseLogFile()
 #define LOG_SET_PRINT_TO_CONSOLE(value) Utils::Logger::GetInstance().SetPrintToConsole(value)
+#define LOG_WRITE() Utils::Logger::GetInstance().WriteLogFile()
 
 #define LOG_CONTENTS() Utils::Logger::GetInstance().GetLogContents()
+#define LOG_LINE_LEVELS() Utils::Logger::GetInstance().GetLineLogLevels()
 
 #define LOG_INFO Utils::LogLevel::INFO
 #define LOG_WARNING Utils::LogLevel::WARNING
@@ -37,21 +39,21 @@ namespace Utils
 
     class Logger
     {
-        std::stringstream logContents;
+        std::ofstream logFile;
         std::string filename;
+        std::stringstream logContents;
+        std::vector<LogLevel> lineLogLevels = std::vector<LogLevel>();
         LogLevel logLevel;
         bool printToConsole;
 
     public:
-        // static std::unique_ptr<Logger> instance;
-
         Logger() {}
         Logger(Logger const&)          = delete;
         void operator=(Logger const&)  = delete;
 
         ~Logger()
         {
-            CloseLogFile();
+            WriteLogFile();
         }
 
         static Logger& GetInstance()
@@ -60,25 +62,33 @@ namespace Utils
             return instance;
         }
 
-        void SetLogFile(const std::string& filename)
+        void SetLogFile(const std::string& filename) { this->filename = filename; }
+
+        void WriteLogFile()
         {
-            this->filename = filename;
+            OpenLogFile();
+            logFile << logContents.str();
+            CloseLogFile();
         }
 
-        void SetPrintToConsole(bool value)
+        void OpenLogFile()
         {
-            printToConsole = value;
-        }
-
-        void CloseLogFile()
-        {
-            std::ofstream logFile;
             logFile.open(filename, std::ios::out | std::ios::trunc);
             if (!logFile)
             {
                 std::cerr << "Failed to open log file: " << filename << std::endl;
             }
         }
+
+        void CloseLogFile()
+        {
+            if (logFile.is_open())
+                logFile.close();
+        }
+
+
+
+        void SetPrintToConsole(bool value) { printToConsole = value; }
 
         template <typename T>
         Logger& operator<<(const T& data)
@@ -95,6 +105,7 @@ namespace Utils
         }
 
         std::string GetLogContents() { return logContents.str(); }
+        std::vector<LogLevel> GetLineLogLevels() { return lineLogLevels; }
 
         static std::string CurrentTime()
         {
@@ -110,6 +121,7 @@ namespace Utils
         std::string SetLogLevel(const LogLevel level)
         {
             logLevel = level;
+            lineLogLevels.push_back(logLevel);
             switch (level)
             {
             case LogLevel::INFO: return "INFO";

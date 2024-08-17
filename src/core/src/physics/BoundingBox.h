@@ -17,7 +17,7 @@ public:
 
 	void Merge(const BoundingBox& box1, const BoundingBox& box2);
 	void Merge(const BoundingBox& other);
-	void IncludePoint(const glm::vec3 point);
+	void IncludePoint(glm::vec3 point);
 
 	void ApplyMat(const glm::mat4& mat);
 

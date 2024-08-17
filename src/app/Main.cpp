@@ -230,6 +230,13 @@ int main()
 			parentRenderer.SetRenderingEnabled(GUI.config.showStaticBoxes.value && !GUI.config.showOnlyStaticLeaf.value);
 		}
 
+		if (GUI.config.regenStaticTree)
+		{
+			LOG(LOG_WARNING) << "Regenerating static tree.\n";
+			// tree.RegenerateStaticTree();
+			// GUI.config.regenStaticTree = false;
+		}
+
 		currentTime = glfwGetTime();
 		fpsFrameCount++;
 
@@ -241,6 +248,7 @@ int main()
 			fps = static_cast<float>(fpsFrameCount);
 			fpsFrameCount = 0;
 			lastFPSTime += 1.0;
+			LOG_WRITE();
 		}
 
 		time += dt_mill;
@@ -265,7 +273,7 @@ int main()
 		GUI.EndWindow();
 
 		GUI.ShowConfigWindow();
-		GUI.RenderLog(LOG_CONTENTS());
+		GUI.RenderLog(LOG_CONTENTS(), LOG_LINE_LEVELS());
 
 		GUI.Render();
 

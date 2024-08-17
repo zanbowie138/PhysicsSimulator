@@ -34,7 +34,12 @@ public:
 		bool showOnlyDynamicLeaf;
 		Changed showStaticBoxes;
 		Changed showOnlyStaticLeaf;
+		bool regenStaticTree;
 	} config;
+
+	// Allows for log clearing
+	unsigned int logSkip = 0;
+	unsigned int logLineSkip = 0;
 
 
 	static bool MouseOver();
@@ -49,10 +54,10 @@ public:
 
 	static void Text(const char* text) { ImGui::Text(text); }
 	static void Checkbox(const char* label, bool* variable) { ImGui::Checkbox(label, variable); }
-	static void Button(const char* text, std::function<void()> func);
+	static void ButtonFunc(const char* text, std::function<void()> func);
 
 	void ShowConfigWindow();
-	void RenderLog(const std::string& log);
+	void RenderLog(const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels);
 
 	static void Demo() { ImGui::ShowDemoWindow(); }
 
@@ -105,7 +110,7 @@ inline void GUI::StartWindow(const char* windowName)
 	ImGui::Begin(windowName);
 }
 
-inline void GUI::Button(const char* text, std::function<void()> func)
+inline void GUI::ButtonFunc(const char* text, std::function<void()> func)
 {
 	if (ImGui::Button(text))
 	{
@@ -125,6 +130,7 @@ inline void GUI::ShowConfigWindow()
 	{
 		ImGui::Checkbox("Show Bounding Boxes ##Static", &config.showStaticBoxes.checkboxVal);
 		ImGui::Checkbox("Show only leaf nodes ##Static", &config.showOnlyStaticLeaf.checkboxVal);
+		config.regenStaticTree = ImGui::Button("Regenerate Static Tree");
 	}
 
 	config.showStaticBoxes.Update();
@@ -132,10 +138,34 @@ inline void GUI::ShowConfigWindow()
 	EndWindow();
 }
 
-inline void GUI::RenderLog(const std::string& log)
+inline void GUI::RenderLog(const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels)
 {
 	StartWindow("Log Output");
-    ImGui::TextWrapped(log.c_str());
+
+	std::string line;
+	std::stringstream ss(log.substr(logSkip));
+	unsigned long lineIdx = 0;
+	bool clearLog = ImGui::Button("Clear Log");
+
+	while (std::getline(ss, line, '\n'))
+    {
+		auto logLevel = lineLogLevels[lineIdx + logLineSkip];
+
+		if (logLevel == LOG_WARNING) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 0, 255)); }
+		else if (logLevel == LOG_ERROR) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); }
+		else { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255)); }
+
+		ImGui::TextWrapped(line.c_str());
+		ImGui::PopStyleColor();
+
+		lineIdx++;
+    }
+
+	if (clearLog) {
+    	logSkip = log.size();
+    	logLineSkip += lineIdx;
+    }
+
     EndWindow();
 }
 
@@ -150,5 +180,5 @@ inline void GUI::Clean()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-	// LOG(LOG_INFO) << "ImGUI context destroyed.\n";
+	LOG(LOG_INFO) << "ImGUI context destroyed.\n";
 }

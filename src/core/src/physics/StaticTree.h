@@ -94,6 +94,7 @@ namespace Physics
 
 	inline void StaticTree::CreateStaticTree(const std::vector<MeshPt>& vertices, const std::vector<unsigned>& indices)
 	{
+		LOG(LOG_INFO) << "Creating static tree with " << indices.size() / 3 << " triangles.\n";
 		ClearData();
 
 		size_t leafNodeAmount = indices.size() / 3;
@@ -127,11 +128,13 @@ namespace Physics
 		root.triCount = leafNodeAmount;
 		mNodesUsed = 1;
 
+		LOG(LOG_INFO) << "Starting thread pool for static tree subdivision.\n";
 		mThreadPool.Start();
 		mThreadPool.QueueJob([this] { Subdivide(0); });
 
 		while (mThreadPool.Busy()){}
 		mThreadPool.Clear();
+		LOG(LOG_INFO) << "Thread pool finished.\n";
 
 #ifdef DEBUG
 		std::cout << t.ToString().c_str() << std::endl;
