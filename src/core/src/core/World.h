@@ -18,6 +18,8 @@ public:
 		mEntityManager = std::make_unique<EntityManager>();
 		mSystemManager = std::make_unique<SystemManager>();
 
+		LOG_INIT(loggingFilePath);
+		LOG_SET_PRINT_TO_CONSOLE(false);
 		LOG(LOG_INFO) << "World created.\n";
 	}
 

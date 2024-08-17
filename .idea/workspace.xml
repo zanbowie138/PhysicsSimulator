@@ -29,13 +29,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="log changes and mesh import fix">
+    <list default="true" id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="disable entity rendering and static bvh tree gui config">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/components/RenderInfo.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/components/RenderInfo.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/src/core/GUI.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/core/GUI.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/renderables/Renderable.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/renderables/Renderable.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/renderer/RenderSystem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/renderer/RenderSystem.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/core/World.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/core/World.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/physics/Solver.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/physics/Solvers.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/utils/Logger.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/Logger.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,16 +66,18 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/unique_ptr.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/app/Main.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/core/World.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshImport.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshProcessing.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshSimplify.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/SimpleShapes.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/renderables/Mesh.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/renderables/Model.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/renderer/EBO.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/utils/Logger.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/renderables/Renderable.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/renderer/EBO.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/renderer/RenderSystem.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/renderer/Shader.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/renderer/Texture.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/utils/ClassName.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/Logger.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -107,7 +111,7 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/bin/Release&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Alex/Documents/Projects/C++/LogTesting&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -177,7 +181,12 @@
       <workItem from="1716054444691" duration="3574000" />
       <workItem from="1716400172437" duration="1026000" />
       <workItem from="1716736212928" duration="14000" />
-      <workItem from="1717617448020" duration="5105000" />
+      <workItem from="1717617448020" duration="7235000" />
+      <workItem from="1718421169579" duration="342000" />
+      <workItem from="1721097603496" duration="761000" />
+      <workItem from="1722534215078" duration="2053000" />
+      <workItem from="1723865996356" duration="5224000" />
+      <workItem from="1723900987017" duration="1000" />
     </task>
     <task id="LOCAL-00001" summary="tentative logging">
       <option name="closed" value="true" />
@@ -203,7 +212,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717618587196</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="disable entity rendering and static bvh tree gui config">
+      <option name="closed" value="true" />
+      <created>1717622853332</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1717622853332</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -217,6 +234,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="tentative logging" />
     <MESSAGE value="log changes and mesh import fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="log changes and mesh import fix" />
+    <MESSAGE value="disable entity rendering and static bvh tree gui config" />
+    <option name="LAST_COMMIT_MESSAGE" value="disable entity rendering and static bvh tree gui config" />
   </component>
 </project>

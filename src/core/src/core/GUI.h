@@ -8,6 +8,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <utils/Logger.h>
 
 class Changed
 {
@@ -51,6 +52,7 @@ public:
 	static void Button(const char* text, std::function<void()> func);
 
 	void ShowConfigWindow();
+	void RenderLog(const std::string& log);
 
 	static void Demo() { ImGui::ShowDemoWindow(); }
 
@@ -64,6 +66,8 @@ inline GUI::GUI(GLFWwindow* window): config()
 	// Setup ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	LOG(LOG_INFO) << "ImGUI context created.\n";
+
 	auto& io = ImGui::GetIO();
 	(void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
@@ -98,8 +102,7 @@ inline void GUI::NewFrame()
 
 inline void GUI::StartWindow(const char* windowName)
 {
-	bool windowInitialized = ImGui::Begin(windowName);
-	assert(windowInitialized && "Gui window did not start corrently...");
+	ImGui::Begin(windowName);
 }
 
 inline void GUI::Button(const char* text, std::function<void()> func)
@@ -129,6 +132,13 @@ inline void GUI::ShowConfigWindow()
 	EndWindow();
 }
 
+inline void GUI::RenderLog(const std::string& log)
+{
+	StartWindow("Log Output");
+    ImGui::TextWrapped(log.c_str());
+    EndWindow();
+}
+
 inline void GUI::Render()
 {
 	ImGui::Render();
@@ -140,4 +150,5 @@ inline void GUI::Clean()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+	// LOG(LOG_INFO) << "ImGUI context destroyed.\n";
 }

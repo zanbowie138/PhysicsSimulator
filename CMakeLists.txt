@@ -14,6 +14,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 # Defines the BASE_DIR macro for the project as the root directory
 add_definitions(-DBASE_DIR="${CMAKE_SOURCE_DIR}")
+#add_definitions(-DLOG_CLASS_NAME)
 
 # Add the core library
 add_subdirectory(src/core)

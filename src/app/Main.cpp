@@ -265,7 +265,7 @@ int main()
 		GUI.EndWindow();
 
 		GUI.ShowConfigWindow();
-
+		GUI.RenderLog(LOG_CONTENTS());
 
 		GUI.Render();
 

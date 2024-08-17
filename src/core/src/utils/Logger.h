@@ -8,13 +8,19 @@
 #include <iomanip>
 #include "ClassName.h"
 
-// TODO: I have no clue if this will work or not...
-// TODO: Fix
-
+#ifdef LOG_CLASS_NAME
 #define __CLASSNAME__ type_name<decltype(*this)>()
-
 // LOG macro adds log level, class name, and date boilerplate to beginning of log message
 #define LOG(level) Utils::Logger::GetInstance() << "[" << Utils::Logger::GetInstance().SetLogLevel(level) << "][" <<  __CLASSNAME__ << "] " << Utils::Logger::GetInstance().CurrentTime() << ": "
+#else
+#define LOG(level) Utils::Logger::GetInstance() << "[" << Utils::Logger::GetInstance().SetLogLevel(level) << "] " << Utils::Logger::GetInstance().CurrentTime() << ": "
+#endif
+
+#define LOG_INIT(filename) Utils::Logger::GetInstance().SetLogFile(filename)
+#define LOG_CLOSE Utils::Logger::GetInstance().CloseLogFile()
+#define LOG_SET_PRINT_TO_CONSOLE(value) Utils::Logger::GetInstance().SetPrintToConsole(value)
+
+#define LOG_CONTENTS() Utils::Logger::GetInstance().GetLogContents()
 
 #define LOG_INFO Utils::LogLevel::INFO
 #define LOG_WARNING Utils::LogLevel::WARNING
@@ -31,21 +37,13 @@ namespace Utils
 
     class Logger
     {
-        std::ofstream logFile;
+        std::stringstream logContents;
+        std::string filename;
         LogLevel logLevel;
         bool printToConsole;
 
-        Logger(const std::string& filename, bool printToConsole = true)
-            : logFile(filename, std::ios::out | std::ios::trunc), printToConsole(printToConsole)
-        {
-            if (!logFile)
-            {
-                std::cerr << "Failed to open log file: " << filename << std::endl;
-            }
-        }
-
     public:
-        static std::unique_ptr<Logger> instance;
+        // static std::unique_ptr<Logger> instance;
 
         Logger() {}
         Logger(Logger const&)          = delete;
@@ -53,10 +51,8 @@ namespace Utils
 
         ~Logger()
         {
-            logFile.close();
+            CloseLogFile();
         }
-
-
 
         static Logger& GetInstance()
         {
@@ -64,10 +60,30 @@ namespace Utils
             return instance;
         }
 
+        void SetLogFile(const std::string& filename)
+        {
+            this->filename = filename;
+        }
+
+        void SetPrintToConsole(bool value)
+        {
+            printToConsole = value;
+        }
+
+        void CloseLogFile()
+        {
+            std::ofstream logFile;
+            logFile.open(filename, std::ios::out | std::ios::trunc);
+            if (!logFile)
+            {
+                std::cerr << "Failed to open log file: " << filename << std::endl;
+            }
+        }
+
         template <typename T>
         Logger& operator<<(const T& data)
         {
-            logFile << data;
+            logContents << data;
             if (printToConsole)
             {
                 if (logLevel == LogLevel::ERROR)
@@ -77,6 +93,8 @@ namespace Utils
             }
             return *this;
         }
+
+        std::string GetLogContents() { return logContents.str(); }
 
         static std::string CurrentTime()
         {
