@@ -147,9 +147,9 @@ int main()
 	collideBox.AddToECS();
 
 	// Constraint bounding box
-	Lines boundsBox(10000);
-	boundsBox.ShaderID = basicShader.ID;
-	boundsBox.AddToECS();
+	// Lines boundsBox(10000);
+	// boundsBox.ShaderID = basicShader.ID;
+	// boundsBox.AddToECS();
 
 	// Debug bounding boxes
 	Lines boxRenderer(20000);
@@ -171,8 +171,8 @@ int main()
 	parentRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, false));
 
 
-	boundsBox.Clear();
-	boundsBox.PushBoundingBox(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });
+	// boundsBox.Clear();
+	// boundsBox.PushBoundingBox(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });
 
 	// Manage Uniform Buffer
 	Core::UniformBufferManager UBO;
@@ -233,8 +233,7 @@ int main()
 		if (GUI.config.regenStaticTree)
 		{
 			LOG(LOG_WARNING) << "Regenerating static tree.\n";
-			// tree.RegenerateStaticTree();
-			// GUI.config.regenStaticTree = false;
+			bunny.InitTree();
 		}
 
 		currentTime = glfwGetTime();

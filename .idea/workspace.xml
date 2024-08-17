@@ -32,12 +32,8 @@
     <list default="true" id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="logging changes and output on GUI">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/core/GUI.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/core/GUI.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/core/UniformBufferManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/core/UniformBufferManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/physics/BoundingBox.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/BoundingBox.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/physics/DynamicTree.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/DynamicTree.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/src/physics/StaticTree.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/StaticTree.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/utils/Logger.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/Logger.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,19 +61,25 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/unique_ptr.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/condition_variable" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/x86_64-w64-mingw32/include/stdarg.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/app/Main.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/core/GUI.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/core/UniformBufferManager.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshImport.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshProcessing.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshSimplify.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/SimpleShapes.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/BoundingBox.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/DynamicTree.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/StaticTree.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderables/Renderable.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/EBO.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/RenderSystem.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/Shader.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/Texture.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/ClassName.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/utils/Logger.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/Logger.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -230,7 +232,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723901465712</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="logging changes and output on GUI">
+      <option name="closed" value="true" />
+      <created>1723925232852</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1723925232852</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

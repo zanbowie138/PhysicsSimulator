@@ -1,6 +1,7 @@
 #pragma once
 #define BINS_AMT 8
 #define TRI_LIMIT 1
+#define DEBUG 1
 
 #include <unordered_map>
 #include <vector>
@@ -100,7 +101,6 @@ namespace Physics
 		size_t leafNodeAmount = indices.size() / 3;
 
 #ifdef DEBUG
-		//std::cout << "Leaf node amount " << leafNodeAmount << std::endl;
 		Utils::Timer t("StaticTree");
 #endif
 
@@ -128,17 +128,17 @@ namespace Physics
 		root.triCount = leafNodeAmount;
 		mNodesUsed = 1;
 
-		LOG(LOG_INFO) << "Starting thread pool for static tree subdivision.\n";
 		mThreadPool.Start();
 		mThreadPool.QueueJob([this] { Subdivide(0); });
 
-		while (mThreadPool.Busy()){}
+		while (mThreadPool.Busy()) {}
 		mThreadPool.Clear();
-		LOG(LOG_INFO) << "Thread pool finished.\n";
+
 
 #ifdef DEBUG
-		std::cout << t.ToString().c_str() << std::endl;
-		std::cout << "Nodes used: " << mNodesUsed << std::endl;
+		LOG(LOG_INFO) << "Thread pool finished with " << mNodes.size() << " nodes used in " << std::to_string(t.GetElapsed()) << "s.\n";
+#else
+		LOG(LOG_INFO) << "Thread pool finished.\n";
 #endif
 	}
 

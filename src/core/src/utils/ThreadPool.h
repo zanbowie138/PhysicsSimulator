@@ -11,21 +11,16 @@
 // Adapted from this implementation: https://stackoverflow.com/a/32593825/21568848
 namespace Utils
 {
-    // Simple thread pool for "embarrassingly parallel" problems
-// Adapted from this implementation: https://stackoverflow.com/a/32593825/21568848
     class ThreadPool
     {
     private:
-        // Vector storing the threads
-        std::vector<std::thread> mThreads;
+
 
         // Ensures queue is only read and modified by one thread at a time
         std::mutex queueMutex;
         // Queue of jobs
         std::queue<std::function<void()>> mJobs;
 
-        // Stores how many threads are active
-        std::atomic<int> mThreadsActive;
 
         // Controls thread sleeping
         std::condition_variable activateCondition;
@@ -37,6 +32,11 @@ namespace Utils
         void ThreadLoop();
     public:
         ThreadPool() = default;
+
+        // Stores how many threads are active
+        std::atomic<int> mThreadsActive;
+        // Vector storing the threads
+        std::vector<std::thread> mThreads;
 
         // Runs the threads
         void Start();
@@ -84,6 +84,8 @@ namespace Utils
 
         mThreads.resize(THREADS);
 
+        LOG(LOG_INFO) << "Starting thread pool with " << static_cast<unsigned int>(THREADS) << " threads.\n";
+
         // Run threads
         for (uint8_t i = 0; i < THREADS; i++)
             mThreads.at(i) = std::thread(&ThreadPool::ThreadLoop, this);
@@ -101,9 +103,10 @@ namespace Utils
     inline void ThreadPool::QueueJob(const std::function<void()>& job)
     {
         {
-            std::unique_lock<std::mutex> lock(queueMutex);
+            std::unique_lock lock(queueMutex);
             mJobs.push(job);
         }
+        shouldTerminate = false;
         // Wake up a thread
         activateCondition.notify_one();
     }
