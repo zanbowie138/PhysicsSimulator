@@ -27,7 +27,7 @@
 #include "utils/Timer.h"
 #include "utils/Logger.h"
 
-World world("log.txt");
+World world("log.txt", true);
 
 int main()
 {
@@ -95,13 +95,6 @@ int main()
 	floor.Scale(10.0f);
 	floor.AddToECS();
 
-	const auto cubeData = Utils::CubeData(true);
-	Mesh light(cubeData);
-	light.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-	light.Scale(0.07f);
-	light.ShaderID = basicShader.ID;
-	light.AddToECS();
-	auto& lightPos = world.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
 
 	// Initialize random number generator
@@ -122,23 +115,25 @@ int main()
 	// }
 
 	const ModelData sphereData = Utils::UVSphereData(20,20, 1);
-	Model sphere(sphereData);
-	sphere.Scale(0.5f);
-	sphere.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-	sphere.ShaderID = flatShader.ID;
-	sphere.SetColor(glm::vec3(0.5f, 0.3f, 1.0f));
-	sphere.AddToECS();
+	Model light(sphereData);
+	light.Scale(0.1f);
+	light.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
+	light.ShaderID = basicShader.ID;
+	light.SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
+	light.AddToECS();
+	auto& lightPos = world.GetComponent<Components::Transform>(light.mEntityID).worldPos;
 
-	Mesh bunny("bunny.stl", true);
-	bunny.Scale(0.01f);
-	bunny.SetPosition(glm::vec3(1.0f, 0.5f, 0.0f));
-	bunny.ShaderID = flatShader.ID;
-	bunny.transform.SetRotationEuler(glm::vec3(-90.0f, 0.0f, 0.0f));
-	bunny.AddToECS();
+
+	Mesh dragon("dragon.dat", false);
+	dragon.Scale(20.0f);
+	dragon.SetPosition(glm::vec3(1.0f, 0.5f, 0.0f));
+	dragon.ShaderID = flatShader.ID;
+	// dragon.transform.SetRotationEuler(glm::vec3(-90.0f, 0.0f, 0.0f));
+	dragon.AddToECS();
 
 
 	physicsSystem->AddToTree(light);
-	physicsSystem->AddToTree(sphere);
+	physicsSystem->AddToTree(dragon);
 
 	// Box showing collision between objects
 	Lines collideBox(100000);
@@ -156,19 +151,24 @@ int main()
 	boxRenderer.ShaderID = basicShader.ID;
 	boxRenderer.AddToECS();
 
+	dragon.transform.CalculateModelMat();
+
 	// Shows how complicated the mesh is
-	Lines rootRenderer(10000000);
+	Lines rootRenderer(20589577);
 	rootRenderer.ShaderID = basicShader.ID;
 	rootRenderer.AddToECS();
+	rootRenderer.SetRenderingEnabled(false);
 
-	Lines parentRenderer(10000000);
+	Lines parentRenderer(41179129);
 	parentRenderer.ShaderID = basicShader.ID;
 	parentRenderer.AddToECS();
+	parentRenderer.SetRenderingEnabled(false);
 
-	bunny.transform.CalculateModelMat();
-	bunny.InitTree();
-	rootRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, true));
-	parentRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, false));
+
+	// bunny.transform.CalculateModelMat();
+	// bunny.InitTree();
+	// rootRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, true));
+	// parentRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, false));
 
 
 	// boundsBox.Clear();
@@ -202,12 +202,13 @@ int main()
 		float dt_mill = static_cast<float>(glfwGetTime() - currentTime) * 1000;
 
 		// Move entities
-		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 2.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
+		// lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))/0.7f, 1.0f, glm::cos(glm::radians(time / 20.0f))/0.7f);
 		//lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f)) / 3.0f + 1.0f, 0.7f, 0.0f);
+		lightPos = glm::vec3(0.0f, 5.0f, 0.0f);
 		light.transform.worldPos = lightPos;
 
 		// TODO: Create better position update system than reinserting into tree
-		tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
+		// tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
 
 		physicsSystem->Update(dt_mill);
 
@@ -233,7 +234,17 @@ int main()
 		if (GUI.config.regenStaticTree)
 		{
 			LOG(LOG_WARNING) << "Regenerating static tree.\n";
-			bunny.InitTree();
+			dragon.InitTree();
+
+			auto rootBoxes = dragon.mTree.GetBoxes(dragon.transform.modelMat, true);
+			auto parentBoxes = dragon.mTree.GetBoxes(dragon.transform.modelMat, false);
+
+			std::cout << "Root boxes: " << parentBoxes.size() << std::endl;
+
+			rootRenderer.Clear();
+			rootRenderer.PushBoundingBoxes(rootBoxes);
+			parentRenderer.Clear();
+			parentRenderer.PushBoundingBoxes(parentBoxes);
 		}
 
 		currentTime = glfwGetTime();

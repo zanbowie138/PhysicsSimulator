@@ -76,11 +76,13 @@ inline void PhysicsSystem::AddRigidbody(Model& object)
 
 inline void PhysicsSystem::AddToTree(Mesh& object)
 {
+	LOG(LOG_INFO) << "Adding mesh with entity ID " << object.mEntityID << " to tree\n";
 	tree.InsertEntity(object.mEntityID, object.CalcBoundingBox());
 }
 
 inline void PhysicsSystem::AddToTree(Model& object)
 {
+	LOG(LOG_INFO) << "Adding model with entity ID " << object.mEntityID << " to tree\n";
 	tree.InsertEntity(object.mEntityID, object.CalcBoundingBox());
 }
 

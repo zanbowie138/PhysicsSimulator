@@ -16,6 +16,8 @@
 #define LOG(level) Utils::Logger::GetInstance() << "[" << Utils::Logger::GetInstance().SetLogLevel(level) << "] " << Utils::Logger::GetInstance().CurrentTime() << ": "
 #endif
 
+// #define LOG_ASSERT_ON_ERROR
+
 #define LOG_INIT(filename) Utils::Logger::GetInstance().SetLogFile(filename)
 #define LOG_CLOSE Utils::Logger::GetInstance().CloseLogFile()
 #define LOG_SET_PRINT_TO_CONSOLE(value) Utils::Logger::GetInstance().SetPrintToConsole(value)
@@ -97,9 +99,16 @@ namespace Utils
             if (printToConsole)
             {
                 if (logLevel == LogLevel::ERROR)
+                {
                     std::cerr << data;
+#ifdef LOG_ASSERT_ON_ERROR
+                    assert(false);
+#endif
+                }
                 else
+                {
                     std::cout << data;
+                }
             }
             return *this;
         }

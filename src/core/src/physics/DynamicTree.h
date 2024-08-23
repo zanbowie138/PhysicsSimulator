@@ -104,8 +104,23 @@ namespace Physics {
 		mNodes[newNodeIndex].box = box;
 		mNodes[newNodeIndex].height = 0;
 
-		nodeIdxToEntityMap.emplace(newNodeIndex, entity);
-		entityToNodeIdxMap.emplace(entity, newNodeIndex);
+		{
+			auto inserted = nodeIdxToEntityMap.emplace(newNodeIndex, entity);
+			if (!inserted.second)
+			{
+				LOG(LOG_ERROR) << "Dynamic Tree: Insertion to node idx to entity map failed.\n";
+				return;
+			}
+		}
+		{
+			auto inserted = entityToNodeIdxMap.emplace(entity, newNodeIndex);
+			if (!inserted.second)
+			{
+				LOG(LOG_ERROR) << "Dynamic Tree: Insertion to entity to node idx map failed\n";
+				return;
+			}
+		}
+
 
 		InsertLeaf(newNodeIndex);
 	}
@@ -577,10 +592,10 @@ namespace Physics {
 	inline const BoundingBox& DynamicBBTree::GetBoundingBox(const Entity object) const
 	{
 		const auto enIterator = entityToNodeIdxMap.find(object);
-		if (enIterator != entityToNodeIdxMap.end())
+		if (enIterator == entityToNodeIdxMap.end())
 		{
-			LOG(LOG_ERROR) << "Trying to get object not in map\n";
-			return BoundingBox{};
+			LOG(LOG_ERROR) << "Dynamic Tree: Trying to get entity " << object << " not in map.\n";
+			return BoundingBox();
 		}
 		return mNodes[enIterator->second].box;
 	}
@@ -601,7 +616,7 @@ namespace Physics {
 		const auto enIterator = entityToNodeIdxMap.find(entity);
 		if (enIterator != entityToNodeIdxMap.end())
 		{
-			LOG(LOG_ERROR) << "Trying to find entity not in map\n";
+			LOG(LOG_ERROR) << "Dynamic Tree: Trying to find entity not in map\n";
 			return mNodes[NULL_NODE];
 		}
 		return mNodes[enIterator->second];

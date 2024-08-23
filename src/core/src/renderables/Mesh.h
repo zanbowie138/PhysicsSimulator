@@ -43,10 +43,18 @@ inline Mesh::Mesh(const char* filename, const bool is_stl)
 	std::string filepath = BASE_DIR + localDir + filename;
 	MeshData data;
 
+	LOG(LOG_INFO) << "Loading mesh: " << filename << "\n";
 	if (!is_stl) 
 		data = Utils::ReadPackedSTL(filepath.c_str());
 	else 
 		data = Utils::ReadSTL(filepath.c_str());
+	if (data.indices.size() == 0 || data.vertices.size() == 0)
+	{
+		LOG(LOG_ERROR) << "Failed to load mesh: " << filename << "\n";
+	} else
+	{
+		LOG(LOG_INFO) << "Loaded mesh: " << filename << " with " << data.vertices.size() << " vertices and " << data.indices.size() << " indices\n";
+	}
 
 	vertices = std::vector(data.vertices);
 	indices = std::vector(data.indices);
@@ -71,6 +79,8 @@ inline BoundingBox Mesh::CalcBoundingBox()
 	transform.CalculateModelMat();
 	box.min = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
 	box.max = transform.modelMat * glm::vec4(vertices[0].position, 1.0f);
+	if (vertices.size() == 0)
+        LOG(LOG_ERROR) << "Can't calculate bounding box of an empty mesh.\n";
 	for (const auto& pt : vertices)
 	{
 		auto point = transform.modelMat * glm::vec4(pt.position, 1.0f);

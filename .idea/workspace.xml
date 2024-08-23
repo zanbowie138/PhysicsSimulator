@@ -29,11 +29,14 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="logging changes and output on GUI">
+    <list default="true" id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="fixed thread pool not restarting and added logging">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/physics/StaticTree.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/StaticTree.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/core/World.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/core/World.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/physics/DynamicTree.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/DynamicTree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/physics/PhysicsSystem.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/PhysicsSystem.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/renderables/Mesh.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/renderables/Mesh.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/utils/Logger.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/Logger.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,24 +67,22 @@
     <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/condition_variable" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/x86_64-w64-mingw32/include/stdarg.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/app/Main.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/core/GUI.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/core/UniformBufferManager.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshImport.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshProcessing.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshSimplify.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/SimpleShapes.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/BoundingBox.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/DynamicTree.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/StaticTree.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/DynamicTree.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderables/Renderable.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/EBO.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/RenderSystem.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/Shader.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/Texture.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/ClassName.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/utils/Logger.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/Logger.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://diff.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://diff.cpp" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -115,7 +116,7 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Alex/Documents/Projects/C++/LogTesting&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Alex/Documents/Projects/C++/STLFileReader&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -191,6 +192,13 @@
       <workItem from="1722534215078" duration="2053000" />
       <workItem from="1723865996356" duration="5224000" />
       <workItem from="1723900987017" duration="1000" />
+      <workItem from="1724111750856" duration="393000" />
+      <workItem from="1724207840030" duration="64000" />
+      <workItem from="1724243888915" duration="2474000" />
+      <workItem from="1724265143410" duration="635000" />
+      <workItem from="1724417854284" duration="2385000" />
+      <workItem from="1724438837921" duration="3016000" />
+      <workItem from="1724451836227" duration="305000" />
     </task>
     <task id="LOCAL-00001" summary="tentative logging">
       <option name="closed" value="true" />
@@ -240,7 +248,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723925232852</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="fixed thread pool not restarting and added logging">
+      <option name="closed" value="true" />
+      <created>1723938842433</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1723938842434</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -256,6 +272,19 @@
     <MESSAGE value="log changes and mesh import fix" />
     <MESSAGE value="disable entity rendering and static bvh tree gui config" />
     <MESSAGE value="logging changes and output on GUI" />
-    <option name="LAST_COMMIT_MESSAGE" value="logging changes and output on GUI" />
+    <MESSAGE value="fixed thread pool not restarting and added logging" />
+    <MESSAGE value="added different demo" />
+    <option name="LAST_COMMIT_MESSAGE" value="added different demo" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/core/src/physics/DynamicTree.h</url>
+          <line>596</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

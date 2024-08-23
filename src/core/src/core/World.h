@@ -11,7 +11,7 @@ class World
 	std::unique_ptr<SystemManager> mSystemManager;
 
 public:
-	World(const std::string& loggingFilePath)
+	World(const std::string& loggingFilePath, bool printToConsole = false)
 	{
 		// Create pointers to each manager
 		mComponentManager = std::make_unique<ComponentManager>();
@@ -19,7 +19,7 @@ public:
 		mSystemManager = std::make_unique<SystemManager>();
 
 		LOG_INIT(loggingFilePath);
-		LOG_SET_PRINT_TO_CONSOLE(false);
+		LOG_SET_PRINT_TO_CONSOLE(printToConsole);
 		LOG(LOG_INFO) << "World created.\n";
 	}
 
