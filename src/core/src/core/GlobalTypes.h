@@ -1,7 +1,9 @@
 #pragma once
 #include <bitset>
 #include <vector>
+
 #include "glm/glm.hpp"
+#include <glad/glad.h>
 
 constexpr unsigned int MAX_ENTITIES = 500;
 constexpr unsigned int MAX_COMPONENTS = 10;

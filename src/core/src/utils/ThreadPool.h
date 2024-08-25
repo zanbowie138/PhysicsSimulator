@@ -7,6 +7,8 @@
 #include <atomic>
 #include <condition_variable>
 
+#include "../utils/Logger.h"
+
 // Simple thread pool for "embarrassingly parallel" problems
 // Adapted from this implementation: https://stackoverflow.com/a/32593825/21568848
 namespace Utils

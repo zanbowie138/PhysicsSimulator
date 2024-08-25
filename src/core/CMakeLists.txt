@@ -1,6 +1,12 @@
 project(CoreEngine)
 
-file(GLOB_RECURSE SRC_FILES "src/*.cpp" "src/*.c")
+set(SRC_FILES
+        src/physics/DynamicTree.cpp
+        src/physics/StaticTree.cpp
+        src/renderer/RenderSystem.cpp
+        src/glad.c
+        src/stb.cpp
+)
 
 # Set variables
 set(DEPENDENCIES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies)

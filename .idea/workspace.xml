@@ -29,14 +29,18 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="fixed thread pool not restarting and added logging">
+    <list default="true" id="605c0369-3e76-47a8-8d6e-ef1f1a0d46cc" name="Changes" comment="added further logging and fixed collision pair bug">
+      <change afterPath="$PROJECT_DIR$/src/core/src/math/Ray.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/core/src/physics/DynamicTree.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/core/src/physics/StaticTree.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/Main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/Main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/core/World.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/core/World.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/core/GlobalTypes.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/core/GlobalTypes.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/physics/BoundingBox.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/BoundingBox.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/src/physics/DynamicTree.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/DynamicTree.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/physics/PhysicsSystem.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/PhysicsSystem.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/renderables/Mesh.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/renderables/Mesh.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/src/utils/Logger.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/Logger.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/physics/StaticTree.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/physics/StaticTree.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/src/utils/Timer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/src/utils/Timer.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,12 +71,14 @@
     <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/condition_variable" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_HOME_DIR$/bin/mingw/x86_64-w64-mingw32/include/stdarg.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/app/Main.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/core/World.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshImport.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshProcessing.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/MeshSimplify.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/math/mesh/SimpleShapes.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/DynamicTree.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/DynamicTree.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/physics/PhysicsSystem.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/renderables/Mesh.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderables/Renderable.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/EBO.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/RenderSystem.h" root0="FORCE_HIGHLIGHTING" />
@@ -80,9 +86,8 @@
     <setting file="file://$PROJECT_DIR$/src/core/src/renderer/Texture.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/ClassName.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/Logger.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Alex/Documents/Projects/C++/PhysicsEngine/src/core/src/utils/Logger.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/core/src/utils/ThreadPool.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://diff.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://diff.cpp" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -135,6 +140,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.PhysicsEngine">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="CoreEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PhysicsEngine" TARGET_NAME="CoreEngine" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -198,7 +208,9 @@
       <workItem from="1724265143410" duration="635000" />
       <workItem from="1724417854284" duration="2385000" />
       <workItem from="1724438837921" duration="3016000" />
-      <workItem from="1724451836227" duration="305000" />
+      <workItem from="1724451836227" duration="2016000" />
+      <workItem from="1724476881512" duration="148000" />
+      <workItem from="1724504171084" duration="14549000" />
     </task>
     <task id="LOCAL-00001" summary="tentative logging">
       <option name="closed" value="true" />
@@ -256,7 +268,23 @@
       <option name="project" value="LOCAL" />
       <updated>1723938842434</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="added further logging and fixed collision pair bug">
+      <option name="closed" value="true" />
+      <created>1724452322636</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1724452322636</updated>
+    </task>
+    <task id="LOCAL-00009" summary="added further logging and fixed collision pair bug">
+      <option name="closed" value="true" />
+      <created>1724452355121</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1724452355121</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -274,17 +302,7 @@
     <MESSAGE value="logging changes and output on GUI" />
     <MESSAGE value="fixed thread pool not restarting and added logging" />
     <MESSAGE value="added different demo" />
-    <option name="LAST_COMMIT_MESSAGE" value="added different demo" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/core/src/physics/DynamicTree.h</url>
-          <line>596</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="added further logging and fixed collision pair bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="added further logging and fixed collision pair bug" />
   </component>
 </project>

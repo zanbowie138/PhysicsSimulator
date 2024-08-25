@@ -1,7 +1,10 @@
 #pragma once
-#include <glm/glm.hpp>
 
-#include "BoundingBox.h"
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+
+#include <string>
+
 
 class BoundingBox
 {
@@ -26,6 +29,7 @@ public:
 	void Reset();
 	void SetToLimit();
 
+	glm::vec3 GetBound(bool min) const;
 	bool IsColliding(const BoundingBox& other) const;
 	void UpdateSurfaceArea();
 };
@@ -92,6 +96,11 @@ inline void BoundingBox::Reset()
 	max = glm::vec3(0.0f);
 	min = glm::vec3(0.0f);
 	surfaceArea = 0.0f;
+}
+
+inline glm::vec3 BoundingBox::GetBound(bool min) const
+{
+	return min ? this->min : this->max;
 }
 
 inline void BoundingBox::SetToLimit()
