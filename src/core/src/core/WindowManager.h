@@ -22,12 +22,14 @@ namespace Core {
 		glm::vec2 mMousePos = glm::vec2(0.0f);
 		InputBitset mButtons;
 
-		bool firstClick = false;
+		bool leftClickLock = false;
+		bool firstRightClick = false;
 	public:
 		WindowManager(const char* windowTitle, unsigned windowWidth, unsigned windowHeight, bool maximized);
 
 		const InputBitset& GetInputs() const;
 		const glm::vec2& GetMousePos() const;
+		glm::vec2 GetMousePosNormalized() const;
 		std::pair<unsigned int, unsigned int> GetWindowDimensions() const;
 
 		void SetCamera(Camera* cam) { mCamera = cam; };
@@ -38,6 +40,7 @@ namespace Core {
 		void ImGuiInit();
 
 		void ProcessInputs(bool);
+		bool TestInput(InputButtons button);
 
 		void Shutdown() const;
 
@@ -122,6 +125,12 @@ namespace Core {
 		return mMousePos;
 	}
 
+	inline glm::vec2 WindowManager::GetMousePosNormalized() const
+	{
+        return glm::vec2(mMousePos.x / (float)screenWidth, mMousePos.y / (float)screenHeight);
+	}
+
+
 	inline std::pair<unsigned, unsigned> WindowManager::GetWindowDimensions() const
 	{
 		return std::make_pair(screenWidth, screenHeight);
@@ -161,30 +170,40 @@ namespace Core {
 			mMousePos = glm::vec2(mouseX, mouseY);
 
 			// Handles key inputs
+			if (glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			{
+				if (!leftClickLock)
+				{
+					LOG(LOG_INFO) << "Left mouse button pressed\n";
+					mButtons.set(static_cast<std::size_t>(InputButtons::LEFT_MOUSE));
+				}
+				leftClickLock = true;
+			} else { leftClickLock = false; }
+
 			if (glfwGetMouseButton(mWindow, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			{
 				mButtons.set(static_cast<std::size_t>(InputButtons::RIGHT_MOUSE));
 
 				// Checking if this is a first time click
-				if (firstClick)
+				if (firstRightClick)
 				{
 					glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 					mMousePos = glm::vec2(screenWidth / 2, screenHeight / 2);
 				}
 
 				mouseShown = false;
-				firstClick = false;
+				firstRightClick = false;
 
 				// Center mouse to prevent drifting
 				glfwSetCursorPos(mWindow, (screenWidth / 2), (screenHeight / 2));
 			}
-			else if (!firstClick)
+			else if (!firstRightClick)
 			{
 				// Unhides cursor since camera is not looking around anymore
 				glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 				mouseShown = true;
-				firstClick = true;
+				firstRightClick = true;
 			}
 			if (glfwGetKey(mWindow, GLFW_KEY_W) == GLFW_PRESS)
 				mButtons.set(static_cast<std::size_t>(InputButtons::W));
@@ -201,6 +220,11 @@ namespace Core {
 			if (glfwGetKey(mWindow, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 				mButtons.set(static_cast<std::size_t>(InputButtons::SHIFT));
 		}
+	}
+
+	inline bool WindowManager::TestInput(InputButtons button)
+	{
+		return mButtons.test(static_cast<size_t>(button));
 	}
 
 	inline void WindowManager::Shutdown() const

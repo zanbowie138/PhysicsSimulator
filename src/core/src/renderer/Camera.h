@@ -37,7 +37,6 @@ inline void Camera::UpdateMatrix(const float FOVdeg, const float nearPlane, cons
 {
 	auto view = lookAt(position, position + orientation, Constants::UP);
 	auto proj = glm::perspective(glm::radians(FOVdeg), static_cast<float>(width) / height, nearPlane, farPlane);
-
 	cameraMatrix = proj * view;
 }
 

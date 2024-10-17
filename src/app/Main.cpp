@@ -27,6 +27,7 @@
 #include "math/mesh/SimpleShapes.h"
 #include "utils/Timer.h"
 #include "utils/Logger.h"
+#include "utils/Raycast.h"
 
 // Force use of discrete Nvidia GPU
 #ifdef _WIN32
@@ -184,6 +185,11 @@ int main()
 	// parentRenderer.AddToECS();
 	// parentRenderer.SetRenderingEnabled(false);
 
+	Lines debugLineRenderer(10000);
+	debugLineRenderer.ShaderID = basicShader.ID;
+	debugLineRenderer.AddToECS();
+
+
 
 	// bunny.transform.CalculateModelMat();
 	// bunny.InitTree();
@@ -294,6 +300,14 @@ int main()
 		// Update uniform buffer
 		UBO.UpdateData(cam, world.GetComponent<Components::Transform>(light.mEntityID).worldPos);
 
+
+		if (windowManager.TestInput(InputButtons::LEFT_MOUSE))
+		{
+			LOG(LOG_INFO) << "Mouse position: " << glm::to_string(windowManager.GetMousePosNormalized()) << "\n";
+			Ray r = Utils::ScreenPointToRay(windowManager.GetMousePosNormalized(), cam.cameraMatrix);
+			debugLineRenderer.Clear();
+			debugLineRenderer.PushRay(r, 10);
+		}
 		std::string fpsString("FPS: " + std::to_string(static_cast<int>(fps)) + "\nMSPF: " + std::to_string(mspf));
 
 		renderSystem->Update();

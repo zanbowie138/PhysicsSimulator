@@ -32,6 +32,9 @@ public:
 	void PushData(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& indices);
 	void PushShapeData(const ShapeData& shapeData);
 
+	void PushRay(const glm::vec3& origin, const glm::vec3& direction, float length);
+	void PushRay(const Ray& r, float length);
+
 	void Clear();
 	size_t GetSize() override { return mIndexAmount; }
 private:
@@ -50,7 +53,6 @@ inline void Lines::PushData(const std::vector<glm::vec3>& vertices, const std::v
 {
 	mVAO.Bind();
 
-	// world.logger.Info("Lines", "Pushing " + std::string(vertices.size()) + "vertices and " + indices.size() + " indices.");
 	VBO.Bind();
 	VBO.PushData(vertices);
 
@@ -70,6 +72,16 @@ inline void Lines::PushData(const std::vector<glm::vec3>& vertices, const std::v
 inline void Lines::PushShapeData(const ShapeData& shapeData)
 {
 	PushData(shapeData.vertices, shapeData.indices);
+}
+
+inline void Lines::PushRay(const glm::vec3& origin, const glm::vec3& direction, float length)
+{
+	PushData({origin, origin + direction * length}, {0, 1});
+}
+
+inline void Lines::PushRay(const Ray& r, const float length = 1000.0f)
+{
+	PushRay(r.origin, r.direction, length);
 }
 
 inline void Lines::PushBoundingBox(const BoundingBox& box)
