@@ -27,6 +27,17 @@
 #include "utils/Timer.h"
 #include "utils/Logger.h"
 
+// Force use of discrete Nvidia GPU
+#ifdef _WIN32
+// #include <Wincon.h>
+#include <windows.h>
+extern "C" {
+	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;// Optimus: force switch to discrete GPU
+	// __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;//AMD
+}
+
+#endif
+
 World world("log.txt", true);
 
 int main()
