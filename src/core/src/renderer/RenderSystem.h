@@ -23,7 +23,7 @@ public:
 
     void Update() const;
 
-    void PostUpdate() const { glfwSwapBuffers(mWindow); }
+    void PostUpdate() const;
 
     void SetWindow(GLFWwindow* window) { mWindow = window; }
 

@@ -66,6 +66,15 @@ void RenderSystem::Update() const
 	}
 }
 
+void RenderSystem::PostUpdate() const
+{
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR) {
+		LOG(LOG_ERROR) << "OpenGL error: " << err << "\n";
+	}
+	glfwSwapBuffers(mWindow);
+}
+
 void RenderSystem::Clean()
 {
 	
