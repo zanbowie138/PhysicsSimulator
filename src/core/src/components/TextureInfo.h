@@ -4,8 +4,10 @@
 
 namespace Components
 {
-	struct TextureInfo {
-		GLuint diffuse_ID;
-		GLuint specular_ID;
-	};
+	struct DiffuseTextureInfo {
+        GLuint diffuse_ID;
+    };
+	struct SpecularTextureInfo {
+        GLuint specular_ID;
+    };
 }

@@ -15,8 +15,11 @@
 #else
 #define LOG(level) Utils::Logger::GetInstance() << "[" << Utils::Logger::GetInstance().SetLogLevel(level) << "] " << Utils::Logger::GetInstance().CurrentTime() << ": "
 #endif
-
+#define LOG_LOCATION(level, file, line) Utils::Logger::GetInstance() << "[" << Utils::Logger::GetInstance().SetLogLevel(level) << "][" << file << ":" << line << "] " << Utils::Logger::GetInstance().CurrentTime() << ": "
 // #define LOG_ASSERT_ON_ERROR
+
+#define GL_CHECK() Utils::checkOpenGLError(__FILE__, __LINE__)
+#define GL_FCHECK(func) func; Utils::checkOpenGLError(__FILE__, __LINE__)
 
 #define LOG_INIT(filename) Utils::Logger::GetInstance().SetLogFile(filename)
 #define LOG_CLOSE Utils::Logger::GetInstance().CloseLogFile()
@@ -140,4 +143,30 @@ namespace Utils
             }
         }
     };
+
+    inline void checkOpenGLError(const char* file, int line)
+    {
+        GLenum err;
+        while ((err = glGetError()) != GL_NO_ERROR) {
+            switch (err) {
+            case GL_INVALID_ENUM:
+                LOG_LOCATION(LOG_ERROR, file, line) << "GL_INVALID_ENUM: An unacceptable value was specified for an enumerated argument." << "\n";
+                break;
+            case GL_INVALID_VALUE:
+                LOG_LOCATION(LOG_ERROR, file, line) << "GL_INVALID_VALUE: A numeric argument is out of range." << "\n";
+                break;
+            case GL_INVALID_OPERATION:
+                LOG_LOCATION(LOG_ERROR, file, line) << "GL_INVALID_OPERATION: The specified operation is not allowed in the current state." << "\n";
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                LOG_LOCATION(LOG_ERROR, file, line) << "GL_INVALID_FRAMEBUFFER_OPERATION: The framebuffer object is not complete." << "\n";
+                break;
+            case GL_OUT_OF_MEMORY:
+                LOG_LOCATION(LOG_ERROR, file, line) << "GL_OUT_OF_MEMORY: There is not enough memory left to execute the command." << "\n";
+                break;
+            default:
+                LOG_LOCATION(LOG_ERROR, file, line) << "Unknown OpenGL error: " << err << "\n";
+            }
+        }
+    }
 }

@@ -16,6 +16,7 @@
 class RenderSystem final : public System
 {
     GLFWwindow* mWindow;
+    unsigned long long frames = 0;
 public:
     explicit RenderSystem(): mWindow(nullptr){}
 
@@ -23,7 +24,7 @@ public:
 
     void Update() const;
 
-    void PostUpdate() const;
+    void PostUpdate();
 
     void SetWindow(GLFWwindow* window) { mWindow = window; }
 

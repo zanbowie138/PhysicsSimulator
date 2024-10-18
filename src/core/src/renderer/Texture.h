@@ -15,11 +15,16 @@ public:
 	GLuint ID{};
 	GLenum texFormat;
 
+	Texture();
 	inline Texture(const char* image, const GLenum texFormat, const GLenum colorChannels, const GLenum pixelType);
 
 	// Deletes a texture
 	inline void Delete() const;
+private:
+	inline void generateTexture(const unsigned char* bytes, GLenum texFormat, GLenum colorChannels, GLenum pixelType, int widthImg, int heightImg);
 };
+
+inline Texture::Texture() {}
 
 inline Texture::Texture(const char* image, const GLenum texFormat, const GLenum colorChannels, const GLenum pixelType)
 {
@@ -34,43 +39,52 @@ inline Texture::Texture(const char* image, const GLenum texFormat, const GLenum 
 
 	const std::string localDir = "/res/textures/";
 
+	LOG(LOG_INFO) << "Loading texture: " << (BASE_DIR + localDir + image).c_str() << "\n";
+
 	// Reads the image from a file and stores it in bytes
 	unsigned char* bytes = stbi_load((BASE_DIR + localDir + image).c_str(), &widthImg,
 	                                 &heightImg, &numColCh, 0);
 
 	if (stbi_failure_reason())
 	{
-		std::cerr << "Can't open texture " << image << " because: " << stbi_failure_reason() << std::endl;
+		LOG(LOG_ERROR) << "Can't open texture " << image << " because: " << stbi_failure_reason() << "\n";
 	}
 
-
-	// Generates an OpenGL texture object
-	glGenTextures(1, &ID);
-
-	// Assigns the texture to a Texture Unit
-	glBindTexture(texFormat, ID);
-
-	// Configures the type of algorithm that is used to make the image smaller or bigger
-	glTexParameteri(texFormat, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-	glTexParameteri(texFormat, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	// Configures the way the texture repeats (if it does at all)
-	glTexParameteri(texFormat, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(texFormat, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	// Assigns the image to the OpenGL Texture object
-	glTexImage2D(texFormat, 0, GL_RGBA, widthImg, heightImg, 0, colorChannels, pixelType, bytes);
-	// Generates MipMaps
-	glGenerateMipmap(texFormat);
+	generateTexture(bytes, texFormat, colorChannels, pixelType, widthImg, heightImg);
 
 	// Deletes the image data as it is already in the OpenGL Texture object
 	stbi_image_free(bytes);
-
-	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
-	glBindTexture(texFormat, 0);
 }
+
+
 
 inline void Texture::Delete() const
 {
-	glDeleteTextures(1, &ID);
+	GL_FCHECK(glDeleteTextures(1, &ID));
+}
+
+inline void Texture::generateTexture(const unsigned char* bytes, const GLenum texFormat, const GLenum colorChannels,
+	const GLenum pixelType, const int widthImg, const int heightImg)
+{
+	// Generates an OpenGL texture object
+	GL_FCHECK(glGenTextures(1, &ID));
+
+	// Assigns the texture to a Texture Unit
+	GL_FCHECK(glBindTexture(texFormat, ID));
+
+	// Configures the type of algorithm that is used to make the image smaller or bigger
+	GL_FCHECK(glTexParameteri(texFormat, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR));
+	GL_FCHECK(glTexParameteri(texFormat, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+	// Configures the way the texture repeats (if it does at all)
+	GL_FCHECK(glTexParameteri(texFormat, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	GL_FCHECK(glTexParameteri(texFormat, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+	// Assigns the image to the OpenGL Texture object
+	GL_FCHECK(glTexImage2D(texFormat, 0, GL_RGBA, widthImg, heightImg, 0, colorChannels, pixelType, bytes));
+	// Generates MipMaps
+	GL_FCHECK(glGenerateMipmap(texFormat));
+
+	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
+	GL_FCHECK(glBindTexture(texFormat, 0));
 }
