@@ -30,7 +30,6 @@
 
 // Force use of discrete Nvidia GPU
 #ifdef _WIN32
-// #include <Wincon.h>
 #include <windows.h>
 extern "C" {
 	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; // Optimus: force switch to discrete GPU
@@ -103,8 +102,8 @@ int main()
 		Texture("planks.png", GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE),
 		Texture("planksSpec.png",  GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE)
 	};
-	std::vector<Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
-	Model floor(planeVerts, planeInds, tex[0], tex[1]);
+	std::vector tex(textures, textures + sizeof(textures) / sizeof(Texture));
+	Model floor(planeVerts, planeInds, tex[0]);
 	floor.ShaderID = defaultShader.ID;
 	floor.Scale(10.0f);
 	floor.AddToECS();

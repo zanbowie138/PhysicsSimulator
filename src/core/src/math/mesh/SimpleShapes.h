@@ -61,12 +61,12 @@ namespace Utils
 			ModelPt{glm::vec3(-0.5, 0.0, -0.5), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.0, 0.0)},
 			ModelPt{glm::vec3(0.5, 0.0, -0.5), glm::vec3(0.0, 1.0, 0.0), glm::vec2(1.0, 0.0)},
 			ModelPt{glm::vec3(0.5, 0.0, 0.5), glm::vec3(0.0, 1.0, 0.0), glm::vec2(1.0, 1.0)},
-			ModelPt{glm::vec3(-0.5, 0.0, 0.5), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.0, 1.0)}
+			ModelPt{glm::vec3(-0.5, 0.0, 0.5), glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.0, 1.0)},
 		};
 		std::vector<GLuint> board_indices
 		{
 			0, 1, 2,
-			2, 3, 0
+			3, 0, 2,
 		};
 		return ModelData{ board_vertexes, board_indices };
 	}

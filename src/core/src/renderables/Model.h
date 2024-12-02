@@ -86,8 +86,8 @@ inline void Model::InitVAO()
 	EBO EBO(indices);
 
 	mVAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(ModelPt), nullptr);
-	mVAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(ModelPt), (void*)(3 * sizeof(float)));
-	mVAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(ModelPt), (void*)(6 * sizeof(float)));
+	mVAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(ModelPt), reinterpret_cast<void*>(3 * sizeof(float)));
+	mVAO.LinkAttrib(VBO, 2, 2, GL_FLOAT, sizeof(ModelPt), reinterpret_cast<void*>(6 * sizeof(float)));
 
 	mVAO.Unbind();
 	VBO.Unbind();

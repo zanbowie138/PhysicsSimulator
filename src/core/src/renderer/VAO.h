@@ -21,7 +21,7 @@ public:
      * @param stride Byte offset of each consecutive vertex
      * @param offset Specifies an offset of the first component of the first generic vertex attribute
     */
-    static inline void LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride,
+    static inline void LinkAttrib(const VBO& VBO, GLuint layout, GLint numComponents, GLenum type, GLsizei stride,
                                   const void* offset);
 
     void Bind() const { glBindVertexArray(ID); }
@@ -30,7 +30,7 @@ public:
 };
 
 // Links a VBO to the VAO using a certain layout
-inline void VAO::LinkAttrib(const VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride,
+inline void VAO::LinkAttrib(const VBO& VBO, const GLuint layout, const GLint numComponents, const GLenum type, const GLsizei stride,
                             const void* offset)
 {
     VBO.Bind();
