@@ -10,11 +10,10 @@ cmake_minimum_required(VERSION 3.20)
 #set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(PhysicsEngine)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # Defines the BASE_DIR macro for the project as the root directory
-add_definitions(-DBASE_DIR="${CMAKE_SOURCE_DIR}")
-#add_definitions(-DLOG_CLASS_NAME)
+#add_definitions(-DBASE_DIR="${EXECUTABLE_OUTPUT_PATH}")
 
 # Add the core library
 add_subdirectory(src/core)

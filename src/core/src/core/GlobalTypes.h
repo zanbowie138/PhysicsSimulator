@@ -5,6 +5,10 @@
 #include "glm/glm.hpp"
 #include <glad/glad.h>
 
+#ifndef BASE_DIR
+#define BASE_DIR std::filesystem::current_path().string()
+#endif
+
 constexpr unsigned int MAX_ENTITIES = 500;
 constexpr unsigned int MAX_COMPONENTS = 10;
 
