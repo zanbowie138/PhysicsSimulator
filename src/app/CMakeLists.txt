@@ -1,4 +1,4 @@
 project(PhysicsEngine)
 
 add_executable(${PROJECT_NAME} Main.cpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC CoreEngine)
+target_link_libraries(${PROJECT_NAME} PRIVATE CoreEngine -static)
