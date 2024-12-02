@@ -39,6 +39,7 @@ namespace Physics {
 
 		// Uses TreeQuery to compute all box pairs
 		std::vector<Entity> ComputeCollisionPairs();
+		std::pair<std::vector<BoundingBox>, bool> QueryRayCollisions(Ray ray) const;
 		std::pair<Entity, bool> QueryRay(Ray ray) const;
 
 		// Returns reference to object's bounding box

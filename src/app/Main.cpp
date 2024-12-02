@@ -116,17 +116,19 @@ int main()
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis(-2, 2); // range for random positions
 
+	const auto cubeData = Utils::CubeData();
+
 	// Number of cubes to generate
-	// int numCubes = 100;
-	//
-	// for (int i = 0; i < numCubes; ++i) {
-	// 	Mesh cube(cubeData);
-	// 	cube.SetPosition(glm::vec3(dis(gen), abs(dis(gen)), dis(gen))); // random position
-	// 	cube.Scale(0.1f);
-	// 	cube.ShaderID = flatShader.ID;
-	// 	cube.AddToECS();
-	// 	physicsSystem->AddToTree(cube);
-	// }
+	int numCubes = 100;
+
+	for (int i = 0; i < numCubes; ++i) {
+		Mesh cube(cubeData);
+		cube.SetPosition(glm::vec3(dis(gen), abs(dis(gen)), dis(gen))); // random position
+		cube.Scale(0.1f);
+		cube.ShaderID = flatShader.ID;
+		cube.AddToECS();
+		physicsSystem->AddToTree(cube);
+	}
 
 	const ModelData sphereData = Utils::UVSphereData(20,20, 1);
 	Model light(sphereData);
@@ -157,20 +159,29 @@ int main()
 	// physicsSystem->AddToTree(dragon);
 
 	// Box showing collision between objects
-	// Lines collideBox(100000);
-	// collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
-	// collideBox.ShaderID = basicShader.ID;
-	// collideBox.AddToECS();
+	Lines hitBox(100);
+	hitBox.mColor = glm::vec3(0.0f, 1.0f, 0.0f);
+	hitBox.ShaderID = basicShader.ID;
+	hitBox.AddToECS();
+
+	// Box showing collision between objects
+	Lines collideBox(10000);
+	collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
+	collideBox.ShaderID = basicShader.ID;
+	collideBox.AddToECS();
+
+
+
 	//
 	// // Constraint bounding box
 	// // Lines boundsBox(10000);
 	// // boundsBox.ShaderID = basicShader.ID;
 	// // boundsBox.AddToECS();
 	//
-	// // Debug bounding boxes
-	// Lines boxRenderer(20000);
-	// boxRenderer.ShaderID = basicShader.ID;
-	// boxRenderer.AddToECS();
+	// Debug bounding boxes
+	Lines boxRenderer(20000);
+	boxRenderer.ShaderID = basicShader.ID;
+	boxRenderer.AddToECS();
 	//
 	// dragon.transform.CalculateModelMat();
 	//
@@ -239,11 +250,11 @@ int main()
 
 		// physicsSystem->Update(dt_mill);
 
-		// boxRenderer.Clear();
-		// if (GUI.config.showDynamicBoxes)
-		// {
-		// 	boxRenderer.PushBoundingBoxes(tree.GetAllBoxes(GUI.config.showOnlyDynamicLeaf));
-		// }
+		boxRenderer.Clear();
+		if (GUI.config.showDynamicBoxes)
+		{
+			boxRenderer.PushBoundingBoxes(tree.GetAllBoxes(GUI.config.showOnlyDynamicLeaf));
+		}
 		//
 		// collideBox.Clear();
 		// const auto collidedEntities = tree.ComputeCollisionPairs();
@@ -307,6 +318,19 @@ int main()
 			Ray r = Utils::ScreenPointToRay(windowManager.GetMousePosNormalized(), cam.cameraMatrix);
 			debugLineRenderer.Clear();
 			debugLineRenderer.PushRay(r, 10);
+			const auto [boxes, hit] = tree.QueryRayCollisions(r);
+			const auto [entity, hitEntity] = tree.QueryRay(r);
+			collideBox.Clear();
+			hitBox.Clear();
+			collideBox.PushBoundingBoxes(boxes);
+			if (hit)
+			{
+				LOG(LOG_INFO) << "Hit entity\n";
+				hitBox.PushBoundingBox(tree.GetBoundingBox(entity));
+			} else
+			{
+				LOG(LOG_INFO) << "No hit\n";
+			}
 		}
 		std::string fpsString("FPS: " + std::to_string(static_cast<int>(fps)) + "\nMSPF: " + std::to_string(mspf));
 
