@@ -8,6 +8,7 @@
 #include "../renderer/VBO.h"
 #include "../renderer/VAO.h"
 #include "../renderer/Texture.h"
+#include "../math/mesh/OBJ_Loader.h"
 
 #include "Renderable.h"
 
@@ -16,17 +17,21 @@ class Model: public Renderable
 public:
 	const std::vector<ModelPt>& vertices;
 	const std::vector<GLuint>& indices;
-	const std::vector<Texture>& textures;
+	const Texture& diffuseTex = {};
+	const Texture& specularTex = {};
 
-	bool hasTextures = false;
+	bool hasDiffuse = false;
+	bool hasSpecular = false;
 
 	// Initializes the mesh
-	Model(const std::vector<ModelPt>& vertices, const std::vector<GLuint>& indices, const std::vector<Texture>& textures);
+	Model(const std::vector<ModelPt>& vertices, const std::vector<GLuint>& indices, const Texture& diffuseTex,
+	      const Texture& specularTex);
+	Model(const std::vector<ModelPt>& vertices, const std::vector<GLuint>& indices, const Texture& diffuseTex);
 	Model(const std::vector<ModelPt>& vertices, const std::vector<GLuint>& indices);
 
 
 	Model(const ModelData& data);
-	Model(const ModelData& data, const std::vector<Texture>& textures);
+	Model(const ModelData& data, const Texture& diffuseTex, const Texture& specularTex);
 
 	void AddToECS();
 	BoundingBox CalcBoundingBox();
@@ -36,30 +41,41 @@ private:
 	size_t GetSize() override;
 };
 
-inline Model::Model(const std::vector<ModelPt>& vertices, const std::vector<GLuint>& indices, const std::vector<Texture>& textures): vertices(vertices), indices(indices), textures(textures)
+inline Model::Model(const std::vector<ModelPt>& vertices, const std::vector<GLuint>& indices, const Texture& diffuseTex, const Texture& specularTex): vertices(vertices), indices(indices), diffuseTex(diffuseTex), specularTex(specularTex)
+{
+    mSize = indices.size();
+	hasDiffuse = true;
+	hasSpecular = true;
+    InitVAO();
+}
+
+inline Model::Model(const std::vector<ModelPt>& vertices, const std::vector<GLuint>& indices, const Texture& diffuseTex):
+	vertices(vertices), indices(indices), diffuseTex(diffuseTex)
 {
 	mSize = indices.size();
-	hasTextures = true;
+	hasDiffuse = true;
 	InitVAO();
 }
 
-inline Model::Model(const std::vector<ModelPt>& vertices, const std::vector<GLuint>& indices): vertices(vertices), indices(indices), textures(std::vector<Texture>{})
+inline Model::Model(const std::vector<ModelPt>& vertices, const std::vector<GLuint>& indices): vertices(vertices),
+indices(indices)
 {
 	mSize = indices.size();
 	InitVAO();
 }
 
-inline Model::Model(const ModelData& data): vertices(data.vertices), indices(data.indices), textures(std::vector<Texture>{})
+inline Model::Model(const ModelData& data): vertices(data.vertices), indices(data.indices)
 {
 	mSize = indices.size();
 	InitVAO();
 }
 
-inline Model::Model(const ModelData& data, const std::vector<Texture>& textures): vertices(data.vertices), indices(data.indices), textures(textures)
+inline Model::Model(const ModelData& data, const Texture& diffuseTex, const Texture& specularTex): vertices(data.vertices), indices(data.indices), diffuseTex(diffuseTex), specularTex(specularTex)
 {
-	mSize = indices.size();
-	hasTextures = true;
-	InitVAO();
+    mSize = indices.size();
+    hasDiffuse = true;
+    hasSpecular = true;
+    InitVAO();
 }
 
 inline void Model::InitVAO()
@@ -86,8 +102,10 @@ inline void Model::AddToECS()
 	// Add components
 	world.AddComponent(mEntityID, transform);
 	world.AddComponent(mEntityID, Components::RenderInfo{ GL_TRIANGLES,mVAO.ID, ShaderID, indices.size(), mColor});
-	if (hasTextures)
-		world.AddComponent(mEntityID, Components::TextureInfo{ textures[0].ID, textures[1].ID });
+	if (hasDiffuse)
+		world.AddComponent(mEntityID, Components::DiffuseTextureInfo( { diffuseTex.ID }));
+	if (hasSpecular)
+        world.AddComponent(mEntityID, Components::SpecularTextureInfo( { specularTex.ID }));
 }
 
 inline size_t Model::GetSize()

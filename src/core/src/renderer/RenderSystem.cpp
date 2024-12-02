@@ -10,9 +10,12 @@ void RenderSystem::PreUpdate() const
 
 void RenderSystem::Update() const
 {
+	GLenum err;
+
 	assert(mWindow && "Window not set.");
 
-	auto tex = world.GetComponentType<Components::TextureInfo>();
+	auto diffuse = world.GetComponentType<Components::DiffuseTextureInfo>();
+	auto specular = world.GetComponentType<Components::SpecularTextureInfo>();
 
 	for (const auto& entity : mEntities)
 	{
@@ -25,45 +28,59 @@ void RenderSystem::Update() const
 		transform.CalculateModelMat();
 
 		// Bind vertex array
-		glBindVertexArray(renderInfo.VAO_ID);
+		GL_FCHECK(glBindVertexArray(renderInfo.VAO_ID));
 
 		// Bind shader
-		glUseProgram(renderInfo.shader_ID);
+		GL_FCHECK(glUseProgram(renderInfo.shader_ID));
 
 		auto entitySignature = world.GetEntitySignature(entity);
 
-		glUniformMatrix4fv(glGetUniformLocation(renderInfo.shader_ID, "model"), 1, GL_FALSE, glm::value_ptr(transform.modelMat));
-		glUniform3fv(glGetUniformLocation(renderInfo.shader_ID, "color"), 1, glm::value_ptr(renderInfo.color));
+		GL_FCHECK(glUniformMatrix4fv(glGetUniformLocation(renderInfo.shader_ID, "model"), 1, GL_FALSE, glm::value_ptr(transform.modelMat)));
+		GL_FCHECK(glUniform3fv(glGetUniformLocation(renderInfo.shader_ID, "color"), 1, glm::value_ptr(renderInfo.color)));
 
 		// Test if entity has a texture
-		if (entitySignature.test(tex))
+		if (entitySignature.test(diffuse))
 		{
-			const auto& [diffuse_ID, specular_ID] = world.GetComponent<Components::TextureInfo>(entity);
-			
+			const auto& [diffuse_ID] = world.GetComponent<Components::DiffuseTextureInfo>(entity);
+
 			// textures
 			// Set texture uniform value
-			glUniform1i(glGetUniformLocation(renderInfo.shader_ID, "diffuse0"), 0);
+			GL_FCHECK(glUniform1i(glGetUniformLocation(renderInfo.shader_ID, "diffuse0"), 0));
 			// Activate texture unit
-			glActiveTexture(GL_TEXTURE0);
-			// Bind texture to 
-			glBindTexture(GL_TEXTURE_2D, diffuse_ID);
+			GL_FCHECK(glActiveTexture(GL_TEXTURE0));
+			// Bind texture to
+			GL_FCHECK(glBindTexture(GL_TEXTURE_2D, diffuse_ID));
+		}
 
-			glUniform1i(glGetUniformLocation(renderInfo.shader_ID, "specular0"), 1);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, specular_ID);
+		// Test if entity has a texture
+		if (entitySignature.test(specular))
+		{
+			const auto& [specular_ID] = world.GetComponent<Components::SpecularTextureInfo>(entity);
+
+			GL_FCHECK(glUniform1i(glGetUniformLocation(renderInfo.shader_ID, "specular0"), 1));
+			GL_FCHECK(glActiveTexture(GL_TEXTURE1));
+			GL_FCHECK(glBindTexture(GL_TEXTURE_2D, specular_ID));
 		}
 
 		// Draw VAO
 		if (renderInfo.primitive_type == GL_POINTS)
-			glDrawArrays(renderInfo.primitive_type, 0, renderInfo.size);
+		{
+			GL_FCHECK(glDrawArrays(renderInfo.primitive_type, 0, renderInfo.size));
+		}
 		else
 		{
 			/*if (primitive_type == GL_LINES)
 				glClear(GL_DEPTH_BUFFER_BIT);*/
-			glDrawElements(renderInfo.primitive_type, renderInfo.size, GL_UNSIGNED_INT, nullptr);
+			GL_FCHECK(glDrawElements(renderInfo.primitive_type, renderInfo.size, GL_UNSIGNED_INT, nullptr));
 		}
 			
 	}
+}
+
+void RenderSystem::PostUpdate()
+{
+	glfwSwapBuffers(mWindow);
+	frames += 1;
 }
 
 void RenderSystem::Clean()

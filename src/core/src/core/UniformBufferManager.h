@@ -1,6 +1,8 @@
 #pragma once
 #include "GlobalTypes.h"
 #include "../renderer/Camera.h"
+#include "../utils/Logger.h"
+
 namespace Core {
     // Global Uniforms
     struct UniformBlock
@@ -16,6 +18,9 @@ namespace Core {
     {
     private:
         GLuint ID;
+        GLint offsetAlignment;
+        GLint secondOffset;
+        GLint bufferSize;
     public:
         inline UniformBufferManager();
         inline void BindBuffer();
@@ -34,63 +39,75 @@ namespace Core {
 
     inline UniformBufferManager::UniformBufferManager()
     {
-        glGenBuffers(1, &ID);
+        GL_FCHECK(glGenBuffers(1, &ID));
+        GL_FCHECK(glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &offsetAlignment));
+        LOG(LOG_INFO) << "UBO Alignment: " << offsetAlignment << "\n";
+        secondOffset = std::max(offsetAlignment, 64);
     }
 
     inline void UniformBufferManager::BindBuffer()
     {
-        glBindBuffer(GL_UNIFORM_BUFFER, ID);
+        GL_FCHECK(glBindBuffer(GL_UNIFORM_BUFFER, ID));
     }
 
     inline void UniformBufferManager::UnbindBuffer()
     {
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        GL_FCHECK(glBindBuffer(GL_UNIFORM_BUFFER, 0));
     }
     
     inline void UniformBufferManager::AllocateBuffer()
     {
+        // Offset for each block must be a multiple of the alignment
+        // TODO: Do this more dynamically
+        bufferSize = std::max(sizeof(glm::mat4), (size_t)offsetAlignment) + sizeof(glm::vec4) * 3;
         BindBuffer();
-        glBufferData(GL_UNIFORM_BUFFER, 112, nullptr, GL_DYNAMIC_DRAW);
-        LOG(LOG_INFO) << "Allocated Uniform Buffer of size 112.\n";
+        GL_FCHECK(glBufferData(GL_UNIFORM_BUFFER, bufferSize, nullptr, GL_DYNAMIC_DRAW));
+        LOG(LOG_INFO) << "Allocated Uniform Buffer of size " << bufferSize << ".\n";
         UnbindBuffer();
     }
 
     inline void UniformBufferManager::DefineRanges()
     {
-        // glBindBufferRange(GL_UNIFORM_BUFFER, index, ID, offset, size)
         BindBuffer();
-        glBindBufferRange(GL_UNIFORM_BUFFER, 0, ID, 0, sizeof(glm::mat4));	
-        glBindBufferRange(GL_UNIFORM_BUFFER, 1, ID, 64, 48);	
+        GL_FCHECK(glBindBufferRange(GL_UNIFORM_BUFFER, 0, ID, 0, sizeof(glm::mat4)));
+        GL_FCHECK(glBindBufferRange(GL_UNIFORM_BUFFER, 1, ID, secondOffset, 48)); // TODO: Make this more dynamic
     }
 
     inline void UniformBufferManager::BindShader(const Shader& shader)
     {
         BindBuffer();
         if (shader.mUniforms.test((static_cast<std::size_t>(UniformBlockConfig::CAMERA))))
-            glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Camera"), 0);
+        {
+            GL_FCHECK(glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Camera"), 0));
+        }
         if (shader.mUniforms.test((static_cast<std::size_t>(UniformBlockConfig::LIGHTING))))
-            glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Lighting"), 1);
+        {
+            GL_FCHECK(glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Lighting"), 1));
+        }
     }
 
     inline void UniformBufferManager::UpdateData(const Camera& cam, const glm::vec3& lightPos)
     {
         BindBuffer();
-        UniformBlock ub = {};
-        ub.camMatrix = cam.cameraMatrix;
-        ub.camPos = glm::vec4(cam.position, 1.0);
-        ub.lightPos = glm::vec4(lightPos, 1.0f);
-        ub.lightColor = glm::vec4(1.0, 1.0, 1.0, 1.0);
 
-        char ub_char[sizeof(ub)];
-        memcpy(ub_char, &ub, sizeof(ub));
+        struct {
+            glm::vec4 camPos;
+            glm::vec4 lightPos;
+            glm::vec4 lightColor;
+        } lightStruct;
+        lightStruct = { glm::vec4(cam.position, 1.0), glm::vec4(lightPos, 1.0f), glm::vec4(1.0, 1.0, 1.0, 1.0) };
 
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(ub), ub_char, GL_DYNAMIC_DRAW);
+        char data[bufferSize];
+        memcpy(data, &cam.cameraMatrix, sizeof(glm::mat4));
+        memcpy(data + secondOffset, &lightStruct, sizeof(lightStruct));
+
+        GL_FCHECK(glBufferData(GL_UNIFORM_BUFFER, sizeof(data), data, GL_DYNAMIC_DRAW));
     }
 
     // Deletes the UBO
     inline void UniformBufferManager::Clean()
     {
-        glDeleteBuffers(1, &ID);
+        GL_FCHECK(glDeleteBuffers(1, &ID));
         LOG(LOG_INFO) << "Cleaning Uniform Buffer.\n";
     }
 };

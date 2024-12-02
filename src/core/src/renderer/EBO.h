@@ -19,17 +19,17 @@ public:
     inline void AllocBuffer(GLint size, GLenum type);
     void ClearData() { currentBufSize = 0; }
 
-    void Bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID); }
-    static void Unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
-    void Delete() const { glDeleteBuffers(1, &ID); }
+    void Bind() const { GL_FCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID)); }
+    static void Unbind() { GL_FCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)); }
+    void Delete() const { GL_FCHECK(glDeleteBuffers(1, &ID)); }
 };
 
 template <typename T>
 EBO::EBO(const std::vector<T>& indices)
 {
-    glGenBuffers(1, &ID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(T), indices.data(), GL_STATIC_DRAW);
+    GL_FCHECK(glGenBuffers(1, &ID));
+    GL_FCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID));
+    GL_FCHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(T), indices.data(), GL_STATIC_DRAW));
     LOG(LOG_INFO) << "Created EBO buffer of size " << indices.size() << ".\n";
 }
 
@@ -37,7 +37,7 @@ inline void EBO::PushData(const std::vector<GLuint>& indices)
 {
     if (currentBufSize + indices.size() * sizeof(GLuint) < bufSize)
     {
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, currentBufSize, indices.size() * sizeof(GLuint), indices.data());
+        GL_FCHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, currentBufSize, indices.size() * sizeof(GLuint), indices.data()));
         currentBufSize += static_cast<GLuint>(indices.size() * sizeof(GLuint));
     } else
     {
@@ -47,8 +47,8 @@ inline void EBO::PushData(const std::vector<GLuint>& indices)
 
 inline void EBO::AllocBuffer(const GLint size, const GLenum type)
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, type);
+    GL_FCHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID));
+    GL_FCHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, nullptr, type));
     bufSize = size;
     LOG(LOG_INFO) << "Allocated EBO buffer of size " << size << ".\n";
 }
