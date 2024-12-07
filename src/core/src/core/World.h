@@ -73,6 +73,8 @@ public:
 		return mComponentManager->GetComponent<T>(entity);
 	}
 
+
+
 	template<typename T>
 	ComponentType GetComponentType() const
 	{

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <components/Transform.h>
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -9,6 +10,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <utils/Logger.h>
+
+#include "GlobalTypes.h"
+#include "World.h"
+
+extern World world;
+
+namespace Components
+{
+	struct Transform;
+}
 
 class Changed
 {
@@ -57,6 +68,7 @@ public:
 	static void ButtonFunc(const char* text, std::function<void()> func);
 
 	void ShowConfigWindow();
+	void EntityInfo(Entity entity, bool entitySelected);
 	void RenderLog(const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels);
 
 	static void Demo() { ImGui::ShowDemoWindow(); }
@@ -135,6 +147,21 @@ inline void GUI::ShowConfigWindow()
 
 	config.showStaticBoxes.Update();
 	config.showOnlyStaticLeaf.Update();
+	EndWindow();
+}
+
+inline void GUI::EntityInfo(const Entity entity, const bool entitySelected)
+{
+	StartWindow("Entity Info");
+	if (entitySelected)
+	{
+		ImGui::Text("Entity ID: %d", entity);
+		ImGui::Text("Entity Position: %s", glm::to_string(world.GetComponent<Components::Transform>(entity).worldPos).c_str());
+	}
+	else
+	{
+		ImGui::Text("No entity selected.");
+	}
 	EndWindow();
 }
 

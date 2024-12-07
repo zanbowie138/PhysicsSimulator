@@ -233,6 +233,10 @@ int main()
 	time = mspf = fps = 0.0f;
 
 	std::cout << timer.ToString() << std::endl;
+
+	Entity entity = Entity();
+	bool entitySelected = false;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		renderSystem->PreUpdate();
@@ -311,7 +315,6 @@ int main()
 		// Update uniform buffer
 		UBO.UpdateData(cam, world.GetComponent<Components::Transform>(light.mEntityID).worldPos);
 
-
 		if (windowManager.TestInput(InputButtons::LEFT_MOUSE))
 		{
 			LOG(LOG_INFO) << "Mouse position: " << glm::to_string(windowManager.GetMousePosNormalized()) << "\n";
@@ -319,14 +322,16 @@ int main()
 			debugLineRenderer.Clear();
 			debugLineRenderer.PushRay(r, 10);
 			const auto [boxes, hit] = tree.QueryRayCollisions(r);
-			const auto [entity, hitEntity] = tree.QueryRay(r);
+			const auto [entityHit, hitEntity] = tree.QueryRay(r);
 			collideBox.Clear();
 			hitBox.Clear();
 			collideBox.PushBoundingBoxes(boxes);
+			entity = entityHit;
+			entitySelected = hitEntity;
 			if (hit)
 			{
 				LOG(LOG_INFO) << "Hit entity\n";
-				hitBox.PushBoundingBox(tree.GetBoundingBox(entity));
+				hitBox.PushBoundingBox(tree.GetBoundingBox(entityHit));
 			} else
 			{
 				LOG(LOG_INFO) << "No hit\n";
@@ -342,6 +347,7 @@ int main()
 		GUI.EndWindow();
 
 		GUI.ShowConfigWindow();
+		GUI.EntityInfo(entity, entitySelected);
 		GUI.RenderLog(LOG_CONTENTS(), LOG_LINE_LEVELS());
 
 		GUI.Render();
