@@ -363,3 +363,9 @@ MigrationBackup/
 FodyWeavers.xsd
 
 .idea/
+
+.claude/
+log.txt
+imgui.ini
+cmake-build-debug/
+*.exe
