@@ -21,6 +21,7 @@ set(IMGUI_SOURCES
 )
 
 add_subdirectory(${DEPENDENCIES_DIR}/glfw-3.4)
+add_subdirectory(${DEPENDENCIES_DIR}/lua)
 
 add_library(${PROJECT_NAME} STATIC ${SRC_FILES} ${IMGUI_SOURCES})
 

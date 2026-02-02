@@ -29,7 +29,8 @@
 #include "utils/Logger.h"
 #include "utils/Raycast.h"
 
-#include "lua.hpp"
+#define SOL_ALL_SAFETIES_ON 1
+#include <sol/sol.hpp>
 
 // Force use of discrete Nvidia GPU
 #ifdef _WIN32
@@ -47,15 +48,12 @@ int main()
 {
 	Utils::Timer timer("Setup");
 
-	lua_State* L = luaL_newstate();
-    if (L) {
-        luaL_openlibs(L);
-        std::cout << "Lua initialized successfully" << std::endl;
-        lua_close(L);
-        return 0;
-    }
-    std::cerr << "Failed to initialize Lua" << std::endl;
+	auto lua = sol::state();
+	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::package, sol::lib::string, sol::lib::table);
 
+	int result = lua.script_file("test.lua");
+	std::cout << result << std::endl;
+	return 0;
 
 	// Window creation
 	// TODO: Add callbacks

@@ -15,9 +15,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 # Defines the BASE_DIR macro for the project as the root directory
 #add_definitions(-DBASE_DIR="${EXECUTABLE_OUTPUT_PATH}")
 
-# Add vendors
-add_subdirectory(vendors/lua)
-
 # Add the core library
 add_subdirectory(src/core)
 add_subdirectory(src/app)
