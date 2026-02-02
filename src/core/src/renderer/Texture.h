@@ -8,6 +8,7 @@
 #include <filesystem>
 
 #include "Shader.h"
+#include <utils/PathUtils.h>
 
 class Texture
 {
@@ -37,12 +38,12 @@ inline Texture::Texture(const char* image, const GLenum texFormat, const GLenum 
 	// Flips the image so it appears right side up
 	stbi_set_flip_vertically_on_load(true);
 
-	const std::string localDir = "/res/textures/";
+	std::string texturePath = Utils::GetResourcePath("/res/textures/", image);
 
-	LOG(LOG_INFO) << "Loading texture: " << (BASE_DIR + localDir + image).c_str() << "\n";
+	LOG(LOG_INFO) << "Loading texture: " << texturePath.c_str() << "\n";
 
 	// Reads the image from a file and stores it in bytes
-	unsigned char* bytes = stbi_load((BASE_DIR + localDir + image).c_str(), &widthImg,
+	unsigned char* bytes = stbi_load(texturePath.c_str(), &widthImg,
 	                                 &heightImg, &numColCh, 0);
 
 	if (stbi_failure_reason())

@@ -11,6 +11,7 @@
 #include "../math/mesh/MeshImport.h"
 #include "../physics/StaticTree.h"
 #include "../utils/Timer.h"
+#include "../utils/PathUtils.h"
 
 #include "Renderable.h"
 
@@ -39,14 +40,13 @@ private:
 
 inline Mesh::Mesh(const char* filename, const bool is_stl)
 {
-	const std::string localDir = "/res/models/";
-	std::string filepath = BASE_DIR + localDir + filename;
+	std::string filepath = Utils::GetResourcePath("/res/models/", filename);
 	MeshData data;
 
 	LOG(LOG_INFO) << "Loading mesh: " << filename << "\n";
-	if (!is_stl) 
+	if (!is_stl)
 		data = Utils::ReadPackedSTL(filepath.c_str());
-	else 
+	else
 		data = Utils::ReadSTL(filepath.c_str());
 	if (data.indices.size() == 0 || data.vertices.size() == 0)
 	{

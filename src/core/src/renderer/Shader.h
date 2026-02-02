@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cerrno>
 #include <utils/Logger.h>
+#include <utils/PathUtils.h>
 
 #include "../core/GlobalTypes.h"
 
@@ -35,9 +36,7 @@ private:
 // Reads a text file and outputs a string with everything in the text file
 inline std::string get_file_contents(const char* filename)
 {
-	const std::string localDir = "/shaders/";
-	// TODO: Maybe have backup in case BASE_DIR is not defined
-	std::string filePath = BASE_DIR + localDir + filename;
+	std::string filePath = Utils::GetResourcePath("/shaders/", filename);
 	std::ifstream fileText(filePath.c_str(), std::ios::binary);
 	if (fileText)
 	{

@@ -10,6 +10,7 @@
 #include "../physics/BoundingBox.h"
 #include "../renderer/Texture.h"
 #include "../math/mesh/OBJ_Loader.h"
+#include "../utils/PathUtils.h"
 
 #include "Renderable.h"
 
@@ -35,8 +36,7 @@ private:
 
 inline ObjModel::ObjModel(const char* obj_filepath, const char* obj_name): obj_filepath(obj_filepath)
 {
-	const std::string localDir = "/res/models/";
-	std::string filepath = BASE_DIR + localDir + obj_filepath + obj_name;
+	std::string filepath = Utils::GetResourcePath("/res/models/", std::string(obj_filepath) + obj_name);
 	LOG(LOG_INFO) << "Loading model: " << filepath << "\n";
 	objl::Loader loader;
 	if (loader.LoadFile(filepath)) {
@@ -50,7 +50,6 @@ inline ObjModel::ObjModel(const char* obj_filepath, const char* obj_name): obj_f
 
 inline void ObjModel::InitVAOs()
 {
-	const std::string localDir = "/res/models/";
   	for (const auto& mesh : meshes)
   	{
   		LOG(LOG_INFO) << "Loaded mesh: " << mesh.MeshName << " with " << mesh.Vertices.size() << " vertices and " << mesh.Indices.size() << " indices\n";
@@ -73,14 +72,14 @@ inline void ObjModel::InitVAOs()
   			// Remove all spaces
   			c.erase(std::remove(c.begin(), c.end(), ' '), c.end());
   			// std::transform(c.begin(), c.end(), c.begin(), ::tolower);
-  			std::string filepath = BASE_DIR + localDir + obj_filepath + c;
+  			std::string filepath = Utils::GetResourcePath("/res/models/", obj_filepath + c);
   			auto diffuseTexture = Texture(filepath.c_str(), GL_TEXTURE_2D, GL_RGBA, GL_RGBA);
   			LOG(LOG_INFO) << "Loaded texture: " << mesh.MeshMaterial.map_Kd << "\n";
   			models.emplace_back(vertices, indices, diffuseTexture);
   		}
   		else {
-  			std::string d_filepath = BASE_DIR + localDir + obj_filepath + mesh.MeshMaterial.map_Kd;
-  			std::string s_filepath = BASE_DIR + localDir + obj_filepath + mesh.MeshMaterial.map_Ks;
+  			std::string d_filepath = Utils::GetResourcePath("/res/models/", obj_filepath + mesh.MeshMaterial.map_Kd);
+  			std::string s_filepath = Utils::GetResourcePath("/res/models/", obj_filepath + mesh.MeshMaterial.map_Ks);
   			auto diffuseTexture = Texture((d_filepath).c_str(), GL_TEXTURE_2D, GL_RGB, GL_RGB);
   			auto specularTexture = Texture((s_filepath).c_str(), GL_TEXTURE_2D, GL_RED, GL_RED);
   			LOG(LOG_INFO) << "Loaded textures: " << mesh.MeshMaterial.map_Kd << " and " << mesh.MeshMaterial.map_Ks << "\n";
