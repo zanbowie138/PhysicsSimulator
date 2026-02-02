@@ -29,6 +29,8 @@
 #include "utils/Logger.h"
 #include "utils/Raycast.h"
 
+#include "lua.hpp"
+
 // Force use of discrete Nvidia GPU
 #ifdef _WIN32
 #include <windows.h>
@@ -44,6 +46,16 @@ World world("log.txt", true);
 int main()
 {
 	Utils::Timer timer("Setup");
+
+	lua_State* L = luaL_newstate();
+    if (L) {
+        luaL_openlibs(L);
+        std::cout << "Lua initialized successfully" << std::endl;
+        lua_close(L);
+        return 0;
+    }
+    std::cerr << "Failed to initialize Lua" << std::endl;
+
 
 	// Window creation
 	// TODO: Add callbacks
