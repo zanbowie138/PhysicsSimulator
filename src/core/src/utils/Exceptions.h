@@ -21,3 +21,7 @@ class RenderException : public EngineException {
 class PhysicsException : public EngineException {
     using EngineException::EngineException;
 };
+
+class SceneException : public EngineException {
+    using EngineException::EngineException;
+};

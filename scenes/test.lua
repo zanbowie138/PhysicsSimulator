@@ -27,13 +27,17 @@ cube = CreateCube({
     },
     scale = 0.1,
     shader = "flat",
-    color = {math.random(), math.random(), math.random()}
+    color = { math.random(), math.random(), math.random() }
 })
 
 -- Light sphere
 light = CreateSphere({
-    position = {0, 1, 0},
+    position = { 0, 1, 0 },
     scale = 0.1,
     shader = "basic",
-    color = {1, 1, 1}
+    color = { 1, 1, 1 }
 })
+
+return {
+    light = light
+}

@@ -121,8 +121,10 @@ int main()
 		shaders["default"] = defaultShader->ID;
 		shaders["diffuse"] = diffuseShader->ID;
 
+
 		// Initialize scene from lua
-		if (!InitializeSceneFromLua(world, "test.lua", shaders)) {
+        auto sceneData = InitializeSceneFromLua(world, "test.lua", shaders);
+		if (!sceneData) {
 			LOG(LOG_ERROR) << "Failed to initialize scene\n";
 			return 1;
 		}
@@ -170,8 +172,7 @@ int main()
 	// light.AddToECS();
 
 		// Get light entity ID from lua scene
-		// TODO: Return entity IDs by name from scene loader
-		Entity lightEntity = 2;
+		Entity lightEntity = sceneData->lightID;
 		glm::vec3* lightPos = nullptr;
 		try {
 			lightPos = &world.GetComponent<Components::Transform>(lightEntity).worldPos;
