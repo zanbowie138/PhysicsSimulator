@@ -7,6 +7,7 @@
 #include "EntityManager.h"
 #include "ComponentManager.h"
 #include "System.h"
+#include "utils/Exceptions.h"
 
 class SystemManager
 {
@@ -16,7 +17,9 @@ public:
 	{
 		const char* typeName = typeid(T).name();
 
-		assert(mSystems.find(typeName) == mSystems.end() && "Registering system more than once.");
+		if (mSystems.find(typeName) != mSystems.end()) {
+			throw ECSException("Registering system more than once");
+		}
 
 		// Create a pointer to the system and return it so it can be used externally
 		auto system = std::make_shared<T>();
@@ -29,7 +32,9 @@ public:
 	{
 		const char* typeName = typeid(T).name();
 
-		assert(mSystems.find(typeName) != mSystems.end() && "System used before registered.");
+		if (mSystems.find(typeName) == mSystems.end()) {
+			throw ECSException("System used before registered");
+		}
 
 		// Set the signature for this system
 		mSignatures.insert({typeName, signature});

@@ -6,6 +6,7 @@
 #include <stb/stb_image.h>
 
 #include <filesystem>
+#include <optional>
 
 #include "Shader.h"
 #include <utils/PathUtils.h>
@@ -17,7 +18,7 @@ public:
 	GLenum texFormat;
 
 	Texture();
-	inline Texture(const char* image, const GLenum texFormat, const GLenum colorChannels, const GLenum pixelType);
+	static inline std::optional<Texture> Load(const char* image, const GLenum texFormat, const GLenum colorChannels, const GLenum pixelType);
 
 	// Deletes a texture
 	inline void Delete() const;
@@ -27,12 +28,8 @@ private:
 
 inline Texture::Texture() {}
 
-inline Texture::Texture(const char* image, const GLenum texFormat, const GLenum colorChannels, const GLenum pixelType)
+inline std::optional<Texture> Texture::Load(const char* image, const GLenum texFormat, const GLenum colorChannels, const GLenum pixelType)
 {
-	// Assigns type of texture (ex: diffuse, specular)
-	// Assigns OpenGL texture type (ex. GL_TEXTURE_2D)
-	Texture::texFormat = texFormat;
-
 	// Stores the width, height, and the number of color channels of the image
 	int widthImg, heightImg, numColCh;
 	// Flips the image so it appears right side up
@@ -46,15 +43,20 @@ inline Texture::Texture(const char* image, const GLenum texFormat, const GLenum 
 	unsigned char* bytes = stbi_load(texturePath.c_str(), &widthImg,
 	                                 &heightImg, &numColCh, 0);
 
-	if (stbi_failure_reason())
+	if (bytes == nullptr)
 	{
 		LOG(LOG_ERROR) << "Can't open texture " << image << " because: " << stbi_failure_reason() << "\n";
+		return std::nullopt;
 	}
 
-	generateTexture(bytes, texFormat, colorChannels, pixelType, widthImg, heightImg);
+	Texture texture;
+	texture.texFormat = texFormat;
+	texture.generateTexture(bytes, texFormat, colorChannels, pixelType, widthImg, heightImg);
 
 	// Deletes the image data as it is already in the OpenGL Texture object
 	stbi_image_free(bytes);
+
+	return texture;
 }
 
 

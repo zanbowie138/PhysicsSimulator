@@ -71,20 +71,42 @@ namespace SceneImporterInternal {
 
         // Create textures and Model based on what textures are specified
         if (textureName && specularName) {
-            Texture diffuseTex(textureName.value().c_str(), GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE);
-            Texture specularTex(specularName.value().c_str(), GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE);
-            Model floor(planeData, diffuseTex, specularTex);
-            floor.Scale(scale);
-            floor.ShaderID = shaderID;
-            floor.AddToECS();
-            entityID = floor.mEntityID;
+            auto diffuseTex = Texture::Load(textureName.value().c_str(), GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE);
+            auto specularTex = Texture::Load(specularName.value().c_str(), GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE);
+            if (diffuseTex && specularTex) {
+                Model floor(planeData, *diffuseTex, *specularTex);
+                floor.Scale(scale);
+                floor.ShaderID = shaderID;
+                floor.AddToECS();
+                entityID = floor.mEntityID;
+            } else if (diffuseTex) {
+                Model floor(planeData.vertices, planeData.indices, *diffuseTex);
+                floor.Scale(scale);
+                floor.ShaderID = shaderID;
+                floor.AddToECS();
+                entityID = floor.mEntityID;
+            } else {
+                Model floor(planeData);
+                floor.Scale(scale);
+                floor.ShaderID = shaderID;
+                floor.AddToECS();
+                entityID = floor.mEntityID;
+            }
         } else if (textureName) {
-            Texture diffuseTex(textureName.value().c_str(), GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE);
-            Model floor(planeData.vertices, planeData.indices, diffuseTex);
-            floor.Scale(scale);
-            floor.ShaderID = shaderID;
-            floor.AddToECS();
-            entityID = floor.mEntityID;
+            auto diffuseTex = Texture::Load(textureName.value().c_str(), GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE);
+            if (diffuseTex) {
+                Model floor(planeData.vertices, planeData.indices, *diffuseTex);
+                floor.Scale(scale);
+                floor.ShaderID = shaderID;
+                floor.AddToECS();
+                entityID = floor.mEntityID;
+            } else {
+                Model floor(planeData);
+                floor.Scale(scale);
+                floor.ShaderID = shaderID;
+                floor.AddToECS();
+                entityID = floor.mEntityID;
+            }
         } else {
             Model floor(planeData);
             floor.Scale(scale);

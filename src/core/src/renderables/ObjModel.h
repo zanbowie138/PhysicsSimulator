@@ -69,21 +69,32 @@ inline void ObjModel::InitVAOs()
   		else if (mesh.MeshMaterial.map_Ks.empty())
   		{
   			std::string c = mesh.MeshMaterial.map_Kd;
-  			// Remove all spaces
   			c.erase(std::remove(c.begin(), c.end(), ' '), c.end());
-  			// std::transform(c.begin(), c.end(), c.begin(), ::tolower);
   			std::string filepath = Utils::GetResourcePath("/res/models/", obj_filepath + c);
-  			auto diffuseTexture = Texture(filepath.c_str(), GL_TEXTURE_2D, GL_RGBA, GL_RGBA);
-  			LOG(LOG_INFO) << "Loaded texture: " << mesh.MeshMaterial.map_Kd << "\n";
-  			models.emplace_back(vertices, indices, diffuseTexture);
+  			auto diffuseTexture = Texture::Load(filepath.c_str(), GL_TEXTURE_2D, GL_RGBA, GL_RGBA);
+  			if (diffuseTexture) {
+  				LOG(LOG_INFO) << "Loaded texture: " << mesh.MeshMaterial.map_Kd << "\n";
+  				models.emplace_back(vertices, indices, *diffuseTexture);
+  			} else {
+  				LOG(LOG_WARNING) << "Failed to load texture, creating model without texture\n";
+  				models.emplace_back(vertices, indices);
+  			}
   		}
   		else {
   			std::string d_filepath = Utils::GetResourcePath("/res/models/", obj_filepath + mesh.MeshMaterial.map_Kd);
   			std::string s_filepath = Utils::GetResourcePath("/res/models/", obj_filepath + mesh.MeshMaterial.map_Ks);
-  			auto diffuseTexture = Texture((d_filepath).c_str(), GL_TEXTURE_2D, GL_RGB, GL_RGB);
-  			auto specularTexture = Texture((s_filepath).c_str(), GL_TEXTURE_2D, GL_RED, GL_RED);
-  			LOG(LOG_INFO) << "Loaded textures: " << mesh.MeshMaterial.map_Kd << " and " << mesh.MeshMaterial.map_Ks << "\n";
-  			models.emplace_back(vertices, indices, diffuseTexture, specularTexture);
+  			auto diffuseTexture = Texture::Load((d_filepath).c_str(), GL_TEXTURE_2D, GL_RGB, GL_RGB);
+  			auto specularTexture = Texture::Load((s_filepath).c_str(), GL_TEXTURE_2D, GL_RED, GL_RED);
+  			if (diffuseTexture && specularTexture) {
+  				LOG(LOG_INFO) << "Loaded textures: " << mesh.MeshMaterial.map_Kd << " and " << mesh.MeshMaterial.map_Ks << "\n";
+  				models.emplace_back(vertices, indices, *diffuseTexture, *specularTexture);
+  			} else if (diffuseTexture) {
+  				LOG(LOG_WARNING) << "Failed to load specular texture, using only diffuse\n";
+  				models.emplace_back(vertices, indices, *diffuseTexture);
+  			} else {
+  				LOG(LOG_WARNING) << "Failed to load textures, creating model without textures\n";
+  				models.emplace_back(vertices, indices);
+  			}
   		}
 	}
 }

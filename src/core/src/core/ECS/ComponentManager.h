@@ -5,6 +5,7 @@
 #include "../GlobalTypes.h"
 #include "EntityManager.h"
 #include "ComponentArray.h"
+#include "utils/Exceptions.h"
 
 /**
  * @class ComponentManager
@@ -26,7 +27,9 @@ class ComponentManager
     {
         const char* typeName = typeid(T).name();
 
-        assert(mComponentTypes.find(typeName) != mComponentTypes.end() && "Component not registered before use.");
+        if (mComponentTypes.find(typeName) == mComponentTypes.end()) {
+            throw ECSException("Component not registered before use");
+        }
 
         return std::static_pointer_cast<ComponentArray<T>>(mComponentArrays[typeName]);
     }
@@ -40,7 +43,9 @@ public:
     {
         const char* typeName = typeid(T).name();
 
-        assert(mComponentTypes.find(typeName) == mComponentTypes.end() && "Registering component type more than once.");
+        if (mComponentTypes.find(typeName) != mComponentTypes.end()) {
+            throw ECSException("Registering component type more than once");
+        }
 
         mComponentTypes.insert({ typeName, mNextComponentType });
 
@@ -59,7 +64,9 @@ public:
     {
         const char* typeName = typeid(T).name();
 
-        assert(mComponentTypes.find(typeName) != mComponentTypes.end() && "Component not registered before use.");
+        if (mComponentTypes.find(typeName) == mComponentTypes.end()) {
+            throw ECSException("Component not registered before use");
+        }
 
         return mComponentTypes[typeName];
     }

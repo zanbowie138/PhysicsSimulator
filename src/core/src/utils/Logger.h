@@ -104,9 +104,6 @@ namespace Utils
                 if (logLevel == LogLevel::ERROR)
                 {
                     std::cerr << data;
-#ifdef LOG_ASSERT_ON_ERROR
-                    assert(false);
-#endif
                 }
                 else
                 {

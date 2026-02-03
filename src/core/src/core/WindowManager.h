@@ -7,6 +7,7 @@
 #include <bitset>
 
 #include "GlobalTypes.h"
+#include "utils/Exceptions.h"
 
 namespace Core {
 	class WindowManager
@@ -65,7 +66,9 @@ namespace Core {
 
 		// Creates window, if window is null, throw error
 		mWindow = glfwCreateWindow(windowWidth, windowHeight, "OpenGLWindow", nullptr, nullptr);
-		assert(mWindow != nullptr && "GLFW window failed to initialize");
+		if (mWindow == nullptr) {
+			throw RenderException("GLFW window failed to initialize");
+		}
 
 		// Get maximized window dimensions
 		int width, height;

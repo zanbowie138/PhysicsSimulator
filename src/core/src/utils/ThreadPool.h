@@ -82,7 +82,9 @@ namespace Utils
     {
         // Query for amount of CPU threads
         auto THREADS = static_cast<uint8_t>(std::thread::hardware_concurrency());
-        assert(THREADS != 0);
+        if (THREADS == 0) {
+            throw std::invalid_argument("Cannot create thread pool with 0 threads");
+        }
 
         mThreads.resize(THREADS);
 

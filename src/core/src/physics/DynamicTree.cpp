@@ -1,6 +1,7 @@
 #include "DynamicTree.h"
 
 #include "utils/Logger.h"
+#include "utils/Exceptions.h"
 #include "../core/GlobalTypes.h"
 
 namespace Physics
@@ -46,10 +47,14 @@ namespace Physics
     void DynamicBBTree::RemoveEntity(const Entity entity)
     {
         const auto enIterator = entityToNodeIdxMap.find(entity);
-        assert(enIterator != entityToNodeIdxMap.end() && "Trying to remove entity not in map");
+        if (enIterator == entityToNodeIdxMap.end()) {
+            throw PhysicsException("Trying to remove entity not in map");
+        }
 
         const auto neIterator = nodeIdxToEntityMap.find(enIterator->second);
-        assert(neIterator != nodeIdxToEntityMap.end() && "Trying to remove node not in map");
+        if (neIterator == nodeIdxToEntityMap.end()) {
+            throw PhysicsException("Trying to remove node not in map");
+        }
 
         size_t node = enIterator->second;
 
@@ -209,7 +214,9 @@ namespace Physics
     Entity DynamicBBTree::GetObject(size_t nodeIndex) const
     {
         const auto iterator = nodeIdxToEntityMap.find(nodeIndex);
-        assert(iterator != nodeIdxToEntityMap.end() && "Trying to get node not in map");
+        if (iterator == nodeIdxToEntityMap.end()) {
+            throw PhysicsException("Trying to get node not in map");
+        }
 
         return iterator->second;
     }
@@ -223,7 +230,9 @@ namespace Physics
         else
         {
             sibling = parentNode.left;
-            assert(parentNode.right == nodeIndex && "Sibling not found!");
+            if (parentNode.right != nodeIndex) {
+                throw PhysicsException("Sibling not found");
+            }
         }
         return sibling;
     }
@@ -438,7 +447,9 @@ namespace Physics
 
     void DynamicBBTree::ExpandCapacity(const size_t newNodeCapacity)
     {
-        assert(newNodeCapacity > nodeCapacity);
+        if (newNodeCapacity <= nodeCapacity) {
+            throw PhysicsException("New capacity must be greater than current capacity");
+        }
 
         nodeCapacity = newNodeCapacity;
 
@@ -449,8 +460,11 @@ namespace Physics
 
     bool DynamicBBTree::IsLeaf(const size_t index) const
     {
-        if (mNodes[index].left == NULL_NODE && mNodes[index].right == NULL_NODE)
-            assert(mNodes[index].height == 0 && "Leaf");
+        if (mNodes[index].left == NULL_NODE && mNodes[index].right == NULL_NODE) {
+            if (mNodes[index].height != 0) {
+                throw PhysicsException("Leaf node has non-zero height");
+            }
+        }
         return mNodes[index].left == NULL_NODE && mNodes[index].right == NULL_NODE;
     }
 
@@ -533,8 +547,12 @@ namespace Physics
             size_t leftLeft = mNodes[left].left;
             size_t leftRight = mNodes[left].right;
 
-            assert(leftLeft < nodeCapacity);
-            assert(leftRight < nodeCapacity);
+            if (leftLeft >= nodeCapacity) {
+                throw PhysicsException("Left-left node index exceeds capacity");
+            }
+            if (leftRight >= nodeCapacity) {
+                throw PhysicsException("Left-right node index exceeds capacity");
+            }
 
             // Swap node and its left-hand child.
             mNodes[left].left = node;
@@ -547,7 +565,9 @@ namespace Physics
                 if (mNodes[mNodes[left].parent].left == node) mNodes[mNodes[left].parent].left = left;
                 else
                 {
-                    assert(mNodes[mNodes[left].parent].right == node);
+                    if (mNodes[mNodes[left].parent].right != node) {
+                        throw PhysicsException("Tree structure inconsistency during rotation");
+                    }
                     mNodes[mNodes[left].parent].right = left;
                 }
             }

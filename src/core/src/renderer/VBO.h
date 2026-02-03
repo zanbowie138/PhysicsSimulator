@@ -7,6 +7,8 @@
 #include <vector>
 #include <iostream>
 
+#include "utils/Exceptions.h"
+
 class VBO
 {
 public:
@@ -39,7 +41,9 @@ VBO::VBO(const std::vector<T>& vertices)
 
 inline void VBO::PushData(const std::vector<glm::vec3>& vertices)
 {
-	assert(currentBufSize + vertices.size() * sizeof(glm::vec3) < bufSize && "VBO Overflow");
+	if (currentBufSize + vertices.size() * sizeof(glm::vec3) >= bufSize) {
+		throw RenderException("VBO overflow - buffer size exceeded");
+	}
 
 	GL_FCHECK(glBufferSubData(GL_ARRAY_BUFFER, currentBufSize, vertices.size() * sizeof(glm::vec3), vertices.data()));
 	currentBufSize += static_cast<GLuint>(vertices.size() * sizeof(glm::vec3));

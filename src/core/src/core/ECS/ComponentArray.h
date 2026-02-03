@@ -1,5 +1,6 @@
 #pragma once
 #include "EntityManager.h"
+#include "utils/Exceptions.h"
 
 /**
  * @brief Interface for a component array
@@ -45,7 +46,9 @@ public:
      */
     void InsertEntity(Entity entity, T component)
     {
-        assert(mEntityToIndexMap.find(entity) == mEntityToIndexMap.end() && "Component added to same entity more than once.");
+        if (mEntityToIndexMap.find(entity) != mEntityToIndexMap.end()) {
+            throw ECSException("Component added to same entity more than once");
+        }
 
         // Put new entry at end and update the maps
         size_t newIndex = mSize;
@@ -61,7 +64,9 @@ public:
      */
     void RemoveEntity(Entity entity)
     {
-        assert(mEntityToIndexMap.find(entity) != mEntityToIndexMap.end() && "Removing non-existent component.");
+        if (mEntityToIndexMap.find(entity) == mEntityToIndexMap.end()) {
+            throw ECSException("Removing non-existent component");
+        }
 
         // Copy element at end into deleted element's place to maintain density
         size_t indexOfRemovedEntity = mEntityToIndexMap[entity];
@@ -86,7 +91,9 @@ public:
      */
     T& GetData(Entity entity)
     {
-        assert(mEntityToIndexMap.find(entity) != mEntityToIndexMap.end() && "Retrieving non-existent component.");
+        if (mEntityToIndexMap.find(entity) == mEntityToIndexMap.end()) {
+            throw ECSException("Retrieving non-existent component");
+        }
 
         // Return a reference to the entity's component
         return mComponentArray[mEntityToIndexMap[entity]];
