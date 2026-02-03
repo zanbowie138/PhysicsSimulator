@@ -25,12 +25,12 @@
 
 #include "math/mesh/MeshSimplify.h"
 #include "math/mesh/SimpleShapes.h"
+
+#include "scene/SceneImporter.h"
+
 #include "utils/Timer.h"
 #include "utils/Logger.h"
 #include "utils/Raycast.h"
-
-#define SOL_ALL_SAFETIES_ON 1
-#include <sol/sol.hpp>
 
 // Force use of discrete Nvidia GPU
 #ifdef _WIN32
@@ -39,7 +39,7 @@ extern "C" {
 	__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; // Optimus: force switch to discrete GPU
 	// __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;//AMD
 }
-
+#undef ERROR // Prevent Windows ERROR macro from conflicting with Logger::ERROR
 #endif
 
 World world("log.txt", true);
@@ -47,13 +47,6 @@ World world("log.txt", true);
 int main()
 {
 	Utils::Timer timer("Setup");
-
-	auto lua = sol::state();
-	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::package, sol::lib::string, sol::lib::table);
-
-	int result = lua.script_file("test.lua");
-	std::cout << result << std::endl;
-	return 0;
 
 	// Window creation
 	// TODO: Add callbacks
@@ -106,48 +99,65 @@ int main()
 	Shader diffuseShader("diffuse.vert", "diffuse.frag");
 	basicShader.mUniforms.reset(static_cast<size_t>(UniformBlockConfig::LIGHTING));
 
-	// Wood floor setup
-	const auto [planeVerts, planeInds] = Utils::PlaneData();
-	Texture textures[]
-	{
-		Texture("planks.png", GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE),
-		Texture("planksSpec.png",  GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE)
-	};
-	std::vector tex(textures, textures + sizeof(textures) / sizeof(Texture));
-	Model floor(planeVerts, planeInds, tex[0]);
-	floor.ShaderID = defaultShader.ID;
-	floor.Scale(10.0f);
-	floor.AddToECS();
+	// Create shader map for lua scene loading
+	std::unordered_map<std::string, GLuint> shaders;
+	shaders["basic"] = basicShader.ID;
+	shaders["flat"] = flatShader.ID;
+	shaders["default"] = defaultShader.ID;
+	shaders["diffuse"] = diffuseShader.ID;
 
-
-
-	// Initialize random number generator
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis(-2, 2); // range for random positions
-
-	const auto cubeData = Utils::CubeData();
-
-	// Number of cubes to generate
-	int numCubes = 100;
-
-	for (int i = 0; i < numCubes; ++i) {
-		Mesh cube(cubeData);
-		cube.SetPosition(glm::vec3(dis(gen), abs(dis(gen)), dis(gen))); // random position
-		cube.Scale(0.1f);
-		cube.ShaderID = flatShader.ID;
-		cube.AddToECS();
-		physicsSystem->AddToTree(cube);
+	// Initialize scene from lua
+	if (!InitializeSceneFromLua(world, "test.lua", shaders)) {
+		LOG(LOG_ERROR) << "Failed to initialize scene\n";
+		return 1;
 	}
 
-	const ModelData sphereData = Utils::UVSphereData(20,20, 1);
-	Model light(sphereData);
-	light.Scale(0.1f);
-	light.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-	light.ShaderID = basicShader.ID;
-	light.SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
-	light.AddToECS();
-	auto& lightPos = world.GetComponent<Components::Transform>(light.mEntityID).worldPos;
+	// Scene now loaded from lua - hardcoded setup commented out
+	// const auto [planeVerts, planeInds] = Utils::PlaneData();
+	// Texture textures[]
+	// {
+	// 	Texture("planks.png", GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE),
+	// 	Texture("planksSpec.png",  GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE)
+	// };
+	// std::vector tex(textures, textures + sizeof(textures) / sizeof(Texture));
+	// Model floor(planeVerts, planeInds, tex[0]);
+	// floor.ShaderID = defaultShader.ID;
+	// floor.Scale(10.0f);
+	// floor.AddToECS();
+	//
+	//
+	//
+	// // Initialize random number generator
+	// std::random_device rd;
+	// std::mt19937 gen(rd());
+	// std::uniform_real_distribution<> dis(-2, 2); // range for random positions
+	//
+	// const auto cubeData = Utils::CubeData();
+	//
+	// // Number of cubes to generate
+	// int numCubes = 100;
+	//
+	// for (int i = 0; i < numCubes; ++i) {
+	// 	Mesh cube(cubeData);
+	// 	cube.SetPosition(glm::vec3(dis(gen), abs(dis(gen)), dis(gen))); // random position
+	// 	cube.Scale(0.1f);
+	// 	cube.ShaderID = flatShader.ID;
+	// 	cube.AddToECS();
+	// 	physicsSystem->AddToTree(cube);
+	// }
+	//
+	// const ModelData sphereData = Utils::UVSphereData(20,20, 1);
+	// Model light(sphereData);
+	// light.Scale(0.1f);
+	// light.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
+	// light.ShaderID = basicShader.ID;
+	// light.SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
+	// light.AddToECS();
+
+	// Get light entity ID from lua scene (assumes last created sphere is light)
+	// For now, hardcode light position tracking - TODO: make this more robust
+	Entity lightEntity = 102; // This will be the light sphere entity
+	auto& lightPos = world.GetComponent<Components::Transform>(lightEntity).worldPos;
 
 
 	// Mesh dragon("dragon.dat", false);
@@ -257,7 +267,7 @@ int main()
 		lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))*3.0f, 3.0f, glm::cos(glm::radians(time / 20.0f))*3.0f);
 		// lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f)) / 3.0f + 1.0f, 0.7f, 0.0f);
 		// lightPos = glm::vec3(0.0f, 5.0f, 0.0f);
-		light.transform.worldPos = lightPos;
+		// Update light position via ECS component
 
 		// TODO: Create better position update system than reinserting into tree
 		// tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
@@ -323,7 +333,7 @@ int main()
 		// Update camera matrix
 		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 		// Update uniform buffer
-		UBO.UpdateData(cam, world.GetComponent<Components::Transform>(light.mEntityID).worldPos);
+		UBO.UpdateData(cam, world.GetComponent<Components::Transform>(lightEntity).worldPos);
 
 		if (windowManager.TestInput(InputButtons::LEFT_MOUSE))
 		{

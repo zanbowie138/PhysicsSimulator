@@ -365,6 +365,7 @@ FodyWeavers.xsd
 .idea/
 
 .claude/
+CLAUDE.md
 log.txt
 imgui.ini
 cmake-build-debug/
