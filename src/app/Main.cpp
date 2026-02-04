@@ -20,13 +20,14 @@
 #include "renderables/Lines.h"
 #include "renderables/Mesh.h"
 #include "renderables/Model.h"
-#include "renderables/ObjModel.h"
 #include "renderables/Points.h"
 
 #include "math/mesh/MeshSimplify.h"
 #include "math/mesh/SimpleShapes.h"
 
 #include "scene/SceneImporter.h"
+#include "lua/LuaRuntime.h"
+#include "lua/LuaBindings.h"
 
 #include "utils/Timer.h"
 #include "utils/Logger.h"
@@ -121,97 +122,32 @@ int main()
 		shaders["default"] = defaultShader->ID;
 		shaders["diffuse"] = diffuseShader->ID;
 
+		// Initialize Lua runtime
+		LuaRuntime luaRuntime;
+		luaRuntime.Initialize(world, tree, shaders);
 
-		// Initialize scene from lua
-        auto sceneData = InitializeSceneFromLua(world, "test.lua", shaders);
-		if (!sceneData) {
-			LOG(LOG_ERROR) << "Failed to initialize scene\n";
-			return 1;
+		// Scene error state
+		std::string sceneErrorMsg;
+		bool showSceneError = false;
+		std::string currentScenePath = "test.lua";
+
+		// Try to load scene
+		if (!luaRuntime.LoadScene(currentScenePath, sceneErrorMsg)) {
+			LOG(LOG_ERROR) << "Failed to load scene, loading fallback\n";
+			showSceneError = true;
+
+			// Load minimal fallback scene
+			std::string fallbackError;
+			if (!luaRuntime.LoadFallbackScene(fallbackError)) {
+				LOG(LOG_ERROR) << "Fallback scene failed: " << fallbackError << "\n";
+				return 1;
+			}
+		} else {
+			// Scene loaded successfully
+			luaRuntime.CallOnInit();
 		}
 
-	// Scene now loaded from lua - hardcoded setup commented out
-	// const auto [planeVerts, planeInds] = Utils::PlaneData();
-	// Texture textures[]
-	// {
-	// 	Texture("planks.png", GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE),
-	// 	Texture("planksSpec.png",  GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE)
-	// };
-	// std::vector tex(textures, textures + sizeof(textures) / sizeof(Texture));
-	// Model floor(planeVerts, planeInds, tex[0]);
-	// floor.ShaderID = defaultShader.ID;
-	// floor.Scale(10.0f);
-	// floor.AddToECS();
-	//
-	//
-	//
-	// // Initialize random number generator
-	// std::random_device rd;
-	// std::mt19937 gen(rd());
-	// std::uniform_real_distribution<> dis(-2, 2); // range for random positions
-	//
-	// const auto cubeData = Utils::CubeData();
-	//
-	// // Number of cubes to generate
-	// int numCubes = 100;
-	//
-	// for (int i = 0; i < numCubes; ++i) {
-	// 	Mesh cube(cubeData);
-	// 	cube.SetPosition(glm::vec3(dis(gen), abs(dis(gen)), dis(gen))); // random position
-	// 	cube.Scale(0.1f);
-	// 	cube.ShaderID = flatShader.ID;
-	// 	cube.AddToECS();
-	// 	physicsSystem->AddToTree(cube);
-	// }
-	//
-	// const ModelData sphereData = Utils::UVSphereData(20,20, 1);
-	// Model light(sphereData);
-	// light.Scale(0.1f);
-	// light.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-	// light.ShaderID = basicShader.ID;
-	// light.SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
-	// light.AddToECS();
-
-		// Get light entity ID from lua scene
-		Entity lightEntity = sceneData->lightID;
-		glm::vec3* lightPos = nullptr;
-		try {
-			lightPos = &world.GetComponent<Components::Transform>(lightEntity).worldPos;
-		} catch (const ECSException& e) {
-			LOG(LOG_WARNING) << "Light entity not found or missing Transform, using default position\n";
-			lightEntity = 0; // Invalid entity
-		}
-
-		// Box showing collision between objects
-		// Lines hitBox(100);
-		// hitBox.mColor = glm::vec3(0.0f, 1.0f, 0.0f);
-		// hitBox.ShaderID = basicShader->ID;
-		// hitBox.AddToECS();
-		//
-		// // Box showing collision between objects
-		// Lines collideBox(10000);
-		// collideBox.mColor = glm::vec3(1.0f, 0.0f, 0.0f);
-		// collideBox.ShaderID = basicShader->ID;
-		// collideBox.AddToECS();
-		//
-		// // Debug bounding boxes
-		// Lines boxRenderer(20000);
-		// boxRenderer.ShaderID = basicShader->ID;
-		// boxRenderer.AddToECS();
-		//
-		// Lines debugLineRenderer(10000);
-		// debugLineRenderer.ShaderID = basicShader->ID;
-		// debugLineRenderer.AddToECS();
-
-
-
-	// bunny.transform.CalculateModelMat();
-	// bunny.InitTree();
-	// rootRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, true));
-	// parentRenderer.PushBoundingBoxes(bunny.mTree.GetBoxes(bunny.transform.modelMat, false));
-
-
-	// boundsBox.Clear();
-	// boundsBox.PushBoundingBox(BoundingBox{ glm::vec3(-1.5f, 0.0f, -1.5f), glm::vec3(1.5f, 3.0f, 1.5f) });
+		Entity lightEntity = luaRuntime.GetLightEntity();
 
 		// Manage Uniform Buffer
 		Core::UniformBufferManager UBO;
@@ -243,52 +179,6 @@ int main()
 
 		float dt_mill = static_cast<float>(glfwGetTime() - currentTime) * 1000;
 
-		// Move entities
-		// lightPos = glm::vec3(glm::sin(glm::radians(time / 20.0f))*3.0f, 3.0f, glm::cos(glm::radians(time / 20.0f))*3.0f);
-		// lightPos = glm::vec3(glm::sin(glm::radians(time / 30.0f)) / 3.0f + 1.0f, 0.7f, 0.0f);
-		// lightPos = glm::vec3(0.0f, 5.0f, 0.0f);
-		// Update light position via ECS component
-
-		// TODO: Create better position update system than reinserting into tree
-		// tree.UpdateEntity(light.mEntityID, light.CalcBoundingBox());
-
-		// physicsSystem->Update(dt_mill);
-
-		// boxRenderer.Clear();
-		// if (GUI.config.showDynamicBoxes)
-		// {
-		// 	boxRenderer.PushBoundingBoxes(tree.GetAllBoxes(GUI.config.showOnlyDynamicLeaf));
-		// }
-		//
-		// collideBox.Clear();
-		// const auto collidedEntities = tree.ComputeCollisionPairs();
-		// for (const auto entity : collidedEntities)
-		// {
-		// 	collideBox.PushBoundingBox(tree.GetBoundingBox(entity));
-		// }
-		//
-		// if (GUI.config.showStaticBoxes.changed || GUI.config.showOnlyStaticLeaf.changed)
-		// {
-		// 	rootRenderer.SetRenderingEnabled(GUI.config.showStaticBoxes.value && GUI.config.showOnlyStaticLeaf.value);
-		// 	parentRenderer.SetRenderingEnabled(GUI.config.showStaticBoxes.value && !GUI.config.showOnlyStaticLeaf.value);
-		// }
-		//
-		// if (GUI.config.regenStaticTree)
-		// {
-		// 	LOG(LOG_WARNING) << "Regenerating static tree.\n";
-		// 	dragon.InitTree();
-		//
-		// 	auto rootBoxes = dragon.mTree.GetBoxes(dragon.transform.modelMat, true);
-		// 	auto parentBoxes = dragon.mTree.GetBoxes(dragon.transform.modelMat, false);
-		//
-		// 	std::cout << "Root boxes: " << parentBoxes.size() << std::endl;
-		//
-		// 	rootRenderer.Clear();
-		// 	rootRenderer.PushBoundingBoxes(rootBoxes);
-		// 	parentRenderer.Clear();
-		// 	parentRenderer.PushBoundingBoxes(parentBoxes);
-		// }
-
 		currentTime = glfwGetTime();
 		fpsFrameCount++;
 
@@ -315,28 +205,51 @@ int main()
 		// Update uniform buffer
 		UBO.UpdateData(cam, world.GetComponent<Components::Transform>(lightEntity).worldPos);
 
-		// if (windowManager.TestInput(InputButtons::LEFT_MOUSE))
-		// {
-		// 	LOG(LOG_INFO) << "Mouse position: " << glm::to_string(windowManager.GetMousePosNormalized()) << "\n";
-		// 	Ray r = Utils::ScreenPointToRay(windowManager.GetMousePosNormalized(), cam.cameraMatrix);
-		// 	debugLineRenderer.Clear();
-		// 	debugLineRenderer.PushRay(r, 10);
-		// 	const auto [boxes, hit] = tree.QueryRayCollisions(r);
-		// 	const auto [entityHit, hitEntity] = tree.QueryRay(r);
-		// 	collideBox.Clear();
-		// 	hitBox.Clear();
-		// 	collideBox.PushBoundingBoxes(boxes);
-		// 	entity = entityHit;
-		// 	entitySelected = hitEntity;
-		// 	if (hit)
-		// 	{
-		// 		LOG(LOG_INFO) << "Hit entity\n";
-		// 		hitBox.PushBoundingBox(tree.GetBoundingBox(entityHit));
-		// 	} else
-		// 	{
-		// 		LOG(LOG_INFO) << "No hit\n";
-		// 	}
-		// }
+		// Invoke Lua callbacks
+		luaRuntime.CallOnUpdate(dt_mill,
+			LuaBindings::LuaInput::FromWindowManager(windowManager),
+			LuaBindings::LuaCameraView::FromCamera(cam));
+
+		if (windowManager.TestInput(InputButtons::LEFT_MOUSE)) {
+			luaRuntime.CallOnClick(
+				LuaBindings::LuaInput::FromWindowManager(windowManager),
+				LuaBindings::LuaCameraView::FromCamera(cam));
+		}
+
+		// Scene reload with Ctrl+R
+		static bool rKeyPressed = false;
+		bool rKeyDown = windowManager.TestInput(InputButtons::CONTROL) &&
+		                glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS;
+
+		if (rKeyDown && !rKeyPressed) {
+			rKeyPressed = true;
+			LOG(LOG_INFO) << "Reloading scene...\n";
+
+			// Clear current world
+			world.ClearAllEntities();
+
+			// Attempt reload
+			std::string reloadError;
+			if (luaRuntime.LoadScene(currentScenePath, reloadError)) {
+				// Success!
+				showSceneError = false;
+				luaRuntime.CallOnInit();
+				LOG(LOG_INFO) << "Scene reloaded successfully\n";
+			} else {
+				// Failed, show error and load fallback
+				sceneErrorMsg = reloadError;
+				showSceneError = true;
+
+				std::string fallbackError;
+				luaRuntime.LoadFallbackScene(fallbackError);
+			}
+
+			// Update light entity
+			lightEntity = luaRuntime.GetLightEntity();
+		} else if (!rKeyDown) {
+			rKeyPressed = false;
+		}
+
 		std::string fpsString("FPS: " + std::to_string(static_cast<int>(fps)) + "\nMSPF: " + std::to_string(mspf));
 
 		renderSystem->Update();
@@ -349,6 +262,11 @@ int main()
 		GUI.ShowConfigWindow();
 		GUI.EntityInfo(entity, entitySelected);
 		GUI.RenderLog(LOG_CONTENTS(), LOG_LINE_LEVELS());
+
+		// Show error overlay if present
+		if (showSceneError) {
+			GUI.ShowErrorOverlay(sceneErrorMsg, showSceneError);
+		}
 
 		GUI.Render();
 
@@ -364,11 +282,8 @@ int main()
 
 		return 0;
 
-	} catch (const EngineException& e) {
-		LOG(LOG_ERROR) << "Fatal engine error: " << e.what() << "\n";
-		return 1;
 	} catch (const std::exception& e) {
-		LOG(LOG_ERROR) << "Unexpected error: " << e.what() << "\n";
+		LOG(LOG_ERROR) << "Fatal error: " << e.what() << "\n";
 		return 1;
 	}
 }

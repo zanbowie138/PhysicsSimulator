@@ -4,6 +4,10 @@ set(SRC_FILES
         src/physics/DynamicTree.cpp
         src/physics/StaticTree.cpp
         src/renderer/RenderSystem.cpp
+        src/lua/LuaBindings_Core.cpp
+        src/lua/LuaBindings_Physics.cpp
+        src/lua/LuaBindings_Debug.cpp
+        src/lua/LuaRuntime.cpp
         src/glad.c
         src/stb.cpp
 )

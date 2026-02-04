@@ -70,6 +70,7 @@ public:
 	void ShowConfigWindow();
 	void EntityInfo(Entity entity, bool entitySelected);
 	void RenderLog(const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels);
+	void ShowErrorOverlay(const std::string& errorMsg, bool& showError);
 
 	static void Demo() { ImGui::ShowDemoWindow(); }
 
@@ -194,6 +195,39 @@ inline void GUI::RenderLog(const std::string& log, const std::vector<Utils::LogL
     }
 
     EndWindow();
+}
+
+inline void GUI::ShowErrorOverlay(const std::string& errorMsg, bool& showError)
+{
+	if (!showError) return;
+
+	// Center window
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f),
+	                        ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+	ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_FirstUseEver);
+
+	// Modal-style window
+	ImGui::Begin("Scene Load Error", &showError,
+	             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
+	ImGui::TextWrapped("%s", errorMsg.c_str());
+	ImGui::PopStyleColor();
+
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+
+	ImGui::Text("Press Ctrl+R to reload scene after fixing the script.");
+
+	ImGui::Spacing();
+
+	if (ImGui::Button("Dismiss", ImVec2(120, 0))) {
+		showError = false;
+	}
+
+	ImGui::End();
 }
 
 inline void GUI::Render()

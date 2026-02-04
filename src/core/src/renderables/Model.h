@@ -8,7 +8,6 @@
 #include "../renderer/VBO.h"
 #include "../renderer/VAO.h"
 #include "../renderer/Texture.h"
-#include "../math/mesh/OBJ_Loader.h"
 
 #include "Renderable.h"
 

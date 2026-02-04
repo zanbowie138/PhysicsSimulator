@@ -36,6 +36,18 @@ public:
 		mSystemManager->EntityDestroyed(entity);
 	}
 
+	void ClearAllEntities() const
+	{
+		// Get all living entities and destroy them
+		for (Entity e = 0; e < MAX_ENTITIES; e++) {
+			// Check if entity is alive by checking if it has any components
+			if (mEntityManager->GetSignature(e).any()) {
+				DestroyEntity(e);
+			}
+		}
+		LOG(LOG_INFO) << "Cleared all entities\n";
+	}
+
 	// Component methods
 	template<typename T>
 	void RegisterComponent() const

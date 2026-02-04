@@ -4,7 +4,7 @@
 
 namespace Utils
 {
-    Ray ScreenPointToRay(const glm::vec2& uv, const glm::mat4& cam_matrix)
+    inline Ray ScreenPointToRay(const glm::vec2& uv, const glm::mat4& cam_matrix)
     {
         // Convert screen coordinates to normalized device coordinates (NDC)
         float x = (2.0f * uv.x) - 1.0f;

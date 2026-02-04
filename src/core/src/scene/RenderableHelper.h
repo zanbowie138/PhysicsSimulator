@@ -2,6 +2,7 @@
 
 #include "SceneHelper.h"
 #include "utils/Logger.h"
+#include "utils/Exceptions.h"
 #include "renderables/Renderable.h"
 
 namespace SceneImporterInternal {
@@ -22,8 +23,17 @@ namespace SceneImporterInternal {
             if (it != shaders.end()) {
                 return it->second;
             }
-            LOG(LOG_ERROR) << "Shader '" << shaderName << "' not found, using default ID 999\n";
-            return 999;
+
+            // Try fallback to "basic" shader
+            LOG(LOG_ERROR) << "Shader '" << shaderName << "' not found\n";
+            auto fallback = shaders.find("basic");
+            if (fallback != shaders.end()) {
+                LOG(LOG_INFO) << "Using 'basic' shader as fallback\n";
+                return fallback->second;
+            }
+
+            // Fatal: no shader available
+            throw SceneException("Shader '" + shaderName + "' not found and no 'basic' fallback");
         }
 
         void ApplyCommonSettings(Renderable& renderable, sol::table cfg, const std::unordered_map<std::string, GLuint>& shaders, const std::string& defaultShaderName) {
