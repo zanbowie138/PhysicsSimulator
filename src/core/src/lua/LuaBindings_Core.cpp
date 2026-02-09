@@ -1,4 +1,5 @@
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include "LuaBindings.h"
 
 // Sol2 template instantiation requires complete type definitions
@@ -63,69 +64,102 @@ void BindCore(sol::state& lua, World& world) {
 
     // Create World table with methods
     // Usage: world:CreateEntity(), world:GetTransform(entity)
-    lua["world"] = lua.create_table_with(
-        "CreateEntity", [&world]() -> Entity {
-            return world.CreateEntity();
-        },
+    sol::table worldTable = lua.create_table();
 
-        "DestroyEntity", [&world](Entity entity) {
-            world.DestroyEntity(entity);
-        },
+    worldTable["CreateEntity"] = [&world]() -> Entity {
+        return world.CreateEntity();
+    };
 
-        "GetTransform", [&world](Entity entity) -> Components::Transform& {
-            try {
-                return world.GetComponent<Components::Transform>(entity);
-            } catch (const ECSException& e) {
-                throw std::runtime_error(std::string("GetTransform failed: ") + e.what());
-            }
-        },
+    worldTable["DestroyEntity"] = [&world](Entity entity) {
+        world.DestroyEntity(entity);
+    };
 
-        "GetRigidbody", [&world](Entity entity) -> Components::Rigidbody& {
-            try {
-                return world.GetComponent<Components::Rigidbody>(entity);
-            } catch (const ECSException& e) {
-                throw std::runtime_error(std::string("GetRigidbody failed: ") + e.what());
-            }
-        },
-
-        "GetRenderInfo", [&world](Entity entity) -> Components::RenderInfo& {
-            try {
-                return world.GetComponent<Components::RenderInfo>(entity);
-            } catch (const ECSException& e) {
-                throw std::runtime_error(std::string("GetRenderInfo failed: ") + e.what());
-            }
-        },
-
-        "HasTransform", [&world](Entity entity) -> bool {
-            try {
-                auto sig = world.GetEntitySignature(entity);
-                auto compType = world.GetComponentType<Components::Transform>();
-                return sig.test(compType);
-            } catch (...) {
-                return false;
-            }
-        },
-
-        "HasRigidbody", [&world](Entity entity) -> bool {
-            try {
-                auto sig = world.GetEntitySignature(entity);
-                auto compType = world.GetComponentType<Components::Rigidbody>();
-                return sig.test(compType);
-            } catch (...) {
-                return false;
-            }
-        },
-
-        "HasRenderInfo", [&world](Entity entity) -> bool {
-            try {
-                auto sig = world.GetEntitySignature(entity);
-                auto compType = world.GetComponentType<Components::RenderInfo>();
-                return sig.test(compType);
-            } catch (...) {
-                return false;
-            }
+    worldTable["GetTransform"] = [&world](Entity entity) -> Components::Transform& {
+        try {
+            return world.GetComponent<Components::Transform>(entity);
+        } catch (const ECSException& e) {
+            throw std::runtime_error(std::string("GetTransform failed: ") + e.what());
         }
-    );
+    };
+
+    worldTable["GetRigidbody"] = [&world](Entity entity) -> Components::Rigidbody& {
+        try {
+            return world.GetComponent<Components::Rigidbody>(entity);
+        } catch (const ECSException& e) {
+            throw std::runtime_error(std::string("GetRigidbody failed: ") + e.what());
+        }
+    };
+
+    worldTable["GetRenderInfo"] = [&world](Entity entity) -> Components::RenderInfo& {
+        try {
+            return world.GetComponent<Components::RenderInfo>(entity);
+        } catch (const ECSException& e) {
+            throw std::runtime_error(std::string("GetRenderInfo failed: ") + e.what());
+        }
+    };
+
+    worldTable["HasTransform"] = [&world](Entity entity) -> bool {
+        try {
+            auto sig = world.GetEntitySignature(entity);
+            auto compType = world.GetComponentType<Components::Transform>();
+            return sig.test(compType);
+        } catch (...) {
+            return false;
+        }
+    };
+
+    worldTable["HasRigidbody"] = [&world](Entity entity) -> bool {
+        try {
+            auto sig = world.GetEntitySignature(entity);
+            auto compType = world.GetComponentType<Components::Rigidbody>();
+            return sig.test(compType);
+        } catch (...) {
+            return false;
+        }
+    };
+
+    worldTable["HasRenderInfo"] = [&world](Entity entity) -> bool {
+        try {
+            auto sig = world.GetEntitySignature(entity);
+            auto compType = world.GetComponentType<Components::RenderInfo>();
+            return sig.test(compType);
+        } catch (...) {
+            return false;
+        }
+    };
+
+    lua["world"] = worldTable;
+
+    // Create Utils namespace with custom utility functions
+    // Note: BindPhysics will extend this table with ScreenPointToRay
+    // Usage: Utils.Log("message"), Utils.Lerp(0, 10, 0.5), Utils.GetTime()
+    sol::table utils = lua.create_table();
+
+    utils["Log"] = [](const std::string& message, sol::optional<std::string> level) {
+        std::string levelStr = level.value_or("INFO");
+
+        if (levelStr == "ERROR") {
+            LOG(LOG_ERROR) << "[Lua] " << message << "\n";
+        } else if (levelStr == "WARNING") {
+            LOG(LOG_WARNING) << "[Lua] " << message << "\n";
+        } else {
+            LOG(LOG_INFO) << "[Lua] " << message << "\n";
+        }
+    };
+
+    utils["Lerp"] = [](float a, float b, float t) -> float {
+        return a + (b - a) * glm::clamp(t, 0.0f, 1.0f);
+    };
+
+    utils["Clamp"] = [](float value, float min, float max) -> float {
+        return glm::clamp(value, min, max);
+    };
+
+    utils["GetTime"] = []() -> float {
+        return static_cast<float>(glfwGetTime() * 1000.0);
+    };
+
+    lua["Utils"] = utils;
 }
 
 LuaInput LuaInput::FromWindowManager(const Core::WindowManager& wm) {

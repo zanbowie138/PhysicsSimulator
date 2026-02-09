@@ -44,13 +44,13 @@ void LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
     for (const auto& helper : sceneHelpers) {
         SceneImporterInternal::SceneHelper* helperPtr = helper.get();
         std::string helperName = helper->GetName();
-        lua.set_function(helperName, [helperPtr, &world, &shaders, &lua = this->lua, helperName](sol::table cfg) -> sol::object {
+        lua.set_function(helperName, [helperPtr, &world, &shaders, helperName](sol::table cfg) -> Entity {
             try {
                 Entity id = helperPtr->Create(cfg, world, shaders);
-                return sol::make_object(lua.lua_state(), id);
+                return id;
             } catch (const std::exception& e) {
                 LOG(LOG_ERROR) << "Scene helper '" << helperName << "' failed: " << e.what() << "\n";
-                return sol::nil;
+                throw;
             }
         });
         LOG(LOG_INFO) << "Registered scene helper: " << helperName << "\n";

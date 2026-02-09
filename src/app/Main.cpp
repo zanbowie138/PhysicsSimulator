@@ -44,7 +44,7 @@ extern "C" {
 #undef ERROR // Prevent Windows ERROR macro from conflicting with Logger::ERROR
 #endif
 
-World world("log.txt", true);
+World world("output.log", true);
 
 int main()
 {
@@ -203,7 +203,15 @@ int main()
 		// Update camera matrix
 		cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 		// Update uniform buffer
-		UBO.UpdateData(cam, world.GetComponent<Components::Transform>(lightEntity).worldPos);
+		glm::vec3 lightPos(0, 1, 0); // Default light position
+		try {
+			if (world.GetEntitySignature(lightEntity).test(world.GetComponentType<Components::Transform>())) {
+				lightPos = world.GetComponent<Components::Transform>(lightEntity).worldPos;
+			}
+		} catch (const std::exception& e) {
+			LOG(LOG_ERROR) << "Error getting light transform: " << e.what() << "\n";
+		}
+		UBO.UpdateData(cam, lightPos);
 
 		// Invoke Lua callbacks
 		luaRuntime.CallOnUpdate(dt_mill,

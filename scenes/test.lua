@@ -1,3 +1,5 @@
+Utils.Log("test.lua scene initializing...")
+
 -- Debug Lines for visualization
 rays = CreateLines({
     name = "rays",
@@ -64,6 +66,21 @@ function OnInit()
     state.rayLines = Debug.GetLines("rays")
     state.boxLines = Debug.GetLines("boxes")
     state.hitLines = Debug.GetLines("hits")
+
+    -- Test custom Lua functions
+    Utils.Log("Scene initialized with custom logging!")
+
+    local startTime = Utils.GetTime()
+    Utils.Log("after time")
+    Utils.Log("Start time (ms): " .. tostring(startTime))
+
+    -- Test Lerp and Clamp
+    local lerpValue = Utils.Lerp(0, 10, 0.5)
+    Utils.Log("Lerp(0, 10, 0.5) = " .. tostring(lerpValue))
+
+    local clampValue = Utils.Clamp(15, 0, 10)
+    Utils.Log("Clamp(15, 0, 10) = " .. tostring(clampValue))
+
     print("Scene initialized")
 end
 
@@ -71,13 +88,21 @@ end
 function OnUpdate(dt, input, camera)
     state.time = state.time + dt
 
-    -- Animate light in circular pattern
-    local lightTransform = world:GetTransform(light)
-    lightTransform.worldPos = vec3(
-        math.sin(state.time / 2000.0) * 3.0,
-        3.0,
-        math.cos(state.time / 2000.0) * 3.0
-    )
+    -- Animate light using custom Lerp function for smooth transitions
+    if world.HasTransform(light) then
+        local lightTransform = world.GetTransform(light)
+
+        -- Use GetTime and Lerp for smooth vertical oscillation
+        local currentTime = Utils.GetTime()
+        local t = math.sin(currentTime / 1000.0) * 0.5 + 0.5  -- Oscillate between 0 and 1
+        local height = Utils.Lerp(1.0, 4.0, t)
+
+        lightTransform.worldPos = vec3.new(
+            math.sin(state.time / 2000.0) * 3.0,
+            height,  -- Smooth height transition using Lerp
+            math.cos(state.time / 2000.0) * 3.0
+        )
+    end
 end
 
 -- Mouse click handler

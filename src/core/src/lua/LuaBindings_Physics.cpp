@@ -54,13 +54,12 @@ void BindPhysics(sol::state& lua, Physics::DynamicBBTree& tree) {
         "tree", std::ref(tree)
     );
 
-    // Create Utils namespace
+    // Extend Utils namespace (created in BindCore)
     // Usage: ray = Utils.ScreenPointToRay(mouseNorm, cameraMatrix)
-    lua["Utils"] = lua.create_table_with(
-        "ScreenPointToRay", [](const glm::vec2& uv, const glm::mat4& camMatrix) {
-            return Utils::ScreenPointToRay(uv, camMatrix);
-        }
-    );
+    sol::table utils = lua["Utils"];
+    utils["ScreenPointToRay"] = [](const glm::vec2& uv, const glm::mat4& camMatrix) {
+        return Utils::ScreenPointToRay(uv, camMatrix);
+    };
 }
 
 } // namespace LuaBindings

@@ -5785,7 +5785,8 @@ namespace sol {
 				this->m_value = std::forward<U>(u);
 			}
 			else {
-				this->construct(std::forward<U>(u));
+				new (std::addressof(this->m_value)) T(std::forward<U>(u));
+				this->m_has_value = true;
 			}
 
 			return *this;
@@ -5846,7 +5847,8 @@ namespace sol {
 			static_assert(std::is_constructible<T, Args&&...>::value, "T must be constructible with Args");
 
 			*this = nullopt;
-			this->construct(std::forward<Args>(args)...);
+			new (std::addressof(this->m_value)) T(std::forward<Args>(args)...);
+			this->m_has_value = true;
 			return value();
 		}
 
@@ -5855,7 +5857,8 @@ namespace sol {
 		template <class U, class... Args>
 		detail::enable_if_t<std::is_constructible<T, std::initializer_list<U>&, Args&&...>::value, T&> emplace(std::initializer_list<U> il, Args&&... args) {
 			*this = nullopt;
-			this->construct(il, std::forward<Args>(args)...);
+			new (std::addressof(this->m_value)) T(il, std::forward<Args>(args)...);
+			this->m_has_value = true;
 			return value();
 		}
 
@@ -6748,11 +6751,12 @@ namespace sol {
 		///
 		/// \group emplace
 		template <class... Args>
-		T& emplace(Args&&... args) noexcept {
+		T& emplace(Args&&... args) {
 			static_assert(std::is_constructible<T, Args&&...>::value, "T must be constructible with Args");
 
 			*this = nullopt;
-			this->construct(std::forward<Args>(args)...);
+			m_value = new T(std::forward<Args>(args)...);
+			return *m_value;
 		}
 
 		/// Swaps this optional with the other.
