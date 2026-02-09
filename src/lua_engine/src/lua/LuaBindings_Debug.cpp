@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include "LuaBindings.h"
+#include <lua_engine/LuaBindings.h>
 #include "utils/Logger.h"
 
 // Sol2 template instantiation requires complete type definitions

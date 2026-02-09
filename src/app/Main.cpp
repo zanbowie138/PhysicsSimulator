@@ -25,9 +25,8 @@
 #include "math/mesh/MeshSimplify.h"
 #include "math/mesh/SimpleShapes.h"
 
-#include "scene/SceneImporter.h"
-#include "lua/LuaRuntime.h"
-#include "lua/LuaBindings.h"
+#include <lua_engine/LuaRuntime.h>
+#include <lua_engine/LuaBindings.h>
 
 #include "utils/Timer.h"
 #include "utils/Logger.h"

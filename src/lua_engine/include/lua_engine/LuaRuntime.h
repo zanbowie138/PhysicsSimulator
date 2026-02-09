@@ -23,6 +23,9 @@ namespace SceneImporterInternal {
 // Manages Lua state lifecycle and script callbacks
 class LuaRuntime {
 public:
+    LuaRuntime();   // Defined in .cpp where SceneHelper is complete
+    ~LuaRuntime();  // Defined in .cpp where SceneHelper is complete
+
     sol::state lua;
     Entity lightEntity = 999;
     std::unordered_map<std::string, Lines*> debugLines;

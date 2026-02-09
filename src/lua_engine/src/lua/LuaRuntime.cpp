@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include "LuaRuntime.h"
+#include <lua_engine/LuaRuntime.h>
 #include "core/World.h"
 // #include "physics/DynamicTree.h"
 #include "renderables/Lines.h"
@@ -13,6 +13,10 @@
 #include "scene/helpers/FloorHelper.h"
 #include "scene/helpers/SphereHelper.h"
 #include "scene/helpers/LinesHelper.h"
+
+// Constructor and destructor must be defined in .cpp where SceneHelper is complete
+LuaRuntime::LuaRuntime() = default;
+LuaRuntime::~LuaRuntime() = default;
 
 void LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
                            const std::unordered_map<std::string, GLuint>& shaders) {

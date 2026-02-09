@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "LuaBindings.h"
+#include <lua_engine/LuaBindings.h>
 
 // Sol2 template instantiation requires complete type definitions
 // for all types used in bound method signatures
