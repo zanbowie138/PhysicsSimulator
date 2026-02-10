@@ -1,10 +1,6 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include <filesystem>
-#include <string>
 #include <fstream>
 #include <iostream>
 #include <cerrno>

@@ -1,7 +1,6 @@
 #include "StaticTree.h"
 #include "utils/Logger.h"
 #include "utils/Timer.h"
-#include <glm/gtx/string_cast.hpp>
 #include "../core/GlobalTypes.h"
 
 

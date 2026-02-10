@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include <string_view>
 #include <array>   // std::array
 #include <utility> // std::index_sequence

@@ -1,7 +1,4 @@
 #pragma once
-#include <string>
-#include <vector>
-
 #include "../core/GlobalTypes.h"
 
 #include "../renderer/EBO.h"

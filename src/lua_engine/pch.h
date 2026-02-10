@@ -7,8 +7,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 
 // Core engine types with templates (order matters for dependencies)
 #include "core/GlobalTypes.h"

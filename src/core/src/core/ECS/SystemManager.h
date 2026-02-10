@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "../GlobalTypes.h"
 
 #include "EntityManager.h"

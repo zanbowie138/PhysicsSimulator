@@ -1,6 +1,4 @@
 #pragma once
-
-#include <vector>
 #include "core/GlobalTypes.h"
 
 namespace Utils

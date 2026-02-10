@@ -1,7 +1,4 @@
 #pragma once
-#include <vector>
-#include <stack>
-
 #include "math/Ray.h"
 
 

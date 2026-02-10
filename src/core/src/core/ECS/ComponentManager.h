@@ -1,7 +1,4 @@
 #pragma once
-#include <unordered_map>
-#include <memory>
-
 #include "../GlobalTypes.h"
 #include "EntityManager.h"
 #include "ComponentArray.h"

@@ -2,7 +2,6 @@
 
 #include <array>
 #include <bitset>
-#include <stack>
 
 #include "../GlobalTypes.h"
 #include "utils/Exceptions.h"

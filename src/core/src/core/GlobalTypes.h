@@ -1,9 +1,5 @@
 #pragma once
 #include <bitset>
-#include <vector>
-
-#include "glm/glm.hpp"
-#include <glad/glad.h>
 
 #ifndef BASE_DIR
 #define BASE_DIR std::filesystem::current_path().string()

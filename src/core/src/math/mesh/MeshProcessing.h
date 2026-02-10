@@ -1,7 +1,6 @@
 #pragma once
 #include <filesystem>
 #include <fstream>
-#include <unordered_map>
 
 #include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
