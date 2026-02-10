@@ -17,6 +17,8 @@ class Lines;
 class Points;
 class Camera;
 
+namespace Utils { class LuaLogger; }
+
 namespace LuaBindings {
     // Wrapper for input state (read-only from Lua)
     struct LuaInput {
@@ -42,5 +44,6 @@ namespace LuaBindings {
     // These frequently change - recompile often during development
     void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree,
                         const std::unordered_map<std::string, Lines*>& lines,
-                        const std::unordered_map<std::string, Points*>& points);
+                        const std::unordered_map<std::string, Points*>& points,
+                        Utils::LuaLogger& luaLogger);
 }

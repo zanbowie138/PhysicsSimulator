@@ -42,9 +42,8 @@ public:
 		bool regenStaticTree;
 	} config;
 
-	// Allows for log clearing
-	unsigned int logSkip = 0;
-	unsigned int logLineSkip = 0;
+	// Per-window log skip state (char offset, line offset)
+	std::unordered_map<std::string, std::pair<unsigned int, unsigned int>> logSkips;
 
 
 	static bool MouseOver();
@@ -63,7 +62,7 @@ public:
 
 	void ShowConfigWindow();
 	void EntityInfo(Entity entity, bool entitySelected);
-	void RenderLog(const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels);
+	void RenderLog(const char* windowName, const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels);
 	void ShowErrorOverlay(const std::string& errorMsg, bool& showError);
 
 	static void Demo() { ImGui::ShowDemoWindow(); }
@@ -160,18 +159,19 @@ inline void GUI::EntityInfo(const Entity entity, const bool entitySelected)
 	EndWindow();
 }
 
-inline void GUI::RenderLog(const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels)
+inline void GUI::RenderLog(const char* windowName, const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels)
 {
-	StartWindow("Log Output");
+	StartWindow(windowName);
 
+	auto& [charSkip, lineSkip] = logSkips[windowName];
 	std::string line;
-	std::stringstream ss(log.substr(logSkip));
+	std::stringstream ss(log.substr(charSkip));
 	unsigned long lineIdx = 0;
 	bool clearLog = ImGui::Button("Clear Log");
 
 	while (std::getline(ss, line, '\n'))
     {
-		auto logLevel = lineLogLevels[lineIdx + logLineSkip];
+		auto logLevel = lineLogLevels[lineIdx + lineSkip];
 
 		if (logLevel == LOG_WARNING) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 0, 255)); }
 		else if (logLevel == LOG_ERROR) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); }
@@ -184,8 +184,8 @@ inline void GUI::RenderLog(const std::string& log, const std::vector<Utils::LogL
     }
 
 	if (clearLog) {
-    	logSkip = log.size();
-    	logLineSkip += lineIdx;
+    	charSkip = log.size();
+    	lineSkip += lineIdx;
     }
 
     EndWindow();

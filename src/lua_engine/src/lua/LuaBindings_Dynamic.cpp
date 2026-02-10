@@ -1,4 +1,5 @@
 #include <lua_engine/LuaBindings.h>
+#include <lua_engine/LuaLogger.h>
 
 namespace LuaBindings {
 
@@ -29,7 +30,8 @@ LuaCameraView LuaCameraView::FromCamera(const Camera& cam) {
 
 void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree,
                      const std::unordered_map<std::string, Lines*>& lines,
-                     const std::unordered_map<std::string, Points*>& points) {
+                     const std::unordered_map<std::string, Points*>& points,
+                     Utils::LuaLogger& luaLogger) {
     LOG(LOG_INFO) << "Binding dynamic APIs\n";
 
     // World API - frequently extended
@@ -105,16 +107,22 @@ void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree
     // Utils namespace - frequently extended
     sol::table utilsTable = lua.create_table();
 
-    utilsTable["Log"] = [](const std::string& message, sol::optional<std::string> level) {
-        std::string levelStr = level.value_or("INFO");
-        if (levelStr == "ERROR") {
-            LOG(LOG_ERROR) << "[Lua] " << message << "\n";
-        } else if (levelStr == "WARNING") {
-            LOG(LOG_WARNING) << "[Lua] " << message << "\n";
-        } else {
-            LOG(LOG_INFO) << "[Lua] " << message << "\n";
-        }
+    utilsTable["Log"] = [&luaLogger](const std::string& message, sol::optional<std::string> level) {
+        std::string lvl = level.value_or("INFO");
+        if (lvl == "ERROR")        luaLogger.Log(message, Utils::LogLevel::ERROR);
+        else if (lvl == "WARNING") luaLogger.Log(message, Utils::LogLevel::WARNING);
+        else                       luaLogger.Log(message, Utils::LogLevel::INFO);
     };
+
+    lua.set_function("print", [&luaLogger, &lua](sol::variadic_args args) {
+        std::string message;
+        sol::function tostr = lua["tostring"];
+        for (size_t i = 0; i < args.size(); ++i) {
+            if (i > 0) message += "\t";
+            message += tostr(args[i]).get<std::string>();
+        }
+        luaLogger.Log(message, Utils::LogLevel::INFO);
+    });
 
     utilsTable["Lerp"] = [](float a, float b, float t) -> float {
         return a + (b - a) * glm::clamp(t, 0.0f, 1.0f);

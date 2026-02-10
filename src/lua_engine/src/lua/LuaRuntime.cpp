@@ -64,8 +64,9 @@ bool LuaRuntime::LoadScene(const std::string& filename, std::string& outErrorMsg
     LOG(LOG_INFO) << "Loading scene: " << filename << "\n";
 
     // Bind dynamic APIs (frequently modified during development)
+    luaLogger.Clear();
     if (worldPtr && treePtr) {
-        LuaBindings::BindDynamicAPIs(lua, *worldPtr, *treePtr, debugLines, debugPoints);
+        LuaBindings::BindDynamicAPIs(lua, *worldPtr, *treePtr, debugLines, debugPoints, luaLogger);
         LOG(LOG_INFO) << "Bound dynamic APIs (World, Utils, PhysicsSystem.tree, Debug)\n";
     } else {
         outErrorMsg = "LuaRuntime not initialized properly - missing world or tree reference";

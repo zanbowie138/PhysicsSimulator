@@ -7,6 +7,7 @@
 
 #include "core/GlobalTypes.h"
 #include "LuaBindings.h"
+#include "LuaLogger.h"
 
 class World;
 class Lines;
@@ -28,6 +29,7 @@ public:
 
     sol::state lua;
     Entity lightEntity = 999;
+    Utils::LuaLogger luaLogger;
     std::unordered_map<std::string, Lines*> debugLines;
     std::unordered_map<std::string, Points*> debugPoints;
     std::vector<std::unique_ptr<SceneImporterInternal::SceneHelper>> sceneHelpers;

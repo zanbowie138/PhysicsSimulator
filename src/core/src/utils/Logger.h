@@ -42,12 +42,49 @@ namespace Utils
         ERROR
     };
 
-    class Logger
+    // In-memory log buffer with formatting — base for Logger and LuaLogger
+    class LogBuffer
+    {
+    protected:
+        std::stringstream logContents;
+        std::vector<LogLevel> lineLogLevels;
+
+    public:
+        void Log(const std::string& message, LogLevel level = LogLevel::INFO)
+        {
+            lineLogLevels.push_back(level);
+            logContents << "[" << LevelToString(level) << "] " << CurrentTime() << ": " << message << "\n";
+        }
+
+        std::string GetContents() const { return logContents.str(); }
+        std::vector<LogLevel> GetLineLevels() const { return lineLogLevels; }
+        void Clear() { logContents.str(""); logContents.clear(); lineLogLevels.clear(); }
+
+        static std::string LevelToString(LogLevel level)
+        {
+            switch (level)
+            {
+                case LogLevel::INFO:    return "INFO";
+                case LogLevel::WARNING: return "WARNING";
+                case LogLevel::ERROR:   return "ERROR";
+                default:                return "UNKNOWN";
+            }
+        }
+
+        static std::string CurrentTime()
+        {
+            auto now = std::chrono::system_clock::now();
+            auto in_time_t = std::chrono::system_clock::to_time_t(now);
+            std::stringstream ss;
+            ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+            return ss.str();
+        }
+    };
+
+    class Logger : public LogBuffer
     {
         std::ofstream logFile;
         std::string filename;
-        std::stringstream logContents;
-        std::vector<LogLevel> lineLogLevels = std::vector<LogLevel>();
         LogLevel logLevel;
         bool printToConsole;
 
@@ -113,31 +150,14 @@ namespace Utils
             return *this;
         }
 
-        std::string GetLogContents() { return logContents.str(); }
-        std::vector<LogLevel> GetLineLogLevels() { return lineLogLevels; }
-
-        static std::string CurrentTime()
-        {
-            auto now = std::chrono::system_clock::now();
-            auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-            std::stringstream ss;
-            ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
-
-            return ss.str();
-        }
+        std::string GetLogContents() { return GetContents(); }
+        std::vector<LogLevel> GetLineLogLevels() { return GetLineLevels(); }
 
         std::string SetLogLevel(const LogLevel level)
         {
             logLevel = level;
             lineLogLevels.push_back(logLevel);
-            switch (level)
-            {
-            case LogLevel::INFO: return "INFO";
-            case LogLevel::WARNING: return "WARNING";
-            case LogLevel::ERROR: return "ERROR";
-            default: return "UNKNOWN";
-            }
+            return LevelToString(level);
         }
     };
 
