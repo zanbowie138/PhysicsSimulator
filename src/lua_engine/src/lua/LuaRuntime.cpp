@@ -1,12 +1,6 @@
-#include <glad/glad.h>
+// PCH automatically includes glad, World, Lines, Points, Logger, etc.
 #include <lua_engine/LuaRuntime.h>
-#include "core/World.h"
-// #include "physics/DynamicTree.h"
-#include "renderables/Lines.h"
-#include "renderables/Points.h"
-#include "utils/Logger.h"
 #include "utils/PathUtils.h"
-#include "utils/Exceptions.h"
 
 #include "scene/SceneHelper.h"
 #include "scene/helpers/CubeHelper.h"
@@ -22,22 +16,18 @@ void LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
                            const std::unordered_map<std::string, GLuint>& shaders) {
     LOG(LOG_INFO) << "Initializing Lua runtime\n";
 
-    // Store shader map for fallback scene
+    // Store references for dynamic binding later
+    worldPtr = &world;
+    treePtr = &tree;
     shaderMap = shaders;
 
     // Open standard Lua libraries
     lua.open_libraries(sol::lib::base, sol::lib::math);
     LOG(LOG_INFO) << "Opened Lua standard libraries\n";
 
-    // Bind all engine APIs
-    LuaBindings::BindCore(lua, world);
-    LOG(LOG_INFO) << "Bound core types (vec2, vec3, Transform, Rigidbody, RenderInfo, World)\n";
-
-    LuaBindings::BindPhysics(lua, tree);
-    LOG(LOG_INFO) << "Bound physics types (Ray, BoundingBox, DynamicBBTree, Utils)\n";
-
-    LuaBindings::BindInputAndCamera(lua);
-    LOG(LOG_INFO) << "Bound input and camera types\n";
+    // Bind stable types (rarely recompiled)
+    LuaBindings::BindStableTypes(lua);
+    LOG(LOG_INFO) << "Bound stable types (vec3, Transform, Ray, BoundingBox, Lines, Input, Camera)\n";
 
     // Register scene creation helpers
     sceneHelpers.push_back(std::make_unique<SceneImporterInternal::CubeHelper>());
@@ -73,10 +63,15 @@ bool LuaRuntime::LoadScene(const std::string& filename, std::string& outErrorMsg
 
     LOG(LOG_INFO) << "Loading scene: " << filename << "\n";
 
-    // Bind debug renderables after Initialize
-    LuaBindings::BindDebugRendering(lua, debugLines, debugPoints);
-    LOG(LOG_INFO) << "Bound " << debugLines.size() << " debug lines and "
-                  << debugPoints.size() << " debug points\n";
+    // Bind dynamic APIs (frequently modified during development)
+    if (worldPtr && treePtr) {
+        LuaBindings::BindDynamicAPIs(lua, *worldPtr, *treePtr, debugLines, debugPoints);
+        LOG(LOG_INFO) << "Bound dynamic APIs (World, Utils, PhysicsSystem.tree, Debug)\n";
+    } else {
+        outErrorMsg = "LuaRuntime not initialized properly - missing world or tree reference";
+        LOG(LOG_ERROR) << "Scene load failed: " << outErrorMsg << "\n";
+        return false;
+    }
 
     try {
         // Execute scene script

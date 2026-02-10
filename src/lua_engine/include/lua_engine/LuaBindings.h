@@ -34,21 +34,13 @@ namespace LuaBindings {
         static LuaCameraView FromCamera(const Camera& cam);
     };
 
-    // Bind core types and World API to Lua state
-    // Usage: Call once during initialization before loading scripts
-    void BindCore(sol::state& lua, World& world);
+    // Bind stable types (POD, components, physics primitives, debug renderables)
+    // These rarely change - compile once, reuse across sessions
+    void BindStableTypes(sol::state& lua);
 
-    // Bind physics types (Ray, BoundingBox, DynamicBBTree) and raycast utilities
-    // Usage: Call after BindCore, pass physics system tree
-    void BindPhysics(sol::state& lua, Physics::DynamicBBTree& tree);
-
-    // Bind debug rendering types (Lines, Points) via Debug namespace
-    // Usage: Call after BindCore, register renderables with names
-    void BindDebugRendering(sol::state& lua,
-                           const std::unordered_map<std::string, Lines*>& lines,
-                           const std::unordered_map<std::string, Points*>& points);
-
-    // Bind input and camera wrapper structs
-    // Usage: Call after BindCore
-    void BindInputAndCamera(sol::state& lua);
+    // Bind dynamic APIs (World methods, Utils functions, tree queries)
+    // These frequently change - recompile often during development
+    void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree,
+                        const std::unordered_map<std::string, Lines*>& lines,
+                        const std::unordered_map<std::string, Points*>& points);
 }

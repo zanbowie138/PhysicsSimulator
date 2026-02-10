@@ -64,4 +64,6 @@ public:
 
 private:
     bool callbacksRegistered = false;
+    World* worldPtr = nullptr;
+    Physics::DynamicBBTree* treePtr = nullptr;
 };
