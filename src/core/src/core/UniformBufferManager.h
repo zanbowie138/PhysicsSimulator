@@ -76,11 +76,11 @@ namespace Core {
     inline void UniformBufferManager::BindShader(const Shader& shader)
     {
         BindBuffer();
-        if (shader.mUniforms.test((static_cast<std::size_t>(UniformBlockConfig::CAMERA))))
+        if (shader.UsesUniform(static_cast<std::size_t>(UniformBlockConfig::CAMERA)))
         {
             GL_FCHECK(glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Camera"), 0));
         }
-        if (shader.mUniforms.test((static_cast<std::size_t>(UniformBlockConfig::LIGHTING))))
+        if (shader.UsesUniform(static_cast<std::size_t>(UniformBlockConfig::LIGHTING)))
         {
             GL_FCHECK(glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Lighting"), 1));
         }

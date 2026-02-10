@@ -16,7 +16,6 @@ class Shader
 {
 public:
 	GLuint ID;
-	UBBitset mUniforms;
 
 	static inline std::optional<Shader> Create(const char* vertexFile, const char* fragmentFile);
 
@@ -25,8 +24,12 @@ public:
 
 	inline GLint GetUniformLocation(const char* name) const;
 	inline GLuint GetUniformBlockIndex(const char* name) const;
+	inline bool UsesUniform(std::size_t ub_idx) const;
+	inline void DisableUniform(std::size_t ub_idx);
 
 private:
+	UBBitset mUniforms;
+
 	inline Shader(const char* vertexFile, const char* fragmentFile);
 	static inline bool CompileErrors(unsigned int shader, const char* name, const char* type);
 };
@@ -125,6 +128,14 @@ GLint Shader::GetUniformLocation(const char* name) const
 inline GLuint Shader::GetUniformBlockIndex(const char* name) const
 {
 	return GL_FCHECK(glGetUniformBlockIndex(ID, name));
+}
+
+inline bool Shader::UsesUniform(std::size_t ub_idx) const {
+	return mUniforms.test(ub_idx);
+}
+
+inline void Shader::DisableUniform(std::size_t ub_idx) {
+	mUniforms.reset(ub_idx);
 }
 
 bool Shader::CompileErrors(const unsigned int shader, const char* name, const char* type)

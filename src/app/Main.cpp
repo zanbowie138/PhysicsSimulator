@@ -25,8 +25,8 @@
 #include "math/mesh/MeshSimplify.h"
 #include "math/mesh/SimpleShapes.h"
 
-#include <lua_engine/LuaRuntime.h>
-#include <lua_engine/LuaBindings.h>
+#include "lua_engine/LuaRuntime.h"
+#include "lua_engine/LuaBindings.h"
 
 #include "utils/Timer.h"
 #include "utils/Logger.h"
@@ -112,7 +112,7 @@ int main()
 			LOG(LOG_ERROR) << "Failed to load diffuse shader\n";
 			return 1;
 		}
-		basicShader->mUniforms.reset(static_cast<size_t>(UniformBlockConfig::LIGHTING));
+		basicShader->DisableUniform(static_cast<size_t>(UniformBlockConfig::LIGHTING));
 
 		// Create shader map for lua scene loading
 		std::unordered_map<std::string, GLuint> shaders;
