@@ -25,6 +25,13 @@ add_subdirectory(${DEPENDENCIES_DIR}/lua)
 
 add_library(${PROJECT_NAME} STATIC ${SRC_FILES} ${IMGUI_SOURCES})
 
+# glad.c is C (not C++), stb.cpp defines STB_IMAGE_IMPLEMENTATION before its include
+set_source_files_properties(src/glad.c src/stb.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+
+target_precompile_headers(${PROJECT_NAME} PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/pch.h"
+)
+
 #set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 #set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 #set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
