@@ -40,7 +40,7 @@ namespace Physics {
 		std::pair<Entity, bool> QueryRay(Ray ray) const;
 
 		// Returns reference to object's bounding box
-		const BoundingBox& GetBoundingBox(Entity object) const;
+		BoundingBox GetBoundingBox(Entity object) const;
 
 		// Returns a vector of all active bounding boxes
 		// Bool decides whether non-leaf boxes are added

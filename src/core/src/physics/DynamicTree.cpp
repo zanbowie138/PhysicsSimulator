@@ -604,13 +604,12 @@ namespace Physics
     }
 
 
-    const BoundingBox& DynamicBBTree::GetBoundingBox(const Entity object) const
-    {
+    BoundingBox DynamicBBTree::GetBoundingBox(const Entity object) const {
         const auto enIterator = entityToNodeIdxMap.find(object);
         if (enIterator == entityToNodeIdxMap.end())
         {
             LOG(LOG_ERROR) << "Dynamic Tree: Trying to get entity " << object << " not in map.\n";
-            return BoundingBox();
+            return BoundingBox{};
         }
         return mNodes[enIterator->second].box;
     }
