@@ -11,7 +11,7 @@ class SystemManager
 {
 public:
 	template<typename T>
-	std::shared_ptr<T> RegisterSystem()
+	std::shared_ptr<T> RegisterSystem(Signature signature)
 	{
 		const char* typeName = typeid(T).name();
 
@@ -19,23 +19,10 @@ public:
 			throw ECSException("Registering system more than once");
 		}
 
-		// Create a pointer to the system and return it so it can be used externally
 		auto system = std::make_shared<T>();
 		mSystems.insert({typeName, system});
-		return system;
-	}
-
-	template<typename T>
-	void SetSignature(Signature signature)
-	{
-		const char* typeName = typeid(T).name();
-
-		if (mSystems.find(typeName) == mSystems.end()) {
-			throw ECSException("System used before registered");
-		}
-
-		// Set the signature for this system
 		mSignatures.insert({typeName, signature});
+		return system;
 	}
 
 	void EntityDestroyed(Entity entity)

@@ -11,16 +11,11 @@ class World
 	std::unique_ptr<SystemManager> mSystemManager;
 
 public:
-	World(const std::string& loggingFilePath, bool printToConsole = false)
+	World()
 	{
-		// Create pointers to each manager
 		mComponentManager = std::make_unique<ComponentManager>();
 		mEntityManager = std::make_unique<EntityManager>();
 		mSystemManager = std::make_unique<SystemManager>();
-
-		LOG_INIT(loggingFilePath);
-		LOG_SET_PRINT_TO_CONSOLE(printToConsole);
-		LOG(LOG_INFO) << "World created.\n";
 	}
 
 	// Entity methods
@@ -49,12 +44,6 @@ public:
 	}
 
 	// Component methods
-	template<typename T>
-	void RegisterComponent() const
-	{
-		mComponentManager->RegisterComponent<T>();
-	}
-
 	template<typename T>
 	void AddComponent(Entity entity, T component)
 	{
@@ -100,16 +89,12 @@ public:
 
 
 	// System methods
-	template<typename T>
-	std::shared_ptr<T> RegisterSystem()
+	template<typename TSystem, typename... TComponents>
+	std::shared_ptr<TSystem> RegisterSystem()
 	{
-		return mSystemManager->RegisterSystem<T>();
-	}
-
-	template<typename T>
-	void SetSystemSignature(Signature signature) const
-	{
-		mSystemManager->SetSignature<T>(signature);
+		Signature signature;
+		(signature.set(mComponentManager->GetComponentType<TComponents>()), ...);
+		return mSystemManager->RegisterSystem<TSystem>(signature);
 	}
 
 	void Clean() const

@@ -43,10 +43,14 @@ extern "C" {
 #undef ERROR // Prevent Windows ERROR macro from conflicting with Logger::ERROR
 #endif
 
-World world("output.log", true);
+
+World world;
 
 int main()
 {
+	LOG_INIT("output.log");
+	LOG_SET_PRINT_TO_CONSOLE(true);
+
 	try {
 		Utils::Timer timer("Setup");
 
@@ -61,36 +65,19 @@ int main()
 		Camera cam { windowDimensions.first,windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f) };
 		windowManager.SetCamera(&cam);
 
-		// Register components
-		world.RegisterComponent<Components::Transform>();
-		world.RegisterComponent<Components::RenderInfo>();
-		world.RegisterComponent<Components::DiffuseTextureInfo>();
-		world.RegisterComponent<Components::SpecularTextureInfo>();
-		world.RegisterComponent<Components::Rigidbody>();
-
 		// Create RenderSystem and add dependencies
-		auto renderSystem = world.RegisterSystem<RenderSystem>();
+		auto renderSystem = world.RegisterSystem<RenderSystem,
+			Components::Transform,
+			Components::RenderInfo
+		>();
 		renderSystem->SetWindow(windowManager.GetWindow());
 
 		// Create PhysicsSystem
-		auto physicsSystem = world.RegisterSystem<PhysicsSystem>();
+		auto physicsSystem = world.RegisterSystem<PhysicsSystem,
+			Components::Transform,
+			Components::Rigidbody
+		>();
 		auto& tree = physicsSystem->tree;
-
-		// Set RenderSystem signature
-		{
-			Signature signature;
-			signature.set(world.GetComponentType<Components::Transform>());
-			signature.set(world.GetComponentType<Components::RenderInfo>());
-			world.SetSystemSignature<RenderSystem>(signature);
-		}
-
-		// Set PhysicsSystem signature
-		{
-			Signature signature;
-			signature.set(world.GetComponentType<Components::Transform>());
-			signature.set(world.GetComponentType<Components::Rigidbody>());
-			world.SetSystemSignature<PhysicsSystem>(signature);
-		}
 
 		auto basicShader = Shader::Create("basic.vert", "basic.frag");
 		if (!basicShader) {
@@ -150,14 +137,10 @@ int main()
 
 		// Manage Uniform Buffer
 		Core::UniformBufferManager UBO;
-		UBO.AllocateBuffer();
-		UBO.DefineRanges();
+		UBO.Init();
 
 		// Set uniform blocks in shaders to UBO indexes
-		UBO.BindShader(*basicShader);
-		UBO.BindShader(*defaultShader);
-		UBO.BindShader(*flatShader);
-		UBO.BindShader(*diffuseShader);
+		UBO.BindShaders(*basicShader, *defaultShader, *flatShader, *diffuseShader);
 
 		double lastFPSTime, currentTime;
 		lastFPSTime = currentTime = glfwGetTime();

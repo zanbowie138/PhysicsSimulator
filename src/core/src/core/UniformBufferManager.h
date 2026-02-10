@@ -26,13 +26,18 @@ namespace Core {
         inline void BindBuffer();
         inline void UnbindBuffer();
 
-        inline void AllocateBuffer();
-        
+        inline void Init();
+
         inline void DefineRanges();
-        inline void BindShader(const Shader& shader);
+
+        template <typename... Args>
+        void BindShaders(const Shader& first, const Args&... rest);
 
         inline void UpdateData(const Camera& cam, const glm::vec3& lightPos = glm::vec3(0.0f, 1.0f, 0.0f));
-        inline void SetCamera(Camera* camera);
+    private:
+        inline void BindShader(const Shader& shader);
+
+        // inline void SetCamera(Camera* camera);
 
         inline void Clean();
     };
@@ -55,8 +60,9 @@ namespace Core {
         GL_FCHECK(glBindBuffer(GL_UNIFORM_BUFFER, 0));
     }
     
-    inline void UniformBufferManager::AllocateBuffer()
+    inline void UniformBufferManager::Init()
     {
+        // Allocate Buffer
         // Offset for each block must be a multiple of the alignment
         // TODO: Do this more dynamically
         bufferSize = std::max(sizeof(glm::mat4), (size_t)offsetAlignment) + sizeof(glm::vec4) * 3;
@@ -64,18 +70,14 @@ namespace Core {
         GL_FCHECK(glBufferData(GL_UNIFORM_BUFFER, bufferSize, nullptr, GL_DYNAMIC_DRAW));
         LOG(LOG_INFO) << "Allocated Uniform Buffer of size " << bufferSize << ".\n";
         UnbindBuffer();
-    }
 
-    inline void UniformBufferManager::DefineRanges()
-    {
-        BindBuffer();
+        // Define Ranges
         GL_FCHECK(glBindBufferRange(GL_UNIFORM_BUFFER, 0, ID, 0, sizeof(glm::mat4)));
         GL_FCHECK(glBindBufferRange(GL_UNIFORM_BUFFER, 1, ID, secondOffset, 48)); // TODO: Make this more dynamic
     }
 
     inline void UniformBufferManager::BindShader(const Shader& shader)
     {
-        BindBuffer();
         if (shader.UsesUniform(static_cast<std::size_t>(UniformBlockConfig::CAMERA)))
         {
             GL_FCHECK(glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Camera"), 0));
@@ -84,6 +86,14 @@ namespace Core {
         {
             GL_FCHECK(glUniformBlockBinding(shader.ID, shader.GetUniformBlockIndex("Lighting"), 1));
         }
+    }
+
+    template <typename... Args>
+    void UniformBufferManager::BindShaders(const Shader& first, const Args&... rest)
+    {
+        BindBuffer();
+        BindShader(first);
+        (BindShader(rest), ...);
     }
 
     inline void UniformBufferManager::UpdateData(const Camera& cam, const glm::vec3& lightPos)
