@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 
 #include "core/GlobalTypes.h"
+#include "physics/BoundingBox.h"
 #include "LuaBindings.h"
 #include "LuaLogger.h"
 
@@ -32,6 +33,7 @@ public:
     Utils::LuaLogger luaLogger;
     std::unordered_map<std::string, Lines*> debugLines;
     std::unordered_map<std::string, Points*> debugPoints;
+    std::unordered_map<Entity, BoundingBox> physicsRegistry;
     std::vector<std::unique_ptr<SceneImporterInternal::SceneHelper>> sceneHelpers;
     std::vector<std::unique_ptr<Lines>> ownedLines;
     std::vector<std::unique_ptr<Points>> ownedPoints;
@@ -50,6 +52,9 @@ public:
     // Register debug renderables for Lua access
     void RegisterDebugLines(const std::string& name, Lines* lines);
     void RegisterDebugPoints(const std::string& name, Points* points);
+
+    // Register entity bounding box for physics tree insertion
+    void RegisterPhysics(Entity entity, BoundingBox box) { physicsRegistry[entity] = box; }
 
     // Invoke script callbacks (optional - won't crash if undefined)
     void CallOnInit();

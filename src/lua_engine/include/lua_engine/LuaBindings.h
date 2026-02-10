@@ -2,6 +2,8 @@
 
 #include <sol/sol.hpp>
 #include <glm/glm.hpp>
+#include "core/GlobalTypes.h"
+#include "physics/BoundingBox.h"
 
 class World;
 
@@ -45,5 +47,6 @@ namespace LuaBindings {
     void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree,
                         const std::unordered_map<std::string, Lines*>& lines,
                         const std::unordered_map<std::string, Points*>& points,
-                        Utils::LuaLogger& luaLogger);
+                        Utils::LuaLogger& luaLogger,
+                        const std::unordered_map<Entity, BoundingBox>& physicsRegistry);
 }

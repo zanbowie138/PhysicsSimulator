@@ -31,7 +31,8 @@ LuaCameraView LuaCameraView::FromCamera(const Camera& cam) {
 void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree,
                      const std::unordered_map<std::string, Lines*>& lines,
                      const std::unordered_map<std::string, Points*>& points,
-                     Utils::LuaLogger& luaLogger) {
+                     Utils::LuaLogger& luaLogger,
+                     const std::unordered_map<Entity, BoundingBox>& physicsRegistry) {
     LOG(LOG_INFO) << "Binding dynamic APIs\n";
 
     // World API - frequently extended
@@ -146,6 +147,7 @@ void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree
     lua.new_usertype<Physics::DynamicBBTree>("DynamicBBTree",
         sol::no_constructor,
         "QueryRay", [](Physics::DynamicBBTree& tree, const Ray& ray) -> std::tuple<Entity, bool> {
+            LOG(LOG_INFO) << "Query TREE!" << "\n";
             auto [entity, hit] = tree.QueryRay(ray);
             return std::make_tuple(entity, hit);
         },
@@ -154,9 +156,21 @@ void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree
         //     auto [boxes, hit] = tree.QueryRayCollisions(ray);
         //     return std::make_tuple(boxes, hit);
         // },
-        "GetBoundingBox", &Physics::DynamicBBTree::GetBoundingBox
+        "GetBoundingBox", &Physics::DynamicBBTree::GetBoundingBox,
         // "GetAllBoxes", &Physics::DynamicBBTree::GetAllBoxes,
         // "ComputeCollisionPairs", &Physics::DynamicBBTree::ComputeCollisionPairs
+        "InsertEntity", &Physics::DynamicBBTree::InsertEntity,
+        "RemoveEntity", &Physics::DynamicBBTree::RemoveEntity,
+        "UpdateEntity", sol::overload(
+            static_cast<void(Physics::DynamicBBTree::*)(Entity, BoundingBox)>(&Physics::DynamicBBTree::UpdateEntity),
+            static_cast<void(Physics::DynamicBBTree::*)(Entity, glm::vec3)>(&Physics::DynamicBBTree::UpdateEntity)
+        ),
+        "AddToTree", [&physicsRegistry](Physics::DynamicBBTree& tree, Entity entity) {
+            auto it = physicsRegistry.find(entity);
+            if (it == physicsRegistry.end())
+                throw std::runtime_error("Entity " + std::to_string(entity) + " has no registered bounding box");
+            tree.InsertEntity(entity, it->second);
+        }
     );
 
     // Expose tree via PhysicsSystem namespace

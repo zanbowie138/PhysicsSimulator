@@ -42,6 +42,7 @@ for i = 1, 100 do
         shader = "flat",
         color = {math.random(), math.random(), math.random()}
     })
+    PhysicsSystem.tree:AddToTree(cube)
 end
 
 -- Light sphere

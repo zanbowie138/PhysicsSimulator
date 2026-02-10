@@ -30,9 +30,9 @@ void LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
     LOG(LOG_INFO) << "Bound stable types (vec3, Transform, Ray, BoundingBox, Lines, Input, Camera)\n";
 
     // Register scene creation helpers
-    sceneHelpers.push_back(std::make_unique<SceneImporterInternal::CubeHelper>());
+    sceneHelpers.push_back(std::make_unique<SceneImporterInternal::CubeHelper>(*this));
     sceneHelpers.push_back(std::make_unique<SceneImporterInternal::FloorHelper>());
-    sceneHelpers.push_back(std::make_unique<SceneImporterInternal::SphereHelper>());
+    sceneHelpers.push_back(std::make_unique<SceneImporterInternal::SphereHelper>(*this));
     sceneHelpers.push_back(std::make_unique<SceneImporterInternal::LinesHelper>(*this));
 
     for (const auto& helper : sceneHelpers) {
@@ -66,7 +66,7 @@ bool LuaRuntime::LoadScene(const std::string& filename, std::string& outErrorMsg
     // Bind dynamic APIs (frequently modified during development)
     luaLogger.Clear();
     if (worldPtr && treePtr) {
-        LuaBindings::BindDynamicAPIs(lua, *worldPtr, *treePtr, debugLines, debugPoints, luaLogger);
+        LuaBindings::BindDynamicAPIs(lua, *worldPtr, *treePtr, debugLines, debugPoints, luaLogger, physicsRegistry);
         LOG(LOG_INFO) << "Bound dynamic APIs (World, Utils, PhysicsSystem.tree, Debug)\n";
     } else {
         outErrorMsg = "LuaRuntime not initialized properly - missing world or tree reference";
