@@ -151,12 +151,14 @@ void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree
             auto [entity, hit] = tree.QueryRay(ray);
             return std::make_tuple(entity, hit);
         },
-        // UNUSED: Advanced tree queries not called in test.lua
-        // "QueryRayCollisions", [](Physics::DynamicBBTree& tree, const Ray& ray) -> std::tuple<std::vector<BoundingBox>, bool> {
-        //     auto [boxes, hit] = tree.QueryRayCollisions(ray);
-        //     return std::make_tuple(boxes, hit);
-        // },
+        "QueryRayCollisions", [](Physics::DynamicBBTree& tree, const Ray& ray) -> std::tuple<std::vector<BoundingBox>, bool> {
+            auto [boxes, hit] = tree.QueryRayCollisions(ray);
+            return std::make_tuple(boxes, hit);
+        },
         "GetBoundingBox", &Physics::DynamicBBTree::GetBoundingBox,
+        "GetAllBoxes", [](Physics::DynamicBBTree& tree, bool onlyLeaf) -> std::vector<BoundingBox> {
+            return tree.GetAllBoxes(onlyLeaf);
+        },
         // "GetAllBoxes", &Physics::DynamicBBTree::GetAllBoxes,
         // "ComputeCollisionPairs", &Physics::DynamicBBTree::ComputeCollisionPairs
         "InsertEntity", &Physics::DynamicBBTree::InsertEntity,

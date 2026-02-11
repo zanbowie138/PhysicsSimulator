@@ -1,0 +1,14 @@
+{
+    "workspace.library": ["lua_defs"],
+    "runtime.version": "Lua 5.4",
+    "diagnostics.globals": [
+        "world",
+        "PhysicsSystem",
+        "Debug",
+        "Utils",
+        "CreateCube",
+        "CreateFloor",
+        "CreateSphere",
+        "CreateLines"
+    ]
+}

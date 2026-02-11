@@ -204,6 +204,20 @@ int main() {
 					LuaBindings::LuaCameraView::FromCamera(cam));
 			}
 
+			// Sync entity selection from Lua
+			auto selectedOpt = luaRuntime.GetSelectedEntity();
+			entity = selectedOpt.value_or(Entity());
+			entitySelected = selectedOpt.has_value();
+
+			// Dynamic tree box visualization
+			auto boxIt = luaRuntime.debugLines.find("boxes");
+			if (boxIt != luaRuntime.debugLines.end()) {
+				boxIt->second->Clear();
+				if (GUI.config.showDynamicBoxes) {
+					boxIt->second->PushBoundingBoxes(tree.GetAllBoxes(GUI.config.showOnlyDynamicLeaf));
+				}
+			}
+
 			// Scene reload with Ctrl+R
 			static bool rKeyPressed = false;
 			bool rKeyDown = windowManager.TestInput(InputButtons::CONTROL) &&
@@ -234,6 +248,8 @@ int main() {
 
 				// Update light entity
 				lightEntity = luaRuntime.GetLightEntity();
+				entity = Entity();
+				entitySelected = false;
 			} else if (!rKeyDown) {
 				rKeyPressed = false;
 			}

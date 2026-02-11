@@ -8,19 +8,21 @@ rays = CreateLines({
     color = {0, 1, 0}
 })
 
-boxes = CreateLines({
-    name = "boxes",
+hits = CreateLines({
+    name = "hits",
     capacity = 10000,
     shader = "basic",
     color = {1, 0, 0}
 })
 
-hits = CreateLines({
-    name = "hits",
-    capacity = 100,
+boxes = CreateLines({
+    name = "boxes",
+    capacity = 10000,
     shader = "basic",
-    color = {1, 1, 0}
+    color = {1, 1, 1}
 })
+
+
 
 -- Floor
 floor = CreateFloor({
@@ -34,9 +36,9 @@ floor = CreateFloor({
 for i = 1, 100 do
     cube = CreateCube({
         position = {
-            math.random(-2, 2),
-            math.abs(math.random(-2, 2)),
-            math.random(-2, 2)
+            math.random() * 8.0 - 4.0,
+            math.random() * 3.0,
+            math.random() * 8.0 - 4.0
         },
         scale = 0.1,
         shader = "flat",
@@ -52,6 +54,7 @@ light = CreateSphere({
     shader = "basic",
     color = { 1, 1, 1 }
 })
+PhysicsSystem.tree:AddToTree(light)
 
 -- Runtime state
 local state = {
@@ -103,7 +106,12 @@ function OnUpdate(dt, input, camera)
             height,  -- Smooth height transition using Lerp
             math.cos(state.time / 2000.0) * 3.0
         )
+        local newPos = lightTransform.worldPos
+        PhysicsSystem.tree:UpdateEntity(light, newPos)
     end
+
+    state.boxLines:Clear()
+    state.boxLines:PushBoundingBoxes(PhysicsSystem.tree:GetAllBoxes(false))
 end
 
 -- Mouse click handler
@@ -117,18 +125,21 @@ function OnClick(input, camera)
 
     -- Query collision with scene
     local entity, hit = PhysicsSystem.tree:QueryRay(ray)
+    local intersectedBoxes, anyHit = PhysicsSystem.tree:QueryRayCollisions(ray)
 
     state.hitLines:Clear()
+    if anyHit then
+        state.hitLines:PushBoundingBoxes(intersectedBoxes)
+    end
+
     if hit then
         print("Hit entity: " .. tostring(entity))
         state.selectedEntity = entity
-
-        -- Highlight bounding box
-        local box = PhysicsSystem.tree:GetBoundingBox(entity)
-        state.hitLines:PushBoundingBox(box)
+        SelectedEntity = entity
     else
         print("No hit")
         state.selectedEntity = nil
+        SelectedEntity = nil
     end
 end
 

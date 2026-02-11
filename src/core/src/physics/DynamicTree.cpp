@@ -99,13 +99,12 @@ namespace Physics
         InsertEntity(entity, box);
     }
 
-    void DynamicBBTree::UpdateEntity(Entity entity, glm::vec3 transform)
+    void DynamicBBTree::UpdateEntity(Entity entity, glm::vec3 newCenter)
     {
-        BoundingBox box = GetNode(entity).box;
-        box.max += transform;
-        box.min += transform;
+        BoundingBox oldBox = GetBoundingBox(entity);
+        oldBox.MoveCenter(newCenter);
         RemoveEntity(entity);
-        InsertEntity(entity, box);
+        InsertEntity(entity, oldBox);
     }
 
 
@@ -628,7 +627,7 @@ namespace Physics
     DynamicBBTree::Node& DynamicBBTree::GetNode(Entity entity)
     {
         const auto enIterator = entityToNodeIdxMap.find(entity);
-        if (enIterator != entityToNodeIdxMap.end())
+        if (enIterator == entityToNodeIdxMap.end())
         {
             LOG(LOG_ERROR) << "Dynamic Tree: Trying to find entity not in map\n";
             return mNodes[NULL_NODE];

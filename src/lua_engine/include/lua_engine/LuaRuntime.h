@@ -65,6 +65,10 @@ public:
 
     Entity GetLightEntity() const { return lightEntity; }
 
+    sol::optional<Entity> GetSelectedEntity() const {
+        return lua.get<sol::optional<Entity>>("SelectedEntity");
+    }
+
     // Transfer ownership of Lines/Points created in Lua
     void TakeOwnership(std::unique_ptr<Lines> lines);
     void TakeOwnership(std::unique_ptr<Points> points);
