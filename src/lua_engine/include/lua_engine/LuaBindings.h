@@ -49,4 +49,7 @@ namespace LuaBindings {
                         const std::unordered_map<std::string, Points*>& points,
                         Utils::LuaLogger& luaLogger,
                         const std::unordered_map<Entity, BoundingBox>& physicsRegistry);
+
+    // Bind ImGui APIs for Lua-driven GUI panels
+    void BindGUIAPIs(sol::state& lua);
 }

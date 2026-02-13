@@ -62,7 +62,9 @@ local state = {
     selectedEntity = nil,
     rayLines = nil,
     boxLines = nil,
-    hitLines = nil
+    hitLines = nil,
+    showDynamicBoxes = false,
+    showOnlyDynamicLeaf = false
 }
 
 -- Initialize debug renderables
@@ -111,7 +113,32 @@ function OnUpdate(dt, input, camera)
     end
 
     state.boxLines:Clear()
-    state.boxLines:PushBoundingBoxes(PhysicsSystem.tree:GetAllBoxes(false))
+    if state.showDynamicBoxes then
+        state.boxLines:PushBoundingBoxes(PhysicsSystem.tree:GetAllBoxes(state.showOnlyDynamicLeaf))
+    end
+end
+
+-- GUI panels (called between NewFrame and Render)
+function OnGUI()
+    GUI.Begin("Entity Info")
+    if SelectedEntity then
+        GUI.Text("Entity ID: " .. tostring(SelectedEntity))
+        if world.HasTransform(SelectedEntity) then
+            local t = world.GetTransform(SelectedEntity)
+            GUI.Text(string.format("Position: %.2f, %.2f, %.2f",
+                t.worldPos.x, t.worldPos.y, t.worldPos.z))
+        end
+    else
+        GUI.Text("No entity selected.")
+    end
+    GUI.End()
+
+    GUI.Begin("Config")
+    if GUI.CollapsingHeader("Dynamic BVH Tree") then
+        state.showDynamicBoxes = GUI.Checkbox("Show Bounding Boxes ##Dynamic", state.showDynamicBoxes)
+        state.showOnlyDynamicLeaf = GUI.Checkbox("Show only leaf nodes ##Dynamic", state.showOnlyDynamicLeaf)
+    end
+    GUI.End()
 end
 
 -- Mouse click handler

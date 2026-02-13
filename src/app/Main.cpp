@@ -152,9 +152,6 @@ int main() {
 
 		std::cout << timer.ToString() << std::endl;
 
-		Entity entity = Entity();
-		bool entitySelected = false;
-
 		while (!glfwWindowShouldClose(window)) {
 			renderSystem->PreUpdate();
 
@@ -204,20 +201,6 @@ int main() {
 					LuaBindings::LuaCameraView::FromCamera(cam));
 			}
 
-			// Sync entity selection from Lua
-			auto selectedOpt = luaRuntime.GetSelectedEntity();
-			entity = selectedOpt.value_or(Entity());
-			entitySelected = selectedOpt.has_value();
-
-			// Dynamic tree box visualization
-			auto boxIt = luaRuntime.debugLines.find("boxes");
-			if (boxIt != luaRuntime.debugLines.end()) {
-				boxIt->second->Clear();
-				if (GUI.config.showDynamicBoxes) {
-					boxIt->second->PushBoundingBoxes(tree.GetAllBoxes(GUI.config.showOnlyDynamicLeaf));
-				}
-			}
-
 			// Scene reload with Ctrl+R
 			static bool rKeyPressed = false;
 			bool rKeyDown = windowManager.TestInput(InputButtons::CONTROL) &&
@@ -248,8 +231,6 @@ int main() {
 
 				// Update light entity
 				lightEntity = luaRuntime.GetLightEntity();
-				entity = Entity();
-				entitySelected = false;
 			} else if (!rKeyDown) {
 				rKeyPressed = false;
 			}
@@ -259,14 +240,14 @@ int main() {
 			renderSystem->Update();
 			GUI.NewFrame();
 
+			luaRuntime.CallOnGUI();
+
 			GUI.StartWindow("Performance");
 			GUI.Text(fpsString.c_str());
 			GUI.EndWindow();
 
-			GUI.ShowConfigWindow();
-			GUI.EntityInfo(entity, entitySelected);
 			GUI.RenderLog("Log Output", LOG_CONTENTS(), LOG_LINE_LEVELS());
-		GUI.RenderLog("Lua Output", luaRuntime.luaLogger.GetContents(), luaRuntime.luaLogger.GetLineLevels());
+			GUI.RenderLog("Lua Output", luaRuntime.luaLogger.GetContents(), luaRuntime.luaLogger.GetLineLevels());
 
 			// Show error overlay if present
 			if (showSceneError) {

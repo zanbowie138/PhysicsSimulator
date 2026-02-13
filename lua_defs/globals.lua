@@ -117,3 +117,54 @@ function CreateSphere(cfg) end
 ---@param cfg LinesConfig
 ---@return integer entity
 function CreateLines(cfg) end
+
+-- ============================================================
+-- GUI table
+-- ============================================================
+
+---@class GUIFlags
+---@field NoCollapse integer
+---@field NoResize integer
+---@field NoMove integer
+---@field NoTitleBar integer
+---@field AlwaysAutoResize integer
+
+---@class GUIAPI
+---@field Flags GUIFlags
+local GUIAPI = {}
+
+---@param name string Window title
+---@param flags? integer Optional ImGuiWindowFlags (use GUI.Flags.*)
+function GUIAPI.Begin(name, flags) end
+
+function GUIAPI.End() end
+
+---@param text string
+function GUIAPI.Text(text) end
+
+---@param label string
+---@param value boolean
+---@return boolean Updated value
+function GUIAPI.Checkbox(label, value) end
+
+---@param label string
+---@return boolean True if header is open
+function GUIAPI.CollapsingHeader(label) end
+
+---@param label string
+---@return boolean True if clicked
+function GUIAPI.Button(label) end
+
+function GUIAPI.Separator() end
+function GUIAPI.Spacing() end
+function GUIAPI.SameLine() end
+
+---@type GUIAPI
+GUI = nil
+
+-- ============================================================
+-- Selected entity (set by OnClick)
+-- ============================================================
+
+---@type integer|nil
+SelectedEntity = nil

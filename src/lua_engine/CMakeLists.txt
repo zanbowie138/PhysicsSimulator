@@ -4,6 +4,7 @@ set(SRC_FILES
     src/lua/LuaRuntime.cpp
     src/lua/LuaBindings_Stable.cpp   # Rarely modified - compiles once
     src/lua/LuaBindings_Dynamic.cpp  # Frequently modified - recompiles often
+    src/lua/LuaBindings_GUI.cpp      # ImGui bindings for Lua-driven panels
 )
 
 add_library(${PROJECT_NAME} STATIC ${SRC_FILES})

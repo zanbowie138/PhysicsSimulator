@@ -22,12 +22,16 @@ void LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
     shaderMap = shaders;
 
     // Open standard Lua libraries
-    lua.open_libraries(sol::lib::base, sol::lib::math);
+    lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string);
     LOG(LOG_INFO) << "Opened Lua standard libraries\n";
 
     // Bind stable types (rarely recompiled)
     LuaBindings::BindStableTypes(lua);
     LOG(LOG_INFO) << "Bound stable types (vec3, Transform, Ray, BoundingBox, Lines, Input, Camera)\n";
+
+    // Bind GUI APIs
+    LuaBindings::BindGUIAPIs(lua);
+    LOG(LOG_INFO) << "Bound GUI APIs (ImGui wrappers)\n";
 
     // Register scene creation helpers
     sceneHelpers.push_back(std::make_unique<SceneImporterInternal::CubeHelper>(*this));
@@ -194,6 +198,21 @@ void LuaRuntime::CallOnClick(const LuaBindings::LuaInput& input,
             }
         } catch (const std::exception& e) {
             LOG(LOG_ERROR) << "OnClick exception: " << e.what() << "\n";
+        }
+    }
+}
+
+void LuaRuntime::CallOnGUI() {
+    sol::optional<sol::protected_function> callback = lua["OnGUI"];
+    if (callback) {
+        try {
+            sol::protected_function_result result = callback.value()();
+            if (!result.valid()) {
+                sol::error err = result;
+                LOG(LOG_ERROR) << "OnGUI error: " << err.what() << "\n";
+            }
+        } catch (const std::exception& e) {
+            LOG(LOG_ERROR) << "OnGUI exception: " << e.what() << "\n";
         }
     }
 }

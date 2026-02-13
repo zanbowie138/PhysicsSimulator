@@ -62,6 +62,7 @@ public:
                      const LuaBindings::LuaCameraView& camera);
     void CallOnClick(const LuaBindings::LuaInput& input,
                     const LuaBindings::LuaCameraView& camera);
+    void CallOnGUI();
 
     Entity GetLightEntity() const { return lightEntity; }
 

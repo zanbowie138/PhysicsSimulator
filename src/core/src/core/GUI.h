@@ -1,46 +1,15 @@
 #pragma once
 
 #include <functional>
-#include <components/Transform.h>
 
 #include <utils/Logger.h>
 
 #include "GlobalTypes.h"
-#include "World.h"
-
-extern World world;
-
-namespace Components
-{
-	struct Transform;
-}
-
-class Changed
-{
-	public:
-	bool checkboxVal, value, changed;
-
-	Changed() = default;
-	void Update()
-	{
-		changed = value != checkboxVal;
-		value = checkboxVal;
-	}
-};
 
 class GUI
 {
 public:
 	inline GUI(GLFWwindow* window);
-
-	struct configInfo
-	{
-		bool showDynamicBoxes;
-		bool showOnlyDynamicLeaf;
-		Changed showStaticBoxes;
-		Changed showOnlyStaticLeaf;
-		bool regenStaticTree;
-	} config;
 
 	// Per-window log skip state (char offset, line offset)
 	std::unordered_map<std::string, std::pair<unsigned int, unsigned int>> logSkips;
@@ -60,8 +29,6 @@ public:
 	static void Checkbox(const char* label, bool* variable) { ImGui::Checkbox(label, variable); }
 	static void ButtonFunc(const char* text, std::function<void()> func);
 
-	void ShowConfigWindow();
-	void EntityInfo(Entity entity, bool entitySelected);
 	void RenderLog(const char* windowName, const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels);
 	void ShowErrorOverlay(const std::string& errorMsg, bool& showError);
 
@@ -72,7 +39,7 @@ public:
 	static void Clean();
 };
 
-inline GUI::GUI(GLFWwindow* window): config()
+inline GUI::GUI(GLFWwindow* window)
 {
 	// Setup ImGui context
 	IMGUI_CHECKVERSION();
@@ -122,41 +89,6 @@ inline void GUI::ButtonFunc(const char* text, std::function<void()> func)
 	{
 		func();
 	}
-}
-
-inline void GUI::ShowConfigWindow()
-{
-	StartWindow("Config");
-	if (ImGui::CollapsingHeader("Dynamic BVH Tree"))
-	{
-		ImGui::Checkbox("Show Bounding Boxes ##Dynamic", &config.showDynamicBoxes);
-		ImGui::Checkbox("Show only leaf nodes ##Dynamic", &config.showOnlyDynamicLeaf);
-	}
-	if (ImGui::CollapsingHeader("Static Bunny BVH Tree"))
-	{
-		ImGui::Checkbox("Show Bounding Boxes ##Static", &config.showStaticBoxes.checkboxVal);
-		ImGui::Checkbox("Show only leaf nodes ##Static", &config.showOnlyStaticLeaf.checkboxVal);
-		config.regenStaticTree = ImGui::Button("Regenerate Static Tree");
-	}
-
-	config.showStaticBoxes.Update();
-	config.showOnlyStaticLeaf.Update();
-	EndWindow();
-}
-
-inline void GUI::EntityInfo(const Entity entity, const bool entitySelected)
-{
-	StartWindow("Entity Info");
-	if (entitySelected)
-	{
-		ImGui::Text("Entity ID: %d", entity);
-		ImGui::Text("Entity Position: %s", glm::to_string(world.GetComponent<Components::Transform>(entity).worldPos).c_str());
-	}
-	else
-	{
-		ImGui::Text("No entity selected.");
-	}
-	EndWindow();
 }
 
 inline void GUI::RenderLog(const char* windowName, const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels)
