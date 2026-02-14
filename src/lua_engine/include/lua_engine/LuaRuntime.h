@@ -30,6 +30,7 @@ public:
 
     sol::state lua;
     Entity lightEntity = 999;
+    float simTime = 0.0f;
     Utils::LuaLogger luaLogger;
     std::unordered_map<std::string, Lines*> debugLines;
     std::unordered_map<std::string, Points*> debugPoints;
@@ -42,6 +43,9 @@ public:
     // Initialize Lua state with all bindings
     void Initialize(World& world, Physics::DynamicBBTree& tree,
                    const std::unordered_map<std::string, GLuint>& shaders);
+
+    // Clear runtime state between scene loads (tree, registry, owned renderables)
+    void Reset();
 
     // Load scene script and execute initialization
     bool LoadScene(const std::string& filename, std::string& outErrorMsg);

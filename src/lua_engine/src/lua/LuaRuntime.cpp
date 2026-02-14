@@ -58,6 +58,15 @@ void LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
     LOG(LOG_INFO) << "Lua runtime initialized successfully\n";
 }
 
+void LuaRuntime::Reset() {
+    if (treePtr) treePtr->Clear();
+    physicsRegistry.clear();
+    ownedLines.clear();
+    ownedPoints.clear();
+    debugLines.clear();
+    debugPoints.clear();
+}
+
 bool LuaRuntime::LoadScene(const std::string& filename, std::string& outErrorMsg) {
     if (!callbacksRegistered) {
         outErrorMsg = "LuaRuntime not initialized. Call Initialize() first.";
@@ -70,7 +79,15 @@ bool LuaRuntime::LoadScene(const std::string& filename, std::string& outErrorMsg
     // Bind dynamic APIs (frequently modified during development)
     luaLogger.Clear();
     if (worldPtr && treePtr) {
-        LuaBindings::BindDynamicAPIs(lua, *worldPtr, *treePtr, debugLines, debugPoints, luaLogger, physicsRegistry);
+        LuaBindings::BindDynamicAPIs(lua, {
+            .world = *worldPtr,
+            .tree = *treePtr,
+            .lines = debugLines,
+            .points = debugPoints,
+            .luaLogger = luaLogger,
+            .physicsRegistry = physicsRegistry,
+            .simTimeMs = &simTime
+        });
         LOG(LOG_INFO) << "Bound dynamic APIs (World, Utils, PhysicsSystem.tree, Debug)\n";
     } else {
         outErrorMsg = "LuaRuntime not initialized properly - missing world or tree reference";

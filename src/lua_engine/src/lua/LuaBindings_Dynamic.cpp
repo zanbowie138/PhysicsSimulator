@@ -28,11 +28,15 @@ LuaCameraView LuaCameraView::FromCamera(const Camera& cam) {
     return view;
 }
 
-void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree,
-                     const std::unordered_map<std::string, Lines*>& lines,
-                     const std::unordered_map<std::string, Points*>& points,
-                     Utils::LuaLogger& luaLogger,
-                     const std::unordered_map<Entity, BoundingBox>& physicsRegistry) {
+void BindDynamicAPIs(sol::state& lua, const DynamicAPIContext& ctx) {
+    World& world = ctx.world;
+    Physics::DynamicBBTree& tree = ctx.tree;
+    const auto& lines = ctx.lines;
+    const auto& points = ctx.points;
+    Utils::LuaLogger& luaLogger = ctx.luaLogger;
+    const auto& physicsRegistry = ctx.physicsRegistry;
+    float* simTimeMs = ctx.simTimeMs;
+
     LOG(LOG_INFO) << "Binding dynamic APIs\n";
 
     // World API - frequently extended
@@ -133,8 +137,8 @@ void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree
         return glm::clamp(value, min, max);
     };
 
-    utilsTable["GetTime"] = []() -> float {
-        return static_cast<float>(glfwGetTime() * 1000.0);
+    utilsTable["GetTime"] = [simTimeMs]() -> float {
+        return *simTimeMs;
     };
 
     utilsTable["ScreenPointToRay"] = [](const glm::vec2& uv, const glm::mat4& camMatrix) {
@@ -155,17 +159,26 @@ void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree
             auto [boxes, hit] = tree.QueryRayCollisions(ray);
             return std::make_tuple(boxes, hit);
         },
-        "GetBoundingBox", &Physics::DynamicBBTree::GetBoundingBox,
+        "GetBoundingBox", [](Physics::DynamicBBTree& tree, Entity entity) -> BoundingBox {
+            return tree.GetBoundingBox(entity);
+        },
         "GetAllBoxes", [](Physics::DynamicBBTree& tree, bool onlyLeaf) -> std::vector<BoundingBox> {
             return tree.GetAllBoxes(onlyLeaf);
         },
-        // "GetAllBoxes", &Physics::DynamicBBTree::GetAllBoxes,
-        // "ComputeCollisionPairs", &Physics::DynamicBBTree::ComputeCollisionPairs
-        "InsertEntity", &Physics::DynamicBBTree::InsertEntity,
-        "RemoveEntity", &Physics::DynamicBBTree::RemoveEntity,
+        // "ComputeCollisionPairs", [](Physics::DynamicBBTree& tree) { return tree.ComputeCollisionPairs(); }
+        "InsertEntity", [](Physics::DynamicBBTree& tree, Entity entity, BoundingBox box) {
+            tree.InsertEntity(entity, box);
+        },
+        "RemoveEntity", [](Physics::DynamicBBTree& tree, Entity entity) {
+            tree.RemoveEntity(entity);
+        },
         "UpdateEntity", sol::overload(
-            static_cast<void(Physics::DynamicBBTree::*)(Entity, BoundingBox)>(&Physics::DynamicBBTree::UpdateEntity),
-            static_cast<void(Physics::DynamicBBTree::*)(Entity, glm::vec3)>(&Physics::DynamicBBTree::UpdateEntity)
+            [](Physics::DynamicBBTree& tree, Entity entity, BoundingBox box) {
+                tree.UpdateEntity(entity, box);
+            },
+            [](Physics::DynamicBBTree& tree, Entity entity, glm::vec3 newCenter) {
+                tree.UpdateEntity(entity, newCenter);
+            }
         ),
         "AddToTree", [&physicsRegistry](Physics::DynamicBBTree& tree, Entity entity) {
             auto it = physicsRegistry.find(entity);

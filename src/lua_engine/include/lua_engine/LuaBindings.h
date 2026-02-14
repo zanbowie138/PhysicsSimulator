@@ -22,6 +22,16 @@ class Camera;
 namespace Utils { class LuaLogger; }
 
 namespace LuaBindings {
+
+    struct DynamicAPIContext {
+        World& world;
+        Physics::DynamicBBTree& tree;
+        const std::unordered_map<std::string, Lines*>& lines;
+        const std::unordered_map<std::string, Points*>& points;
+        Utils::LuaLogger& luaLogger;
+        const std::unordered_map<Entity, BoundingBox>& physicsRegistry;
+        float* simTimeMs;
+    };
     // Wrapper for input state (read-only from Lua)
     struct LuaInput {
         bool leftMouse, rightMouse, w, a, s, d, space, ctrl, shift;
@@ -44,11 +54,7 @@ namespace LuaBindings {
 
     // Bind dynamic APIs (World methods, Utils functions, tree queries)
     // These frequently change - recompile often during development
-    void BindDynamicAPIs(sol::state& lua, World& world, Physics::DynamicBBTree& tree,
-                        const std::unordered_map<std::string, Lines*>& lines,
-                        const std::unordered_map<std::string, Points*>& points,
-                        Utils::LuaLogger& luaLogger,
-                        const std::unordered_map<Entity, BoundingBox>& physicsRegistry);
+    void BindDynamicAPIs(sol::state& lua, const DynamicAPIContext& ctx);
 
     // Bind ImGui APIs for Lua-driven GUI panels
     void BindGUIAPIs(sol::state& lua);

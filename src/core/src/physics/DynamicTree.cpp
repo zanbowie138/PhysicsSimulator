@@ -16,6 +16,18 @@ namespace Physics
     }
 
 
+    void DynamicBBTree::Clear()
+    {
+        nodeIdxToEntityMap.clear();
+        entityToNodeIdxMap.clear();
+        mNodes.clear();
+        mFreeList = {};
+        rootIndex = NULL_NODE;
+        nodeCount = 0;
+        nodeCapacity = 0;
+        ExpandCapacity(1);
+    }
+
     void DynamicBBTree::InsertEntity(Entity entity, BoundingBox box)
     {
         size_t newNodeIndex = AllocateNode();

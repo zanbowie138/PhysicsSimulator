@@ -30,6 +30,7 @@ namespace Physics {
 
 		explicit DynamicBBTree(size_t initialCapacity = 1);
 
+		void Clear();
 		void InsertEntity(Entity entity, BoundingBox box);
 		void RemoveEntity(Entity entity);
 		void UpdateEntity(Entity entity, BoundingBox box);

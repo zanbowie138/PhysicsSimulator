@@ -138,6 +138,9 @@ int main() {
 		float time, mspf, fps;
 		time = mspf = fps = 0.0f;
 
+		bool simRunning = true;
+		uint64_t frameNumber = 0;
+
 		std::cout << timer.ToString() << std::endl;
 
 		while (!glfwWindowShouldClose(window)) {
@@ -158,7 +161,11 @@ int main() {
 				LOG_WRITE();
 			}
 
-			time += dt_mill;
+			if (simRunning) {
+				time += dt_mill;
+				luaRuntime.simTime += dt_mill;
+				frameNumber++;
+			}
 
 			// Update window input bitset
 			windowManager.ProcessInputs(!GUI.MouseOver());
@@ -179,14 +186,16 @@ int main() {
 			UBO.UpdateData(cam, lightPos);
 
 			// Invoke Lua callbacks
-			luaRuntime.CallOnUpdate(dt_mill,
-			                        LuaBindings::LuaInput::FromWindowManager(windowManager),
-			                        LuaBindings::LuaCameraView::FromCamera(cam));
+			if (simRunning) {
+				luaRuntime.CallOnUpdate(dt_mill,
+				                        LuaBindings::LuaInput::FromWindowManager(windowManager),
+				                        LuaBindings::LuaCameraView::FromCamera(cam));
 
-			if (windowManager.TestInput(InputButtons::LEFT_MOUSE)) {
-				luaRuntime.CallOnClick(
-					LuaBindings::LuaInput::FromWindowManager(windowManager),
-					LuaBindings::LuaCameraView::FromCamera(cam));
+				if (windowManager.TestInput(InputButtons::LEFT_MOUSE)) {
+					luaRuntime.CallOnClick(
+						LuaBindings::LuaInput::FromWindowManager(windowManager),
+						LuaBindings::LuaCameraView::FromCamera(cam));
+				}
 			}
 
 			// Scene reload with Ctrl+R
@@ -199,6 +208,7 @@ int main() {
 				LOG(LOG_INFO) << "Reloading scene...\n";
 
 				// Clear current world
+				luaRuntime.Reset();
 				world.ClearAllEntities();
 
 				// Attempt reload
@@ -232,6 +242,32 @@ int main() {
 
 			GUI.StartWindow("Performance");
 			GUI.Text(fpsString.c_str());
+			GUI.EndWindow();
+
+			GUI.StartWindow("Simulation");
+			GUI.Text(("Frame: " + std::to_string(frameNumber)).c_str());
+			GUI.ButtonFunc(simRunning ? "Stop" : "Start", [&]() {
+				simRunning = !simRunning;
+			});
+			GUI.ButtonFunc("Restart", [&]() {
+				luaRuntime.Reset();
+				world.ClearAllEntities();
+				std::string restartError;
+				if (luaRuntime.LoadScene(currentScenePath, restartError)) {
+					showSceneError = false;
+					luaRuntime.CallOnInit();
+				} else {
+					sceneErrorMsg = restartError;
+					showSceneError = true;
+					std::string fallbackError;
+					luaRuntime.LoadFallbackScene(fallbackError);
+				}
+				lightEntity = luaRuntime.GetLightEntity();
+				frameNumber = 0;
+				time = 0.0f;
+				luaRuntime.simTime = 0.0f;
+				simRunning = true;
+			});
 			GUI.EndWindow();
 
 			GUI.RenderLog("Log Output", LOG_CONTENTS(), LOG_LINE_LEVELS());
