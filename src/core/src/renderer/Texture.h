@@ -12,18 +12,17 @@ class Texture
 {
 public:
 	GLuint ID{};
-	GLenum texFormat;
+	GLenum texFormat{};
 
-	Texture();
-	static inline std::optional<Texture> Load(const char* image, const GLenum texFormat, const GLenum colorChannels, const GLenum pixelType);
+	Texture() = default;
+	static std::optional<Texture> Load(const char* image, GLenum texFormat, GLenum colorChannels, GLenum pixelType);
 
 	// Deletes a texture
-	inline void Delete() const;
+	void Delete() const;
 private:
-	inline void generateTexture(const unsigned char* bytes, GLenum texFormat, GLenum colorChannels, GLenum pixelType, int widthImg, int heightImg);
+	void generateTexture(const unsigned char* bytes, GLenum texFormat, GLenum colorChannels, GLenum pixelType, int widthImg, int heightImg);
 };
 
-inline Texture::Texture() {}
 
 inline std::optional<Texture> Texture::Load(const char* image, const GLenum texFormat, const GLenum colorChannels, const GLenum pixelType)
 {

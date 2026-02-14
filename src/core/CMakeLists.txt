@@ -1,5 +1,7 @@
 project(CoreEngine)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(SRC_FILES
         src/physics/DynamicTree.cpp
         src/physics/StaticTree.cpp

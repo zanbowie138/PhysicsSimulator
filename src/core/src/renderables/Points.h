@@ -2,7 +2,7 @@
 #include "Renderable.h"
 #include "../renderer/VBO.h"
 #include "../renderer/EBO.h"
-#include "../physics/BoundingBox.h"
+#include "../math/BoundingBox.h"
 
 class Points : public Renderable
 {
@@ -34,7 +34,7 @@ inline Points::Points(const GLuint capacity): mCapacity(capacity)
 {
 	primitiveType = GL_POINTS;
 
-	InitVAO();
+	Points::InitVAO();
 }
 
 inline void Points::PushBack(const std::vector<glm::vec3>& vertices, const glm::mat4& modelMat)
@@ -76,7 +76,7 @@ inline void Points::PushToBuffer(const std::vector<glm::vec3>& points)
 
 	VBO.Bind();
 	VBO.PushData(points);
-	VBO.Unbind();
+	VBO::Unbind();
 
 	UpdateSize();
 }

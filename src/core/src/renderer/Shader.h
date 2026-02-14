@@ -1,9 +1,7 @@
 #pragma once
 
-#include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <cerrno>
 #include <optional>
 #include <utils/Logger.h>
 #include <utils/PathUtils.h>
@@ -30,16 +28,15 @@ public:
 private:
 	UBBitset mUniforms;
 
-	inline Shader(const char* vertexFile, const char* fragmentFile);
+	explicit inline Shader(unsigned int ID);
 	static inline bool CompileErrors(unsigned int shader, const char* name, const char* type);
 };
 
 // Reads a text file and outputs a string with everything in the text file
 inline std::string get_file_contents(const char* filename)
 {
-	std::string filePath = Utils::GetResourcePath("/shaders/", filename);
-	std::ifstream fileText(filePath.c_str(), std::ios::binary);
-	if (fileText)
+	const std::string filePath = Utils::GetResourcePath("/shaders/", filename);
+	if (std::ifstream fileText(filePath.c_str(), std::ios::binary); fileText)
 	{
 		std::string contents;
 		fileText.seekg(0, std::ios::end);
@@ -104,12 +101,11 @@ std::optional<Shader> Shader::Create(const char* vertexFile, const char* fragmen
 		return std::nullopt;
 	}
 
-	Shader shader(vertexFile, fragmentFile);
-	shader.ID = programID;
+	Shader shader(programID);
 	return shader;
 }
 
-Shader::Shader(const char* vertexFile, const char* fragmentFile)
+Shader::Shader(unsigned int ID): ID(ID)
 {
 	mUniforms.set();
 }
@@ -142,7 +138,7 @@ bool Shader::CompileErrors(const unsigned int shader, const char* name, const ch
 {
 	GLint hasCompiled;
 	char infolog[1024];
-	if (type != "PROGRAM")
+	if (std::strcmp(type, "PROGRAM") != 0)
 	{
 		GL_FCHECK(glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled));
 		if (hasCompiled == GL_FALSE)

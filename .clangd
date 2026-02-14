@@ -1,0 +1,9 @@
+CompileFlags:
+  Add: [-xc++]
+
+---
+# glad.c is intentionally C — don't force C++ on it
+If:
+  PathMatch: ".*glad\\.c"
+CompileFlags:
+  Remove: [-xc++]

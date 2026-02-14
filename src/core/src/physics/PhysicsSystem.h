@@ -15,7 +15,7 @@ class PhysicsSystem : public System
 public:
     Physics::DynamicBBTree tree;
 
-    explicit PhysicsSystem();
+	PhysicsSystem();
 
 	void AddRigidbody(Mesh& object);
 	void AddRigidbody(Model& object);
@@ -32,7 +32,7 @@ private:
 	       Compute candidate positions of bodies.
 				For each intersecting pair of bodies:
 					Determine interpenetrating points.
-					Sort points by penetration depth (deepest first). 
+					Sort points by penetration depth (deepest first).
 					For each point in order:
 						Apply frictional impulse (unless bodies receding).
 					Repeat above a number of times.

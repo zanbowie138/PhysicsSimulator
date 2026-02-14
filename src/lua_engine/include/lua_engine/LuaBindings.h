@@ -3,7 +3,7 @@
 #include <sol/sol.hpp>
 #include <glm/glm.hpp>
 #include "core/GlobalTypes.h"
-#include "physics/BoundingBox.h"
+#include "../../../core/src/math/BoundingBox.h"
 
 class World;
 

@@ -1,6 +1,7 @@
 #pragma once
-#include <iostream>
 
+#include <glad/glad.h>
+#include "utils/Logger.h"
 #include "utils/Exceptions.h"
 
 class VBO

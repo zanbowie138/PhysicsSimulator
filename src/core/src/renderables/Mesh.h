@@ -7,7 +7,6 @@
 
 #include "../math/mesh/MeshImport.h"
 #include "../physics/StaticTree.h"
-#include "../utils/Timer.h"
 #include "../utils/PathUtils.h"
 
 #include "Renderable.h"
@@ -23,7 +22,7 @@ public:
 	// Initializes the object
 	Mesh(const char* filename, bool is_stl);
 	Mesh(std::vector<MeshPt> vertices, std::vector<unsigned int> indices);
-	explicit Mesh(const MeshData& data);
+	Mesh(const MeshData& data);
 
 	BoundingBox CalcBoundingBox();
 	void InitTree();

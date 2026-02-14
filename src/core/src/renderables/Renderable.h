@@ -20,7 +20,7 @@ public:
 	GLenum primitiveType = GL_TRIANGLES;
 	glm::vec3 mColor = glm::vec3(1.0f);
 
-	void AddToECS();
+	virtual void AddToECS();
 	void UpdateECSTransform() const;
 
 	void Scale(float scale) { transform.scale = glm::vec3(scale); }
@@ -28,7 +28,7 @@ public:
 	void SetPosition(glm::vec3 position) { transform.worldPos = position; }
 	void SetRotation(glm::vec3 eulerRotation) { transform.SetRotationEuler(eulerRotation); }
 	void SetColor(glm::vec3 color) { mColor = color; }
-	void SetRenderingEnabled(bool enabled) { world.GetComponent<Components::RenderInfo>(mEntityID).enabled = enabled; }
+	void SetRenderingEnabled(bool enabled) const { world.GetComponent<Components::RenderInfo>(mEntityID).enabled = enabled; }
 
 	virtual void InitVAO() = 0;
 	virtual size_t GetSize() = 0;

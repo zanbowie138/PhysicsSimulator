@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <stack>
 #include <bitset>
 
 #include "../GlobalTypes.h"
@@ -11,7 +12,7 @@ class EntityManager
 {
 	std::stack<Entity> availableEntities{};
 	std::array<Signature, MAX_ENTITIES> signatures{};
-	unsigned int livingEntityCount;
+	unsigned int livingEntityCount{};
 
 public:
 	EntityManager() = default;

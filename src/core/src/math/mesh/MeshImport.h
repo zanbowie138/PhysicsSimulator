@@ -15,7 +15,7 @@ namespace Utils
         std::vector<MeshPt> points;
         std::vector<unsigned int> indices;
 
-        std::unordered_map<glm::vec3, unsigned int, std::hash<glm::vec3>> pointToIndex;
+        std::unordered_map<glm::vec3, unsigned int> pointToIndex;
 
         std::ifstream is(filepath, std::ios::binary);
 

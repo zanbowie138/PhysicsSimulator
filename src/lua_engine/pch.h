@@ -18,7 +18,7 @@
 #include "core/WindowManager.h"
 #include "components/Components.h"
 #include "core/World.h"
-#include "physics/BoundingBox.h"
+#include "../core/src/math/BoundingBox.h"
 #include "physics/DynamicTree.h"
 #include "math/Ray.h"
 #include "renderables/Lines.h"

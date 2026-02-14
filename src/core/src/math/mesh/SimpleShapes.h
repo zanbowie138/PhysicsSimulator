@@ -1,4 +1,5 @@
 #pragma once
+
 #include "core/GlobalTypes.h"
 
 namespace Utils
@@ -70,7 +71,7 @@ namespace Utils
 	}
 
 	// Algorithm source: https://gist.github.com/Pikachuxxxx/5c4c490a7d7679824e0e18af42918efc
-	static ModelData UVSphereData(uint8_t latitudes, uint8_t longitudes, unsigned radius)
+	static ModelData UVSphereData(uint8_t latitudes, uint8_t longitudes, const float radius)
 	{
 		constexpr float PI = 3.1415f;
 
@@ -91,7 +92,7 @@ namespace Utils
         // Compute all vertices first except normals
         for (int i = 0; i <= latitudes; ++i)
         {
-            float latitudeAngle = PI / 2 - i * deltaLatitude; /* Starting -pi/2 to pi/2 */
+            float latitudeAngle = PI / 2.0f - i * deltaLatitude; /* Starting -pi/2 to pi/2 */
             float xy = radius * cosf(latitudeAngle);    /* r * cos(phi) */
             float z = radius * sinf(latitudeAngle);     /* r * sin(phi )*/
 

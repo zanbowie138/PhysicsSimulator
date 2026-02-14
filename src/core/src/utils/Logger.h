@@ -1,10 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include <sstream>
 #include <chrono>
 #include <ctime>
 #include <fstream>
-#include <regex>
 #include <iomanip>
 #include "ClassName.h"
 
@@ -86,10 +86,10 @@ namespace Utils
         std::ofstream logFile;
         std::string filename;
         LogLevel logLevel;
-        bool printToConsole;
+        bool printToConsole{};
 
     public:
-        Logger() {}
+        Logger() = default;
         Logger(Logger const&)          = delete;
         void operator=(Logger const&)  = delete;
 
@@ -128,8 +128,6 @@ namespace Utils
                 logFile.close();
         }
 
-
-
         void SetPrintToConsole(bool value) { printToConsole = value; }
 
         template <typename T>
@@ -139,19 +137,15 @@ namespace Utils
             if (printToConsole)
             {
                 if (logLevel == LogLevel::ERROR)
-                {
                     std::cerr << data;
-                }
                 else
-                {
                     std::cout << data;
-                }
             }
             return *this;
         }
 
-        std::string GetLogContents() { return GetContents(); }
-        std::vector<LogLevel> GetLineLogLevels() { return GetLineLevels(); }
+        std::string GetLogContents() const { return GetContents(); }
+        std::vector<LogLevel> GetLineLogLevels() const { return GetLineLevels(); }
 
         std::string SetLogLevel(const LogLevel level)
         {
@@ -161,7 +155,7 @@ namespace Utils
         }
     };
 
-    inline void checkOpenGLError(const char* file, int line)
+    inline void checkOpenGLError(const char* file, const int line)
     {
         GLenum err;
         while ((err = glGetError()) != GL_NO_ERROR) {

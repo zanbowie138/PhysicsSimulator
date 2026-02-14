@@ -1,9 +1,5 @@
-#include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
-#include <iostream>
-#include <vector>
-#include <random>
 
 #include "core/GUI.h"
 #include "core/UniformBufferManager.h"
@@ -18,20 +14,12 @@
 #include "physics/PhysicsSystem.h"
 
 #include "renderables/Lines.h"
-#include "renderables/Mesh.h"
-#include "renderables/Model.h"
-#include "renderables/Points.h"
-
-#include "math/mesh/MeshSimplify.h"
-#include "math/mesh/SimpleShapes.h"
 
 #include "lua_engine/LuaRuntime.h"
 #include "lua_engine/LuaBindings.h"
 
 #include "utils/Timer.h"
 #include "utils/Logger.h"
-#include "utils/Raycast.h"
-#include "utils/Exceptions.h"
 
 // Force use of discrete Nvidia GPU
 #ifdef _WIN32

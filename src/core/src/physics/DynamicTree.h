@@ -1,4 +1,5 @@
 #pragma once
+#include "core/GlobalTypes.h"
 #include "math/Ray.h"
 
 

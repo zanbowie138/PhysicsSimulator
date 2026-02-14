@@ -11,7 +11,7 @@ public:
 	float surfaceArea{};
 
 	BoundingBox();
-	BoundingBox(const glm::vec3 min, const glm::vec3 max);
+	BoundingBox(glm::vec3 min, glm::vec3 max);
 
 	void Merge(const BoundingBox& box1, const BoundingBox& box2);
 	void Merge(const BoundingBox& other);
@@ -26,7 +26,7 @@ public:
 	void Reset();
 	void SetToLimit();
 
-	glm::vec3 GetBound(bool min) const;
+	glm::vec3 GetBound(bool is_min) const;
 	bool IsColliding(const BoundingBox& other) const;
 	void UpdateSurfaceArea();
 };
@@ -53,7 +53,7 @@ inline bool BoundingBox::IsColliding(const BoundingBox& other) const
 
 inline void BoundingBox::Merge(const BoundingBox& box1, const BoundingBox& box2)
 {
-	for (unsigned int d = 0; d < 3; d++) {
+	for (int d = 0; d < 3; d++) {
 		min[d] = std::min(box1.min[d], box2.min[d]);
 		max[d] = std::max(box1.max[d], box2.max[d]);
 	}
@@ -62,7 +62,7 @@ inline void BoundingBox::Merge(const BoundingBox& box1, const BoundingBox& box2)
 
 inline void BoundingBox::Merge(const BoundingBox& other)
 {
-	for (unsigned int d = 0; d < 3; d++) {
+	for (int d = 0; d < 3; d++) {
 		min[d] = std::min(min[d], other.min[d]);
 		max[d] = std::max(max[d], other.max[d]);
 	}
@@ -71,14 +71,14 @@ inline void BoundingBox::Merge(const BoundingBox& other)
 
 inline void BoundingBox::IncludePoint(const glm::vec3 point)
 {
-	for (unsigned int d = 0; d < 3; d++) {
+	for (int d = 0; d < 3; d++) {
 		min[d] = std::min(point[d], min[d]);
 		max[d] = std::max(point[d], max[d]);
 	}
 }
 
 inline void BoundingBox::MoveCenter(glm::vec3 center) {
-	glm::vec3 halfExtents = (max - min) * 0.5f;
+	const glm::vec3 halfExtents = (max - min) * 0.5f;
 	min = center - halfExtents;
 	max = center + halfExtents;
 }
@@ -89,7 +89,7 @@ inline void BoundingBox::ApplyMat(const glm::mat4& mat)
 	max = mat * glm::vec4(max, 1.0);
 }
 
-inline std::string BoundingBox::String() const 
+inline std::string BoundingBox::String() const
 {
 	return "min: " + glm::to_string(min) + "\n" + "max: " + glm::to_string(max) + "\n";
 }
@@ -101,9 +101,9 @@ inline void BoundingBox::Reset()
 	surfaceArea = 0.0f;
 }
 
-inline glm::vec3 BoundingBox::GetBound(bool min) const
+inline glm::vec3 BoundingBox::GetBound(const bool is_min) const
 {
-	return min ? this->min : this->max;
+	return is_min ? this->min : this->max;
 }
 
 inline void BoundingBox::SetToLimit()
@@ -117,5 +117,3 @@ inline void BoundingBox::UpdateSurfaceArea()
 {
 	surfaceArea = (max.x-min.x)*(max.y-min.y) + (max.y-min.y)*(max.z-min.z) + (max.x-min.x)*(max.z-min.z);
 }
-
-

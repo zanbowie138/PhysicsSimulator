@@ -60,7 +60,7 @@ namespace Utils
             std::function<void()> job;
             {
                 // Only one thread will be executing this scope at a time
-                std::unique_lock<std::mutex> lock(queueMutex);
+                std::unique_lock lock(queueMutex);
                 // Waits until there is a job or it should terminate itself
                 activateCondition.wait(lock, [this] {return !mJobs.empty() || shouldTerminate; });
                 if (shouldTerminate)
@@ -118,7 +118,7 @@ namespace Utils
     {
         bool busy;
         {
-            std::unique_lock<std::mutex> lock(queueMutex);
+            std::unique_lock lock(queueMutex);
             busy = !mJobs.empty() || mThreadsActive != 0;
         }
         return busy;
@@ -127,7 +127,7 @@ namespace Utils
     inline void ThreadPool::Clear()
     {
         {
-            std::unique_lock<std::mutex> lock(queueMutex);
+            std::unique_lock lock(queueMutex);
             shouldTerminate = true;
         }
         activateCondition.notify_all();

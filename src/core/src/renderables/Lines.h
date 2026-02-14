@@ -5,7 +5,7 @@
 #include "Renderable.h"
 #include "../renderer/VBO.h"
 #include "../renderer/EBO.h"
-#include "../physics/BoundingBox.h"
+#include "../math/BoundingBox.h"
 #include "../math/Ray.h"
 #include "../math/mesh/MeshProcessing.h"
 

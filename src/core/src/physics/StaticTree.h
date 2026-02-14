@@ -3,7 +3,7 @@
 #define TRI_LIMIT 1
 #define DEBUG 1
 
-#include "BoundingBox.h"
+#include "../math/BoundingBox.h"
 #include "core/GlobalTypes.h"
 #include "../utils/ThreadPool.h"
 

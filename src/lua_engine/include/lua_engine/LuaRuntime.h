@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 
 #include "core/GlobalTypes.h"
-#include "physics/BoundingBox.h"
+#include "../../../core/src/math/BoundingBox.h"
 #include "LuaBindings.h"
 #include "LuaLogger.h"
 

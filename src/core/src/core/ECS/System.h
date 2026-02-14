@@ -7,6 +7,8 @@
 class System 
 {
 public:
+    virtual ~System() = default;
+
     // Storage of all entities who use this system
     std::set<Entity> mEntities;
 

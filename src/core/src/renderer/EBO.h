@@ -1,4 +1,5 @@
 #pragma once
+#include "utils/Logger.h"
 
 class EBO
 {

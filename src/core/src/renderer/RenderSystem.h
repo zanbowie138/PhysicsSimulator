@@ -17,7 +17,7 @@ class RenderSystem final : public System
 public:
     explicit RenderSystem(): mWindow(nullptr){}
 
-    void PreUpdate() const;
+    void PreUpdate() ;
 
     void Update() const;
 
