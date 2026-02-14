@@ -52,7 +52,8 @@ light = CreateSphere({
     position = { 0, 1, 0 },
     scale = 0.1,
     shader = "basic",
-    color = { 1, 1, 1 }
+    color = { 1, 1, 1 },
+    castsShadow = false
 })
 PhysicsSystem.tree:AddToTree(light)
 

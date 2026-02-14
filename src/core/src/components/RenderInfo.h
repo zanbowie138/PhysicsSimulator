@@ -9,5 +9,6 @@ namespace Components
 		size_t size;
 		glm::vec3 color;
 		bool enabled = true;
+		bool castsShadow = true;
 	};
 }

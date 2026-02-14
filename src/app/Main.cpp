@@ -87,6 +87,12 @@ int main() {
 			LOG(LOG_ERROR) << "Failed to load diffuse shader\n";
 			return 1;
 		}
+		auto shadowShader = Shader::Create("shadow.vert", "shadow.frag");
+		if (!shadowShader) {
+			LOG(LOG_ERROR) << "Failed to load shadow shader\n";
+			return 1;
+		}
+
 		basicShader->DisableUniform(static_cast<size_t>(UniformBlockConfig::LIGHTING));
 
 		// Create shader map for lua scene loading
@@ -95,6 +101,9 @@ int main() {
 		shaders["flat"] = flatShader->ID;
 		shaders["default"] = defaultShader->ID;
 		shaders["diffuse"] = diffuseShader->ID;
+
+		renderSystem->InitShadowMap();
+		renderSystem->SetShadowShader(shadowShader->ID);
 
 		// Initialize Lua runtime
 		LuaRuntime luaRuntime;
@@ -184,6 +193,14 @@ int main() {
 				LOG(LOG_ERROR) << "Error getting light transform: " << e.what() << "\n";
 			}
 			UBO.UpdateData(cam, lightPos);
+
+			// Compute light-space matrix and render shadow pass
+			static constexpr float kShadowSize = 20.0f;
+			glm::mat4 lightProj = glm::ortho(-kShadowSize, kShadowSize,
+			                                  -kShadowSize, kShadowSize, 0.1f, 100.0f);
+			glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			renderSystem->SetLightSpaceMatrix(lightProj * lightView);
+			renderSystem->ShadowPass();
 
 			// Invoke Lua callbacks
 			if (simRunning) {

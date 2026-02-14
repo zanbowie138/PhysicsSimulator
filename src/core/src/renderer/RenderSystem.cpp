@@ -1,4 +1,4 @@
-﻿#include "RenderSystem.h"
+#include "RenderSystem.h"
 
 extern World world;
 
@@ -8,14 +8,50 @@ void RenderSystem::PreUpdate()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void RenderSystem::ShadowPass()
+{
+	if (!mShadowShaderID) return;
+
+	glViewport(0, 0, ShadowMap::WIDTH, ShadowMap::HEIGHT);
+	GL_FCHECK(glBindFramebuffer(GL_FRAMEBUFFER, mShadowMap.FBO));
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glCullFace(GL_FRONT);
+
+	glUseProgram(mShadowShaderID);
+	glUniformMatrix4fv(glGetUniformLocation(mShadowShaderID, "lightSpaceMatrix"),
+		1, GL_FALSE, glm::value_ptr(mLightSpaceMatrix));
+
+	for (const auto& entity : mEntities) {
+		const auto& ri = world.GetComponent<Components::RenderInfo>(entity);
+		if (!ri.enabled || !ri.castsShadow || ri.primitive_type != GL_TRIANGLES) continue;
+
+		auto& tr = world.GetComponent<Components::Transform>(entity);
+		tr.CalculateModelMat();
+
+		GL_FCHECK(glBindVertexArray(ri.VAO_ID));
+		glUniformMatrix4fv(glGetUniformLocation(mShadowShaderID, "model"),
+			1, GL_FALSE, glm::value_ptr(tr.modelMat));
+		GL_FCHECK(glDrawElements(GL_TRIANGLES, ri.size, GL_UNSIGNED_INT, nullptr));
+	}
+
+	glCullFace(GL_BACK);
+	GL_FCHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+	int w, h;
+	glfwGetFramebufferSize(mWindow, &w, &h);
+	glViewport(0, 0, w, h);
+}
+
 void RenderSystem::Update() const
 {
-	GLenum err;
-
 	assert(mWindow && "Window not set.");
 
 	auto diffuse = world.GetComponentType<Components::DiffuseTextureInfo>();
 	auto specular = world.GetComponentType<Components::SpecularTextureInfo>();
+
+	// Bind shadow map globally (before entity loop)
+	GL_FCHECK(glActiveTexture(GL_TEXTURE2));
+	GL_FCHECK(glBindTexture(GL_TEXTURE_2D, mShadowMap.depthTexture));
 
 	for (const auto& entity : mEntities)
 	{
@@ -37,6 +73,12 @@ void RenderSystem::Update() const
 
 		GL_FCHECK(glUniformMatrix4fv(glGetUniformLocation(renderInfo.shader_ID, "model"), 1, GL_FALSE, glm::value_ptr(transform.modelMat)));
 		GL_FCHECK(glUniform3fv(glGetUniformLocation(renderInfo.shader_ID, "color"), 1, glm::value_ptr(renderInfo.color)));
+
+		// Pass shadow uniforms (no-op for shaders that don't use them)
+		GL_FCHECK(glUniform1i(glGetUniformLocation(renderInfo.shader_ID, "shadowMap"), 2));
+		GL_FCHECK(glUniformMatrix4fv(
+			glGetUniformLocation(renderInfo.shader_ID, "lightSpaceMatrix"),
+			1, GL_FALSE, glm::value_ptr(mLightSpaceMatrix)));
 
 		// Test if entity has a texture
 		if (entitySignature.test(diffuse))
@@ -69,11 +111,8 @@ void RenderSystem::Update() const
 		}
 		else
 		{
-			/*if (primitive_type == GL_LINES)
-				glClear(GL_DEPTH_BUFFER_BIT);*/
 			GL_FCHECK(glDrawElements(renderInfo.primitive_type, renderInfo.size, GL_UNSIGNED_INT, nullptr));
 		}
-			
 	}
 }
 
@@ -85,6 +124,5 @@ void RenderSystem::PostUpdate()
 
 void RenderSystem::Clean()
 {
-	
+	mShadowMap.Clean();
 }
-

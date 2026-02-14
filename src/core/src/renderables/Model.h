@@ -99,7 +99,7 @@ inline void Model::AddToECS()
 
 	// Add components
 	world.AddComponent(mEntityID, transform);
-	world.AddComponent(mEntityID, Components::RenderInfo{ GL_TRIANGLES,mVAO.ID, ShaderID, indices.size(), mColor});
+	world.AddComponent(mEntityID, Components::RenderInfo{ GL_TRIANGLES, mVAO.ID, ShaderID, indices.size(), mColor, true, mCastsShadow});
 	if (hasDiffuse)
 		world.AddComponent(mEntityID, Components::DiffuseTextureInfo( { diffuseTex->ID }));
 	if (hasSpecular)

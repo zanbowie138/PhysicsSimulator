@@ -49,6 +49,7 @@ namespace SceneImporterInternal {
             renderable.Scale(scale);
             renderable.SetRotation(rotation);
             renderable.SetColor(color);
+            renderable.mCastsShadow = cfg["castsShadow"].get_or(true);
             renderable.AddToECS();
         }
     };

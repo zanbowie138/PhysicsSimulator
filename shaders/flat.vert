@@ -5,6 +5,7 @@ layout (location = 1) in vec3 aNormal;
 out vec3 Position;
 out vec3 Color;
 out vec3 Normal;
+out vec4 FragPosLightSpace;
 
 layout(std140) uniform Camera 
 {
@@ -12,6 +13,7 @@ layout(std140) uniform Camera
 };
 
 uniform mat4 model;
+uniform mat4 lightSpaceMatrix;
 uniform vec3 color;
 
 void main()
@@ -19,6 +21,7 @@ void main()
 	Position = vec3(model * vec4(aPos, 1.0f));
 	Normal = aNormal;
 	Color = color;
+	FragPosLightSpace = lightSpaceMatrix * vec4(Position, 1.0);
 
 	gl_Position = camMatrix * vec4(Position, 1.0f);
 }

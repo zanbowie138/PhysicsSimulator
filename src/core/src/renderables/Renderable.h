@@ -19,6 +19,7 @@ public:
 	GLuint ShaderID = 999;
 	GLenum primitiveType = GL_TRIANGLES;
 	glm::vec3 mColor = glm::vec3(1.0f);
+	bool mCastsShadow = true;
 
 	virtual void AddToECS();
 	void UpdateECSTransform() const;
@@ -45,7 +46,7 @@ inline void Renderable::AddToECS()
 
 	// Add components
 	world.AddComponent(mEntityID, transform);
-	world.AddComponent(mEntityID, Components::RenderInfo{ primitiveType, mVAO.ID, ShaderID, GetSize(), mColor});
+	world.AddComponent(mEntityID, Components::RenderInfo{ primitiveType, mVAO.ID, ShaderID, GetSize(), mColor, true, mCastsShadow});
 }
 
 inline void Renderable::UpdateECSTransform() const

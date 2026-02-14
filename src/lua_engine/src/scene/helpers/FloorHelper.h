@@ -11,6 +11,7 @@ namespace SceneImporterInternal {
             // But we can still reuse parts or just do it manually as before.
             
             float scale = cfg["scale"].get_or(1.0f);
+            bool castsShadow = cfg["castsShadow"].get_or(true);
             std::string shaderName = cfg["shader"].get_or(std::string("default"));
             sol::optional<std::string> textureName = cfg["texture"];
             sol::optional<std::string> specularName = cfg["specular"];
@@ -28,17 +29,17 @@ namespace SceneImporterInternal {
                 auto specularTex = Texture::Load(specularName.value().c_str(), GL_TEXTURE_2D, GL_RED, GL_UNSIGNED_BYTE);
                 if (diffuseTex && specularTex) {
                     Model floor(planeData, *diffuseTex, *specularTex);
-                    ConfigureFloor(floor, scale, shaderID);
+                    ConfigureFloor(floor, scale, shaderID, castsShadow);
                     entityID = floor.mEntityID;
                     return entityID;
                 }
             }
-            
+
             if (textureName) {
                 auto diffuseTex = Texture::Load(textureName.value().c_str(), GL_TEXTURE_2D, GL_RGBA, GL_UNSIGNED_BYTE);
                 if (diffuseTex) {
                     Model floor(planeData.vertices, planeData.indices, *diffuseTex);
-                    ConfigureFloor(floor, scale, shaderID);
+                    ConfigureFloor(floor, scale, shaderID, castsShadow);
                     entityID = floor.mEntityID;
                     return entityID;
                 }
@@ -46,7 +47,7 @@ namespace SceneImporterInternal {
 
             // Fallback no texture
             Model floor(planeData);
-            ConfigureFloor(floor, scale, shaderID);
+            ConfigureFloor(floor, scale, shaderID, castsShadow);
             entityID = floor.mEntityID;
 
             return entityID;
@@ -55,9 +56,10 @@ namespace SceneImporterInternal {
         std::string GetName() override { return "CreateFloor"; }
 
     private:
-        void ConfigureFloor(Model& floor, float scale, GLuint shaderID) {
+        void ConfigureFloor(Model& floor, float scale, GLuint shaderID, bool castsShadow) {
             floor.Scale(scale);
             floor.ShaderID = shaderID;
+            floor.mCastsShadow = castsShadow;
             floor.AddToECS();
         }
     };

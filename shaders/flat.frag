@@ -4,15 +4,31 @@ out vec4 o_Color;
 in vec3 Position;
 in vec3 Color;
 in vec3 Normal;
+in vec4 FragPosLightSpace;
 
-layout(std140) uniform Lighting 
+layout(std140) uniform Lighting
 {
 	vec4 camPos;
 	vec4 lightPos;
 	vec4 lightColor;
 };
 
-vec4 pointLight() 
+uniform sampler2D shadowMap;
+
+float shadowFactor(vec4 fragPosLS)
+{
+	vec3 proj = fragPosLS.xyz / fragPosLS.w * 0.5 + 0.5;
+	if (proj.z > 1.0) return 1.0;
+	float bias = max(0.005 * (1.0 - dot(normalize(Normal), normalize(lightPos.xyz - Position))), 0.0005);
+	float shadow = 0.0;
+	vec2 texel = 2.0 / textureSize(shadowMap, 0);
+	for (int x = -2; x <= 2; ++x)
+		for (int y = -2; y <= 2; ++y)
+			shadow += (proj.z - bias > texture(shadowMap, proj.xy + vec2(x,y)*texel).r) ? 1.0 : 0.0;
+	return 1.0 - shadow / 25.0;
+}
+
+vec4 pointLight()
 {
 	vec3 lightVec = lightPos.xyz - Position;
 	float dist = length(lightVec);
@@ -38,7 +54,9 @@ vec4 pointLight()
 		float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
 		specular = specAmount * specularLight;
 	};
-	return vec4(Color, 1.0f) * (diffuse * intensity + ambient + specular * intensity) * lightColor;
+
+	float shadow = shadowFactor(FragPosLightSpace);
+	return vec4(Color, 1.0f) * (diffuse * intensity * shadow + ambient + specular * intensity * shadow) * lightColor;
 }
 
 void main()
