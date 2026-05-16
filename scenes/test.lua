@@ -22,8 +22,6 @@ boxes = CreateLines({
     color = {1, 1, 1}
 })
 
-
-
 -- Floor
 floor = CreateFloor({
     scale = 10,
@@ -33,7 +31,7 @@ floor = CreateFloor({
 })
 
 -- Random Cubes
-for i = 1, 100 do
+for _ = 1, 100 do
     cube = CreateCube({
         position = {
             math.random() * 8.0 - 4.0,
@@ -138,22 +136,25 @@ end
 
 -- GUI panels (called between NewFrame and Render)
 function OnGUI()
-    GUI.Begin("Entity Info")
-    if selectedState.entity then
-        GUI.Text("Entity ID: " .. tostring(selectedState.entity))
-        local t = world.GetTransform(selectedState.entity)
-        if GUI.DragFloat3("Position", selectedState.updatedPos) then
-            selectedState.changed = true
+    GUI.Begin("Lua Script Config")
+    if GUI.CollapsingHeader("Entity Info") then
+        if selectedState.entity then
+            GUI.Text("Entity ID: " .. tostring(selectedState.entity))
+            local t = world.GetTransform(selectedState.entity)
+            if GUI.DragFloat3("Position", selectedState.updatedPos, 0.1) then
+                selectedState.changed = true
+            end
+        else
+            GUI.Text("No entity selected.")
         end
-    else
-        GUI.Text("No entity selected.")
     end
-    GUI.End()
 
-    GUI.Begin("Config")
-    if GUI.CollapsingHeader("Dynamic BVH Tree") then
-        debugState.showDynamicBoxes = GUI.Checkbox("Show Bounding Boxes ##Dynamic", debugState.showDynamicBoxes)
-        debugState.showOnlyDynamicLeaf = GUI.Checkbox("Show only leaf nodes ##Dynamic", debugState.showOnlyDynamicLeaf)
+    if GUI.CollapsingHeader("Config") then
+        if GUI.CollapsingHeader("Dynamic BVH Tree") then
+            debugState.showDynamicBoxes = GUI.Checkbox("Show Bounding Boxes ##Dynamic", debugState.showDynamicBoxes)
+            debugState.showOnlyDynamicLeaf = GUI.Checkbox("Show only leaf nodes ##Dynamic",
+                debugState.showOnlyDynamicLeaf)
+        end
     end
     GUI.End()
 end

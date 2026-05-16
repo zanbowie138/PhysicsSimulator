@@ -12,8 +12,8 @@ void BindGUIAPIs(sol::state& lua) {
     g["Checkbox"]         = [](const std::string& l, bool v) { ImGui::Checkbox(l.c_str(), &v); return v; };
     g["InputFloat"]       = [](const std::string& l, float v) { ImGui::InputFloat(l.c_str(), &v); return v; };
     g["DragFloat"]        = [](const std::string& l, float v) { ImGui::DragFloat(l.c_str(), &v); return v; };
-    g["DragFloat3"]       = [](const std::string& l, glm::vec3& v) {
-        return ImGui::DragFloat3(l.c_str(), value_ptr(v));
+    g["DragFloat3"]       = [](const std::string& l, glm::vec3& v, sol::optional<float> v_speed, sol::optional<float> v_min, sol::optional<float> v_max, sol::optional<const char*> format) {
+        return ImGui::DragFloat3(l.c_str(), value_ptr(v), v_speed.value_or(1), v_min.value_or(0), v_max.value_or(0), format.value_or("%.3f"));
     };
     g["CollapsingHeader"] = [](const std::string& l) -> bool { return ImGui::CollapsingHeader(l.c_str()); };
     g["Button"]           = [](const std::string& l) -> bool { return ImGui::Button(l.c_str()); };

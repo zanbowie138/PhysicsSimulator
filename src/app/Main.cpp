@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <filesystem>
+
 #include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
 
@@ -110,6 +113,8 @@ int main() {
 		std::string sceneErrorMsg;
 		bool showSceneError = false;
 		std::string currentScenePath = "test.lua";
+		std::vector<std::string> sceneFiles;
+		int selectedSceneIdx = 0;
 
 		if (!luaRuntime.Initialize(world, tree, shaders, sceneErrorMsg)) {
 			// Continue with an empty world + error overlay rather than exiting.
@@ -154,6 +159,24 @@ int main() {
 			}
 			lightEntity = luaRuntime.GetLightEntity();
 		};
+
+		auto scanScenes = [&]() {
+			sceneFiles.clear();
+			std::string scenesDir = Utils::GetResourcePath("/scenes/", "");
+			try {
+				for (const auto& entry : std::filesystem::directory_iterator(scenesDir)) {
+					if (entry.path().extension() == ".lua")
+						sceneFiles.push_back(entry.path().filename().string());
+				}
+			} catch (const std::exception& e) {
+				LOG(LOG_WARNING) << "Failed to scan scenes: " << e.what() << "\n";
+			}
+			std::sort(sceneFiles.begin(), sceneFiles.end());
+			auto it = std::find(sceneFiles.begin(), sceneFiles.end(), currentScenePath);
+			selectedSceneIdx = (it != sceneFiles.end())
+				? static_cast<int>(std::distance(sceneFiles.begin(), it)) : 0;
+		};
+		scanScenes();
 
 		// Manage Uniform Buffer
 		Core::UniformBufferManager UBO;
@@ -261,11 +284,47 @@ int main() {
 			GUI.Text(fpsString.c_str());
 			GUI.EndWindow();
 
-			GUI.StartWindow("Simulation");
+			GUI.StartWindow("Lua Scene");
+
+			ImGui::SeparatorText("Scene");
+
+			float listHeight = std::min(static_cast<int>(sceneFiles.size()), 5)
+				* ImGui::GetTextLineHeightWithSpacing()
+				+ ImGui::GetStyle().FramePadding.y * 2;
+			if (ImGui::BeginListBox("##scenes", ImVec2(-FLT_MIN, listHeight))) {
+				for (int i = 0; i < static_cast<int>(sceneFiles.size()); i++) {
+					std::string displayName = sceneFiles[i];
+					if (displayName.size() > 4)
+						displayName = displayName.substr(0, displayName.size() - 4);
+					bool isSelected = (i == selectedSceneIdx);
+					if (ImGui::Selectable(displayName.c_str(), isSelected) && !isSelected) {
+						selectedSceneIdx = i;
+						currentScenePath = sceneFiles[i];
+						reloadScene();
+						frameNumber = 0;
+						time = 0.0f;
+						luaRuntime.simTime = 0.0f;
+						simRunning = true;
+					}
+					if (isSelected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndListBox();
+			}
+			if (ImGui::Button("Refresh")) {
+				scanScenes();
+			}
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Rescan scenes/ folder");
+
+			ImGui::Separator();
+			ImGui::Spacing();
+
 			GUI.Text(("Frame: " + std::to_string(frameNumber)).c_str());
 			GUI.ButtonFunc(simRunning ? "Stop" : "Start", [&]() {
 				simRunning = !simRunning;
 			});
+			ImGui::SameLine();
 			GUI.ButtonFunc("Restart", [&]() {
 				reloadScene();
 				frameNumber = 0;
