@@ -1,21 +1,20 @@
-
-
-
-
--- Initialize debug renderables
 function OnInit()
-    print("Scene initialized")
+    print("Empty scene initialized")
 end
 
--- Update loop (called every frame)
 function OnUpdate(dt, input, camera)
 end
 
--- GUI panels (called between NewFrame and Render)
 function OnGUI()
-
 end
 
-return {
+light = CreateSphere({
+    position = {0, 5, 0},
+    scale = 0.1,
+    shader = "basic",
+    color = {1, 1, 1},
+})
 
+return {
+    light = light,
 }

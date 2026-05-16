@@ -40,9 +40,15 @@ public:
     std::vector<std::unique_ptr<Points>> ownedPoints;
     std::unordered_map<std::string, GLuint> shaderMap;
 
-    // Initialize Lua state with all bindings
-    void Initialize(World& world, Physics::DynamicBBTree& tree,
-                   const std::unordered_map<std::string, GLuint>& shaders);
+    // Initialize Lua state with all bindings. Idempotent — safe to call again
+    // to fully rebuild the sol::state (drops all globals/callbacks).
+    bool Initialize(World& world, Physics::DynamicBBTree& tree,
+                   const std::unordered_map<std::string, GLuint>& shaders,
+                   std::string& outErrorMsg);
+
+    // Tear down + rebuild Lua state using cached world/tree/shaders from the
+    // previous Initialize call. Used by reload paths.
+    bool Reinitialize(std::string& outErrorMsg);
 
     // Clear runtime state between scene loads (tree, registry, owned renderables)
     void Reset();

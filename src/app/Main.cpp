@@ -107,30 +107,53 @@ int main() {
 
 		// Initialize Lua runtime
 		LuaRuntime luaRuntime;
-		luaRuntime.Initialize(world, tree, shaders);
-
-		// Scene error state
 		std::string sceneErrorMsg;
 		bool showSceneError = false;
 		std::string currentScenePath = "test.lua";
 
-		// Try to load scene
-		if (!luaRuntime.LoadScene(currentScenePath, sceneErrorMsg)) {
+		if (!luaRuntime.Initialize(world, tree, shaders, sceneErrorMsg)) {
+			// Continue with an empty world + error overlay rather than exiting.
+			showSceneError = true;
+		} else if (!luaRuntime.LoadScene(currentScenePath, sceneErrorMsg)) {
 			LOG(LOG_ERROR) << "Failed to load scene, loading fallback\n";
 			showSceneError = true;
-
-			// Load minimal fallback scene
 			std::string fallbackError;
 			if (!luaRuntime.LoadFallbackScene(fallbackError)) {
-				LOG(LOG_ERROR) << "Fallback scene failed: " << fallbackError << "\n";
-				return 1;
+				sceneErrorMsg += "\nFallback also failed: " + fallbackError;
 			}
 		} else {
-			// Scene loaded successfully
 			luaRuntime.CallOnInit();
 		}
 
 		Entity lightEntity = luaRuntime.GetLightEntity();
+
+		// Shared reload path: rebuild Lua state, clear world, load scene (or fallback).
+		auto reloadScene = [&]() {
+			LOG(LOG_INFO) << "Reloading scene...\n";
+			world.ClearAllEntities();
+
+			std::string err;
+			if (!luaRuntime.Reinitialize(err)) {
+				sceneErrorMsg = "Lua reinit failed: " + err;
+				showSceneError = true;
+				lightEntity = luaRuntime.GetLightEntity();
+				return;
+			}
+
+			if (luaRuntime.LoadScene(currentScenePath, err)) {
+				showSceneError = false;
+				luaRuntime.CallOnInit();
+				LOG(LOG_INFO) << "Scene reloaded successfully\n";
+			} else {
+				sceneErrorMsg = err;
+				showSceneError = true;
+				std::string fbErr;
+				if (!luaRuntime.LoadFallbackScene(fbErr)) {
+					sceneErrorMsg += "\nFallback also failed: " + fbErr;
+				}
+			}
+			lightEntity = luaRuntime.GetLightEntity();
+		};
 
 		// Manage Uniform Buffer
 		Core::UniformBufferManager UBO;
@@ -222,30 +245,7 @@ int main() {
 
 			if (rKeyDown && !rKeyPressed) {
 				rKeyPressed = true;
-				LOG(LOG_INFO) << "Reloading scene...\n";
-
-				// Clear current world
-				luaRuntime.Reset();
-				world.ClearAllEntities();
-
-				// Attempt reload
-				std::string reloadError;
-				if (luaRuntime.LoadScene(currentScenePath, reloadError)) {
-					// Success!
-					showSceneError = false;
-					luaRuntime.CallOnInit();
-					LOG(LOG_INFO) << "Scene reloaded successfully\n";
-				} else {
-					// Failed, show error and load fallback
-					sceneErrorMsg = reloadError;
-					showSceneError = true;
-
-					std::string fallbackError;
-					luaRuntime.LoadFallbackScene(fallbackError);
-				}
-
-				// Update light entity
-				lightEntity = luaRuntime.GetLightEntity();
+				reloadScene();
 			} else if (!rKeyDown) {
 				rKeyPressed = false;
 			}
@@ -267,19 +267,7 @@ int main() {
 				simRunning = !simRunning;
 			});
 			GUI.ButtonFunc("Restart", [&]() {
-				luaRuntime.Reset();
-				world.ClearAllEntities();
-				std::string restartError;
-				if (luaRuntime.LoadScene(currentScenePath, restartError)) {
-					showSceneError = false;
-					luaRuntime.CallOnInit();
-				} else {
-					sceneErrorMsg = restartError;
-					showSceneError = true;
-					std::string fallbackError;
-					luaRuntime.LoadFallbackScene(fallbackError);
-				}
-				lightEntity = luaRuntime.GetLightEntity();
+				reloadScene();
 				frameNumber = 0;
 				time = 0.0f;
 				luaRuntime.simTime = 0.0f;

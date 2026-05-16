@@ -12,50 +12,79 @@
 LuaRuntime::LuaRuntime() = default;
 LuaRuntime::~LuaRuntime() = default;
 
-void LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
-                           const std::unordered_map<std::string, GLuint>& shaders) {
+bool LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
+                           const std::unordered_map<std::string, GLuint>& shaders,
+                           std::string& outErrorMsg) {
     LOG(LOG_INFO) << "Initializing Lua runtime\n";
 
-    // Store references for dynamic binding later
+    // Cache for Reinitialize. worldPtr/treePtr refer to long-lived objects in main().
     worldPtr = &world;
     treePtr = &tree;
     shaderMap = shaders;
+    callbacksRegistered = false;
 
-    // Open standard Lua libraries
-    lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
-    LOG(LOG_INFO) << "Opened Lua standard libraries\n";
+    try {
+        // Drop any previous Lua state so re-initialization is a clean slate.
+        lua = sol::state{};
+        sceneHelpers.clear();
 
-    // Bind stable types (rarely recompiled)
-    LuaBindings::BindStableTypes(lua);
-    LOG(LOG_INFO) << "Bound stable types (vec3, Transform, Ray, BoundingBox, Lines, Input, Camera)\n";
+        lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
+        LOG(LOG_INFO) << "Opened Lua standard libraries\n";
 
-    // Bind GUI APIs
-    LuaBindings::BindGUIAPIs(lua);
-    LOG(LOG_INFO) << "Bound GUI APIs (ImGui wrappers)\n";
-
-    // Register scene creation helpers
-    sceneHelpers.push_back(std::make_unique<SceneImporterInternal::CubeHelper>(*this));
-    sceneHelpers.push_back(std::make_unique<SceneImporterInternal::FloorHelper>());
-    sceneHelpers.push_back(std::make_unique<SceneImporterInternal::SphereHelper>(*this));
-    sceneHelpers.push_back(std::make_unique<SceneImporterInternal::LinesHelper>(*this));
-
-    for (const auto& helper : sceneHelpers) {
-        SceneImporterInternal::SceneHelper* helperPtr = helper.get();
-        std::string helperName = helper->GetName();
-        lua.set_function(helperName, [helperPtr, &world, &shaders, helperName](sol::table cfg) -> Entity {
-            try {
-                Entity id = helperPtr->Create(cfg, world, shaders);
-                return id;
-            } catch (const std::exception& e) {
-                LOG(LOG_ERROR) << "Scene helper '" << helperName << "' failed: " << e.what() << "\n";
-                throw;
-            }
+        // Convert any C++ exception thrown from a bound function into a Lua error,
+        // so sol::protected_function_result captures it instead of propagating to abort().
+        lua.set_exception_handler([](lua_State* L,
+                                     sol::optional<const std::exception&> maybe_exception,
+                                     sol::string_view description) -> int {
+            std::string msg = maybe_exception
+                ? std::string("C++ exception: ") + maybe_exception->what()
+                : std::string("C++ exception: ") + std::string(description);
+            LOG(LOG_ERROR) << msg << "\n";
+            return sol::stack::push(L, msg);
         });
-        LOG(LOG_INFO) << "Registered scene helper: " << helperName << "\n";
-    }
 
-    callbacksRegistered = true;
-    LOG(LOG_INFO) << "Lua runtime initialized successfully\n";
+        LuaBindings::BindStableTypes(lua);
+        LOG(LOG_INFO) << "Bound stable types (vec3, Transform, Ray, BoundingBox, Lines, Input, Camera)\n";
+
+        LuaBindings::BindGUIAPIs(lua);
+        LOG(LOG_INFO) << "Bound GUI APIs (ImGui wrappers)\n";
+
+        sceneHelpers.push_back(std::make_unique<SceneImporterInternal::CubeHelper>(*this));
+        sceneHelpers.push_back(std::make_unique<SceneImporterInternal::FloorHelper>());
+        sceneHelpers.push_back(std::make_unique<SceneImporterInternal::SphereHelper>(*this));
+        sceneHelpers.push_back(std::make_unique<SceneImporterInternal::LinesHelper>(*this));
+
+        for (const auto& helper : sceneHelpers) {
+            SceneImporterInternal::SceneHelper* helperPtr = helper.get();
+            std::string helperName = helper->GetName();
+            lua.set_function(helperName, [helperPtr, &world, &shaders](sol::table cfg) -> Entity {
+                return helperPtr->Create(cfg, world, shaders);
+            });
+            LOG(LOG_INFO) << "Registered scene helper: " << helperName << "\n";
+        }
+
+        callbacksRegistered = true;
+        LOG(LOG_INFO) << "Lua runtime initialized successfully\n";
+        return true;
+    } catch (const std::exception& e) {
+        outErrorMsg = std::string("Lua runtime init failed: ") + e.what();
+        LOG(LOG_ERROR) << outErrorMsg << "\n";
+        return false;
+    } catch (...) {
+        outErrorMsg = "Lua runtime init failed: unknown exception";
+        LOG(LOG_ERROR) << outErrorMsg << "\n";
+        return false;
+    }
+}
+
+bool LuaRuntime::Reinitialize(std::string& outErrorMsg) {
+    if (!worldPtr || !treePtr) {
+        outErrorMsg = "Reinitialize called before Initialize";
+        LOG(LOG_ERROR) << outErrorMsg << "\n";
+        return false;
+    }
+    Reset();
+    return Initialize(*worldPtr, *treePtr, shaderMap, outErrorMsg);
 }
 
 void LuaRuntime::Reset() {
