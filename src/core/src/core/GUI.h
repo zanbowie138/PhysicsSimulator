@@ -27,7 +27,7 @@ public:
 
 	static void Text(const char* text) { ImGui::Text(text); }
 	static void Checkbox(const char* label, bool* variable) { ImGui::Checkbox(label, variable); }
-	static void ButtonFunc(const char* text, std::function<void()> func);
+	static void ButtonFunc(const char* label, std::function<void()> func);
 
 	void RenderLog(const char* windowName, const std::string& log, const std::vector<Utils::LogLevel>& lineLogLevels);
 	void ShowErrorOverlay(const std::string& errorMsg, bool& showError);
@@ -83,9 +83,9 @@ inline void GUI::StartWindow(const char* windowName)
 	ImGui::Begin(windowName);
 }
 
-inline void GUI::ButtonFunc(const char* text, std::function<void()> func)
+inline void GUI::ButtonFunc(const char* label, std::function<void()> func)
 {
-	if (ImGui::Button(text))
+	if (ImGui::Button(label))
 	{
 		func();
 	}

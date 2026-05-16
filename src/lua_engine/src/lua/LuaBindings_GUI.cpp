@@ -10,6 +10,11 @@ void BindGUIAPIs(sol::state& lua) {
     g["End"]              = []()                              { ImGui::End(); };
     g["Text"]             = [](const std::string& t)         { ImGui::Text("%s", t.c_str()); };
     g["Checkbox"]         = [](const std::string& l, bool v) { ImGui::Checkbox(l.c_str(), &v); return v; };
+    g["InputFloat"]       = [](const std::string& l, float v) { ImGui::InputFloat(l.c_str(), &v); return v; };
+    g["DragFloat"]        = [](const std::string& l, float v) { ImGui::DragFloat(l.c_str(), &v); return v; };
+    g["DragFloat3"]       = [](const std::string& l, glm::vec3& v) {
+        return ImGui::DragFloat3(l.c_str(), value_ptr(v));
+    };
     g["CollapsingHeader"] = [](const std::string& l) -> bool { return ImGui::CollapsingHeader(l.c_str()); };
     g["Button"]           = [](const std::string& l) -> bool { return ImGui::Button(l.c_str()); };
     g["Separator"]        = []() { ImGui::Separator(); };

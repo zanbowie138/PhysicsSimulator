@@ -8,10 +8,26 @@ void BindStableTypes(sol::state& lua) {
 
     // POD types - rarely change
     lua.new_usertype<glm::vec3>("vec3",
-        sol::constructors<glm::vec3(), glm::vec3(float, float, float)>(),
+        sol::call_constructor, sol::factories(
+            []() { return glm::vec3(0.0f); },
+            [](float x, float y, float z) { return glm::vec3(x, y, z); },
+            [](sol::table t) {
+                // Check for array index first (e.g., t[1]), fallback to string keys (e.g., t["x"]),
+                // and finally default to 0.0f if neither exists.
+                float x = t.get<sol::optional<float>>(1).value_or(t.get_or("x", 0.0f));
+                float y = t.get<sol::optional<float>>(2).value_or(t.get_or("y", 0.0f));
+                float z = t.get<sol::optional<float>>(3).value_or(t.get_or("z", 0.0f));
+
+                return glm::vec3(x, y, z);
+            }
+        ),
         "x", &glm::vec3::x,
         "y", &glm::vec3::y,
-        "z", &glm::vec3::z
+        "z", &glm::vec3::z,
+
+        "unpack", [](const glm::vec3& v) {
+            return std::make_tuple(v.x, v.y, v.z);
+        }
     );
 
     // UNUSED: vec2 not referenced in test.lua

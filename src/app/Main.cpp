@@ -50,8 +50,8 @@ int main() {
 
 		// Camera creation
 		const auto &windowDimensions = windowManager.GetWindowDimensions();
-		Camera cam{windowDimensions.first, windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f)};
-		windowManager.SetCamera(&cam);
+		Camera viewportCam{windowDimensions.first, windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f)};
+		windowManager.SetCamera(&viewportCam);
 
 		// Create RenderSystem and add dependencies
 		auto renderSystem = world.RegisterSystem<RenderSystem,
@@ -180,9 +180,9 @@ int main() {
 			windowManager.ProcessInputs(!GUI.MouseOver());
 			GUI.SetMouse(windowManager.mouseShown);
 			// Move camera based on window inputs
-			cam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos(), dt_mill);
+			viewportCam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos(), dt_mill);
 			// Update camera matrix
-			cam.UpdateMatrix(45.0f, 0.1f, 100.0f);
+			viewportCam.UpdateMatrix(45.0f, 0.1f, 100.0f);
 			// Update uniform buffer
 			glm::vec3 lightPos(0, 1, 0); // Default light position
 			try {
@@ -192,7 +192,7 @@ int main() {
 			} catch (const std::exception &e) {
 				LOG(LOG_ERROR) << "Error getting light transform: " << e.what() << "\n";
 			}
-			UBO.UpdateData(cam, lightPos);
+			UBO.UpdateData(viewportCam, lightPos);
 
 			// Compute light-space matrix and render shadow pass
 			static constexpr float kShadowSize = 20.0f;
@@ -206,12 +206,12 @@ int main() {
 			if (simRunning) {
 				luaRuntime.CallOnUpdate(dt_mill,
 				                        LuaBindings::LuaInput::FromWindowManager(windowManager),
-				                        LuaBindings::LuaCameraView::FromCamera(cam));
+				                        LuaBindings::LuaCameraView::FromCamera(viewportCam));
 
 				if (windowManager.TestInput(InputButtons::LEFT_MOUSE)) {
 					luaRuntime.CallOnClick(
 						LuaBindings::LuaInput::FromWindowManager(windowManager),
-						LuaBindings::LuaCameraView::FromCamera(cam));
+						LuaBindings::LuaCameraView::FromCamera(viewportCam));
 				}
 			}
 

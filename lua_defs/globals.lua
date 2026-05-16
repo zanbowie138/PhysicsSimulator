@@ -162,9 +162,9 @@ function GUIAPI.SameLine() end
 ---@type GUIAPI
 GUI = nil
 
--- ============================================================
--- Selected entity (set by OnClick)
--- ============================================================
-
----@type integer|nil
-SelectedEntity = nil
+---- ============================================================
+---- Selected entity (set by OnClick)
+---- ============================================================
+--
+-----@type integer|nil
+--SelectedEntity = nil

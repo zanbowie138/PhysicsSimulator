@@ -22,7 +22,7 @@ void LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
     shaderMap = shaders;
 
     // Open standard Lua libraries
-    lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string);
+    lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
     LOG(LOG_INFO) << "Opened Lua standard libraries\n";
 
     // Bind stable types (rarely recompiled)

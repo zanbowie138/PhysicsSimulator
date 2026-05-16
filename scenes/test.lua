@@ -57,10 +57,12 @@ light = CreateSphere({
 })
 PhysicsSystem.tree:AddToTree(light)
 
--- Runtime state
+-- Runtime states
 local state = {
-    time = 0,
-    selectedEntity = nil,
+    time = 0
+}
+
+local debugState = {
     rayLines = nil,
     boxLines = nil,
     hitLines = nil,
@@ -68,11 +70,17 @@ local state = {
     showOnlyDynamicLeaf = false
 }
 
+local selectedState = {
+    entity = nil,
+    updatedPos = vec3({0, 0, 0}),
+    changed = false,
+}
+
 -- Initialize debug renderables
 function OnInit()
-    state.rayLines = Debug.GetLines("rays")
-    state.boxLines = Debug.GetLines("boxes")
-    state.hitLines = Debug.GetLines("hits")
+    debugState.rayLines = Debug.GetLines("rays")
+    debugState.boxLines = Debug.GetLines("boxes")
+    debugState.hitLines = Debug.GetLines("hits")
 
     -- Test custom Lua functions
     Utils.Log("Scene initialized with custom logging!")
@@ -101,33 +109,41 @@ function OnUpdate(dt, input, camera)
 
         -- Use GetTime and Lerp for smooth vertical oscillation
         local currentTime = Utils.GetTime()
-        local t = math.sin(currentTime / 1000.0) * 0.5 + 0.5  -- Oscillate between 0 and 1
+        local t = math.sin(currentTime / 1000.0) * 0.5 + 0.5 -- Oscillate between 0 and 1
         local height = Utils.Lerp(1.0, 4.0, t)
 
-        lightTransform.worldPos = vec3.new(
+        lightTransform.worldPos = vec3(
             math.sin(state.time / 2000.0) * 3.0,
-            height,  -- Smooth height transition using Lerp
+            height, -- Smooth height transition using Lerp
             math.cos(state.time / 2000.0) * 3.0
         )
         local newPos = lightTransform.worldPos
         PhysicsSystem.tree:UpdateEntity(light, newPos)
     end
 
-    state.boxLines:Clear()
-    if state.showDynamicBoxes then
-        state.boxLines:PushBoundingBoxes(PhysicsSystem.tree:GetAllBoxes(state.showOnlyDynamicLeaf))
+    if selectedState.entity and selectedState.changed then
+        local entityTransform = world.GetTransform(selectedState.entity)
+        print(string.format("Updating %d with position (%.2f, %.2f, %.2f)", selectedState.entity,
+            selectedState.updatedPos:unpack()))
+        entityTransform.worldPos = selectedState.updatedPos
+        PhysicsSystem.tree:UpdateEntity(selectedState.entity, selectedState.updatedPos)
+        selectedState.changed = false
+    end
+
+    debugState.boxLines:Clear()
+    if debugState.showDynamicBoxes then
+        debugState.boxLines:PushBoundingBoxes(PhysicsSystem.tree:GetAllBoxes(debugState.showOnlyDynamicLeaf))
     end
 end
 
 -- GUI panels (called between NewFrame and Render)
 function OnGUI()
     GUI.Begin("Entity Info")
-    if SelectedEntity then
-        GUI.Text("Entity ID: " .. tostring(SelectedEntity))
-        if world.HasTransform(SelectedEntity) then
-            local t = world.GetTransform(SelectedEntity)
-            GUI.Text(string.format("Position: %.2f, %.2f, %.2f",
-                t.worldPos.x, t.worldPos.y, t.worldPos.z))
+    if selectedState.entity then
+        GUI.Text("Entity ID: " .. tostring(selectedState.entity))
+        local t = world.GetTransform(selectedState.entity)
+        if GUI.DragFloat3("Position", selectedState.updatedPos) then
+            selectedState.changed = true
         end
     else
         GUI.Text("No entity selected.")
@@ -136,8 +152,8 @@ function OnGUI()
 
     GUI.Begin("Config")
     if GUI.CollapsingHeader("Dynamic BVH Tree") then
-        state.showDynamicBoxes = GUI.Checkbox("Show Bounding Boxes ##Dynamic", state.showDynamicBoxes)
-        state.showOnlyDynamicLeaf = GUI.Checkbox("Show only leaf nodes ##Dynamic", state.showOnlyDynamicLeaf)
+        debugState.showDynamicBoxes = GUI.Checkbox("Show Bounding Boxes ##Dynamic", debugState.showDynamicBoxes)
+        debugState.showOnlyDynamicLeaf = GUI.Checkbox("Show only leaf nodes ##Dynamic", debugState.showOnlyDynamicLeaf)
     end
     GUI.End()
 end
@@ -148,26 +164,26 @@ function OnClick(input, camera)
     local ray = Utils.ScreenPointToRay(input.mousePosNormalized, camera.cameraMatrix)
 
     -- Visualize ray
-    state.rayLines:Clear()
-    state.rayLines:PushRay(ray, 10)
+    debugState.rayLines:Clear()
+    debugState.rayLines:PushRay(ray, 10)
 
     -- Query collision with scene
     local entity, hit = PhysicsSystem.tree:QueryRay(ray)
     local intersectedBoxes, anyHit = PhysicsSystem.tree:QueryRayCollisions(ray)
 
-    state.hitLines:Clear()
+    debugState.hitLines:Clear()
     if anyHit then
-        state.hitLines:PushBoundingBoxes(intersectedBoxes)
+        debugState.hitLines:PushBoundingBoxes(intersectedBoxes)
     end
 
     if hit then
         print("Hit entity: " .. tostring(entity))
-        state.selectedEntity = entity
-        SelectedEntity = entity
+        selectedState.entity = entity
+        local t = world.GetTransform(selectedState.entity)
+        selectedState.updatedPos = vec3({t.worldPos.x, t.worldPos.y, t.worldPos.z})
     else
         print("No hit")
-        state.selectedEntity = nil
-        SelectedEntity = nil
+        selectedState.entity = nil
     end
 end
 
