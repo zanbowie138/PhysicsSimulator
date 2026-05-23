@@ -173,6 +173,8 @@ bool LuaRuntime::LoadScene(const std::string& filename, std::string& outErrorMsg
             return false;
         }
 
+        sceneDescription = sceneTable.get_or("description", std::string(""));
+
         // Reset per-scene camera state
         cameraMovementEnabled = true;
         cameraConfig = CameraConfig{};

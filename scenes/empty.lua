@@ -17,4 +17,5 @@ light = CreateSphere({
 
 return {
     light = light,
+    description = "An empty scene.",
 }

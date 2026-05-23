@@ -298,7 +298,7 @@ int main() {
 
 			GUI.StartWindow("Lua Scene");
 
-			ImGui::SeparatorText("Scene");
+			ImGui::SeparatorText("Scene Selection");
 
 			float listHeight = std::min(static_cast<int>(sceneFiles.size()), 5)
 				* ImGui::GetTextLineHeightWithSpacing()
@@ -318,8 +318,13 @@ int main() {
 						luaRuntime.simTime = 0.0f;
 						simRunning = true;
 					}
-					if (isSelected)
+					if (isSelected) {
 						ImGui::SetItemDefaultFocus();
+						if (ImGui::IsItemHovered()) {
+							const auto& desc = luaRuntime.GetSceneDescription();
+							ImGui::SetTooltip("%s", desc.empty() ? "(no description)" : desc.c_str());
+						}
+					}
 				}
 				ImGui::EndListBox();
 			}
@@ -329,8 +334,19 @@ int main() {
 			if (ImGui::IsItemHovered())
 				ImGui::SetTooltip("Rescan scenes/ folder");
 
-			ImGui::Separator();
-			ImGui::Spacing();
+			{
+				ImGui::SeparatorText("Current Scene");
+				std::string sceneName = currentScenePath.size() > 4
+					? currentScenePath.substr(0, currentScenePath.size() - 4)
+					: currentScenePath;
+				ImGui::Text("Filename: %s", sceneName.c_str());
+				const auto& desc = luaRuntime.GetSceneDescription();
+				ImGui::Text("Description: ");
+				// ImGui::SameLine();
+				ImGui::PushTextWrapPos(0.0f);
+				ImGui::TextDisabled("%s", desc.empty() ? "(none)" : desc.c_str());
+				ImGui::PopTextWrapPos();
+			}
 
 			GUI.Text(("Frame: " + std::to_string(frameNumber)).c_str());
 			GUI.ButtonFunc(simRunning ? "Stop" : "Start", [&]() {

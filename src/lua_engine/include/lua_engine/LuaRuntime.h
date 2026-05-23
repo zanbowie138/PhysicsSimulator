@@ -88,6 +88,7 @@ public:
     Entity GetLightEntity() const { return lightEntity; }
     const CameraConfig& GetCameraConfig() const { return cameraConfig; }
     bool IsCameraMovementEnabled() const { return cameraMovementEnabled; }
+    const std::string& GetSceneDescription() const { return sceneDescription; }
 
     sol::optional<Entity> GetSelectedEntity() const {
         return lua.get<sol::optional<Entity>>("SelectedEntity");
@@ -101,4 +102,5 @@ private:
     bool callbacksRegistered = false;
     World* worldPtr = nullptr;
     Physics::DynamicBBTree* treePtr = nullptr;
+    std::string sceneDescription;
 };
