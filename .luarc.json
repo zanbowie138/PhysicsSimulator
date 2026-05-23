@@ -9,6 +9,7 @@
         "CreateCube",
         "CreateFloor",
         "CreateSphere",
-        "CreateLines"
+        "CreateLines",
+        "SetCameraMovement"
     ]
 }

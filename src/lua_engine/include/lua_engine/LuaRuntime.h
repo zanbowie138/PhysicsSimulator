@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 
 #include "core/GlobalTypes.h"
 #include "../../../core/src/math/BoundingBox.h"
@@ -22,6 +23,14 @@ namespace SceneImporterInternal {
     class SceneHelper;
 }
 
+struct CameraConfig {
+    glm::vec3 position    = {0.0f, 0.0f, 0.0f};
+    glm::vec3 orientation = {0.0f, 0.0f, -1.0f};
+    float fov       = 45.0f;
+    float nearPlane = 0.1f;
+    float farPlane  = 100.0f;
+};
+
 // Manages Lua state lifecycle and script callbacks
 class LuaRuntime {
 public:
@@ -31,6 +40,8 @@ public:
     sol::state lua;
     Entity lightEntity = 999;
     float simTime = 0.0f;
+    CameraConfig cameraConfig;
+    bool cameraMovementEnabled = true;
     Utils::LuaLogger luaLogger;
     std::unordered_map<std::string, Lines*> debugLines;
     std::unordered_map<std::string, Points*> debugPoints;
@@ -75,6 +86,8 @@ public:
     void CallOnGUI();
 
     Entity GetLightEntity() const { return lightEntity; }
+    const CameraConfig& GetCameraConfig() const { return cameraConfig; }
+    bool IsCameraMovementEnabled() const { return cameraMovementEnabled; }
 
     sol::optional<Entity> GetSelectedEntity() const {
         return lua.get<sol::optional<Entity>>("SelectedEntity");

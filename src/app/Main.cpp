@@ -51,9 +51,9 @@ int main() {
 
 		GUI GUI{window};
 
-		// Camera creation
+		// Camera creation (position applied after scene load)
 		const auto &windowDimensions = windowManager.GetWindowDimensions();
-		Camera viewportCam{windowDimensions.first, windowDimensions.second, glm::vec3(0.0f, 1.0f, 7.0f)};
+		Camera viewportCam{windowDimensions.first, windowDimensions.second, glm::vec3(0.0f)};
 		windowManager.SetCamera(&viewportCam);
 
 		// Create RenderSystem and add dependencies
@@ -131,6 +131,11 @@ int main() {
 		}
 
 		Entity lightEntity = luaRuntime.GetLightEntity();
+		{
+			const auto& cfg = luaRuntime.GetCameraConfig();
+			viewportCam.position    = cfg.position;
+			viewportCam.orientation = cfg.orientation;
+		}
 
 		// Shared reload path: rebuild Lua state, clear world, load scene (or fallback).
 		auto reloadScene = [&]() {
@@ -158,6 +163,9 @@ int main() {
 				}
 			}
 			lightEntity = luaRuntime.GetLightEntity();
+			const auto& cfg = luaRuntime.GetCameraConfig();
+			viewportCam.position    = cfg.position;
+			viewportCam.orientation = cfg.orientation;
 		};
 
 		auto scanScenes = [&]() {
@@ -198,6 +206,7 @@ int main() {
 
 		std::cout << timer.ToString() << std::endl;
 
+		// Render loop
 		while (!glfwWindowShouldClose(window)) {
 			renderSystem->PreUpdate();
 
@@ -226,9 +235,12 @@ int main() {
 			windowManager.ProcessInputs(!GUI.MouseOver());
 			GUI.SetMouse(windowManager.mouseShown);
 			// Move camera based on window inputs
-			viewportCam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos(), dt_mill);
+			if (luaRuntime.IsCameraMovementEnabled()) {
+				viewportCam.MoveCam(windowManager.GetInputs(), windowManager.GetMousePos(), dt_mill);
+			}
 			// Update camera matrix
-			viewportCam.UpdateMatrix(45.0f, 0.1f, 100.0f);
+			const auto& camCfg = luaRuntime.GetCameraConfig();
+			viewportCam.UpdateMatrix(camCfg.fov, camCfg.nearPlane, camCfg.farPlane);
 			// Update uniform buffer
 			glm::vec3 lightPos(0, 1, 0); // Default light position
 			try {

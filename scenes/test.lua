@@ -189,5 +189,9 @@ function OnClick(input, camera)
 end
 
 return {
-    light = light
+    light = light,
+    camera = {
+        position = {0, 1, 7},
+        fov = 45
+    }
 }

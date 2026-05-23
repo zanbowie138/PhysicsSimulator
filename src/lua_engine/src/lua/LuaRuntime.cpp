@@ -63,6 +63,10 @@ bool LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
             LOG(LOG_INFO) << "Registered scene helper: " << helperName << "\n";
         }
 
+        lua.set_function("SetCameraMovement", [this](bool enabled) {
+            cameraMovementEnabled = enabled;
+        });
+
         callbacksRegistered = true;
         LOG(LOG_INFO) << "Lua runtime initialized successfully\n";
         return true;
@@ -167,6 +171,27 @@ bool LuaRuntime::LoadScene(const std::string& filename, std::string& outErrorMsg
             outErrorMsg = "Scene did not provide valid 'light' entity";
             LOG(LOG_ERROR) << "Scene load failed: " << outErrorMsg << "\n";
             return false;
+        }
+
+        // Reset per-scene camera state
+        cameraMovementEnabled = true;
+        cameraConfig = CameraConfig{};
+
+        sol::optional<sol::table> camTable = sceneTable["camera"];
+        if (camTable) {
+            sol::table cam = camTable.value();
+            sol::optional<sol::table> pos = cam["position"];
+            if (pos) cameraConfig.position = {
+                pos->get_or(1, 0.0f), pos->get_or(2, 1.0f), pos->get_or(3, 7.0f)
+            };
+            sol::optional<sol::table> ori = cam["orientation"];
+            if (ori) cameraConfig.orientation = {
+                ori->get_or(1, 0.0f), ori->get_or(2, 0.0f), ori->get_or(3, -1.0f)
+            };
+            cameraConfig.fov       = cam.get_or("fov",   45.0f);
+            cameraConfig.nearPlane = cam.get_or("near",   0.1f);
+            cameraConfig.farPlane  = cam.get_or("far",  100.0f);
+            LOG(LOG_INFO) << "Camera config loaded from scene\n";
         }
 
         LOG(LOG_INFO) << "Scene loaded successfully\n";
