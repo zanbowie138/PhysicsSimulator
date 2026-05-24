@@ -59,8 +59,6 @@ Application::Application(const std::string& title, int width, int height)
     ubo.Init();
     ubo.BindShaders(*basic, *def, *flat, *diffuse);
 
-    gpuName = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-
     layerStack.PushLayer(std::make_unique<SimulationLayer>(*this));
     layerStack.PushLayer(std::make_unique<RenderingLayer>(*this));
     layerStack.PushLayer(std::make_unique<StatsLayer>(*this));
@@ -79,22 +77,15 @@ Physics::DynamicBBTree& Application::GetPhysicsTree() {
 void Application::Run() {
     GLFWwindow* window = windowManager.GetWindow();
 
-    lastFPSTime = currentTime = glfwGetTime();
+    layerStack.OnInit();
+
+    double currentTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(window)) {
         renderSystem->PreUpdate();
 
         float dt_ms = static_cast<float>(glfwGetTime() - currentTime) * 1000.0f;
         currentTime = glfwGetTime();
-        fpsFrameCount++;
-
-        if (currentTime - lastFPSTime >= 1.0) {
-            mspf = 1000.0f / static_cast<float>(fpsFrameCount);
-            fps  = static_cast<float>(fpsFrameCount);
-            fpsFrameCount = 0;
-            lastFPSTime += 1.0;
-            LOG_WRITE();
-        }
 
         windowManager.ProcessInputs(!GUI::MouseOver());
         GUI::SetMouse(windowManager.mouseShown);

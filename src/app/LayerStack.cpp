@@ -10,6 +10,11 @@ void LayerStack::PushLayer(std::unique_ptr<Layer> layer) {
     mLayers.push_back(std::move(layer));
 }
 
+void LayerStack::OnInit() {
+    for (auto& layer : mLayers)
+        layer->OnInit();
+}
+
 void LayerStack::OnUpdate(float dt) {
     for (auto& layer : mLayers)
         if (layer->OnUpdate(dt))

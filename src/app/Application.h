@@ -27,9 +27,6 @@ public:
     std::shared_ptr<RenderSystem> GetRenderSystem() { return renderSystem; }
     const std::unordered_map<std::string, GLuint>& GetShaders() const { return shaders; }
     Physics::DynamicBBTree& GetPhysicsTree();
-    float GetFPS() const { return fps; }
-    float GetMSPF() const { return mspf; }
-    const char* GetGPUName() const { return gpuName; }
     Entity GetLightEntity() const { return lightEntity; }
     Core::UniformBufferManager& GetUBO() { return ubo; }
     void SetLightEntity(Entity e) { lightEntity = e; }
@@ -45,8 +42,4 @@ private:
     LayerStack layerStack;
 
     Entity lightEntity{0};
-    const char* gpuName{nullptr};
-    float fps{0.0f}, mspf{0.0f};
-    double lastFPSTime{0.0}, currentTime{0.0};
-    unsigned int fpsFrameCount{0};
 };

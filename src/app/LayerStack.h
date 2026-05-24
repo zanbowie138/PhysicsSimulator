@@ -7,6 +7,7 @@ class LayerStack {
 public:
     ~LayerStack();
     void PushLayer(std::unique_ptr<Layer> layer);
+    void OnInit();
     void OnUpdate(float dt);
     void OnGUI();
 private:

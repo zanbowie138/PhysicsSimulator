@@ -5,6 +5,7 @@ public:
     virtual ~Layer() = default;
     virtual void OnAttach() {}
     virtual void OnDetach() {}
+    virtual void OnInit() {}
     // Returns true to consume the update and stop propagation to subsequent layers
     virtual bool OnUpdate(float dt) { return false; }
     virtual void OnGUI() {}
