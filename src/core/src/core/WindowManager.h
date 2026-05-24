@@ -3,6 +3,7 @@
 #include <bitset>
 
 #include "GlobalTypes.h"
+#include "renderer/Camera.h"
 #include "utils/Exceptions.h"
 
 namespace Core {
