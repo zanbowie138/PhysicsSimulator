@@ -70,6 +70,28 @@ namespace Utils
 		return ModelData{ board_vertexes, board_indices };
 	}
 
+	static ModelData CubeModelData()
+	{
+		struct FaceData { glm::vec3 normal; glm::vec3 p[4]; };
+		const FaceData faces[6] = {
+			{{ 0,-1, 0}, {{-0.5f,-0.5f, 0.5f},{ 0.5f,-0.5f, 0.5f},{ 0.5f,-0.5f,-0.5f},{-0.5f,-0.5f,-0.5f}}},
+			{{ 0, 1, 0}, {{-0.5f, 0.5f,-0.5f},{ 0.5f, 0.5f,-0.5f},{ 0.5f, 0.5f, 0.5f},{-0.5f, 0.5f, 0.5f}}},
+			{{ 0, 0, 1}, {{-0.5f,-0.5f, 0.5f},{ 0.5f,-0.5f, 0.5f},{ 0.5f, 0.5f, 0.5f},{-0.5f, 0.5f, 0.5f}}},
+			{{ 0, 0,-1}, {{ 0.5f,-0.5f,-0.5f},{-0.5f,-0.5f,-0.5f},{-0.5f, 0.5f,-0.5f},{ 0.5f, 0.5f,-0.5f}}},
+			{{ 1, 0, 0}, {{ 0.5f,-0.5f, 0.5f},{ 0.5f,-0.5f,-0.5f},{ 0.5f, 0.5f,-0.5f},{ 0.5f, 0.5f, 0.5f}}},
+			{{-1, 0, 0}, {{-0.5f,-0.5f,-0.5f},{-0.5f,-0.5f, 0.5f},{-0.5f, 0.5f, 0.5f},{-0.5f, 0.5f,-0.5f}}},
+		};
+		const glm::vec2 uvs[4] = {{0,0},{1,0},{1,1},{0,1}};
+		std::vector<ModelPt> vertices; vertices.reserve(24);
+		std::vector<GLuint> indices;   indices.reserve(36);
+		for (const auto& f : faces) {
+			GLuint base = static_cast<GLuint>(vertices.size());
+			for (int v = 0; v < 4; ++v) vertices.push_back({f.p[v], f.normal, uvs[v]});
+			for (GLuint i : {base, base+1, base+2, base, base+2, base+3}) indices.push_back(i);
+		}
+		return ModelData{vertices, indices};
+	}
+
 	// Algorithm source: https://gist.github.com/Pikachuxxxx/5c4c490a7d7679824e0e18af42918efc
 	static ModelData UVSphereData(uint8_t latitudes, uint8_t longitudes, const float radius)
 	{

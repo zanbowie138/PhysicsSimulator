@@ -7,6 +7,7 @@
 #include "scene/helpers/FloorHelper.h"
 #include "scene/helpers/SphereHelper.h"
 #include "scene/helpers/LinesHelper.h"
+#include "scene/helpers/BoxHelper.h"
 
 // Constructor and destructor must be defined in .cpp where SceneHelper is complete
 LuaRuntime::LuaRuntime() = default;
@@ -53,6 +54,7 @@ bool LuaRuntime::Initialize(World& world, Physics::DynamicBBTree& tree,
         sceneHelpers.push_back(std::make_unique<SceneImporterInternal::FloorHelper>());
         sceneHelpers.push_back(std::make_unique<SceneImporterInternal::SphereHelper>(*this));
         sceneHelpers.push_back(std::make_unique<SceneImporterInternal::LinesHelper>(*this));
+        sceneHelpers.push_back(std::make_unique<SceneImporterInternal::BoxHelper>(*this));
 
         for (const auto& helper : sceneHelpers) {
             SceneImporterInternal::SceneHelper* helperPtr = helper.get();

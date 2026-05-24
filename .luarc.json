@@ -10,6 +10,7 @@
         "CreateFloor",
         "CreateSphere",
         "CreateLines",
+        "CreateBox",
         "SetCameraMovement"
     ]
 }
