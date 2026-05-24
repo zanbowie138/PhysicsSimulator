@@ -206,6 +206,8 @@ int main() {
 
 		std::cout << timer.ToString() << std::endl;
 
+		const char* gpuName = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+
 		// Render loop
 		while (!glfwWindowShouldClose(window)) {
 			renderSystem->PreUpdate();
@@ -285,16 +287,15 @@ int main() {
 				rKeyPressed = false;
 			}
 
-			std::string fpsString("FPS: " + std::to_string(static_cast<int>(fps)) + "\nMSPF: " + std::to_string(mspf));
-
 			renderSystem->Update();
 			GUI.NewFrame();
 
 			luaRuntime.CallOnGUI();
 
-			GUI.StartWindow("Performance");
-			GUI.Text(fpsString.c_str());
-			GUI.EndWindow();
+			ImGui::Begin("##perf", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+			ImGui::Text("%s", gpuName);
+			ImGui::Text("%.2f ms (%.0f FPS)", mspf, fps);
+			ImGui::End();
 
 			GUI.StartWindow("Lua Scene");
 
