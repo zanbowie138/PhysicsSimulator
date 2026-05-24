@@ -298,12 +298,13 @@ int main() {
 
 			GUI.StartWindow("Lua Scene");
 
+			ImGui::Spacing();
 			ImGui::SeparatorText("Scene Selection");
 
 			float listHeight = std::min(static_cast<int>(sceneFiles.size()), 5)
 				* ImGui::GetTextLineHeightWithSpacing()
 				+ ImGui::GetStyle().FramePadding.y * 2;
-			if (ImGui::BeginListBox("##scenes", ImVec2(-FLT_MIN, listHeight))) {
+			if (ImGui::BeginChild("##scenes", ImVec2(-FLT_MIN, listHeight), true)) {
 				for (int i = 0; i < static_cast<int>(sceneFiles.size()); i++) {
 					std::string displayName = sceneFiles[i];
 					if (displayName.size() > 4)
@@ -320,14 +321,15 @@ int main() {
 					}
 					if (isSelected) {
 						ImGui::SetItemDefaultFocus();
-						if (ImGui::IsItemHovered()) {
-							const auto& desc = luaRuntime.GetSceneDescription();
-							ImGui::SetTooltip("%s", desc.empty() ? "(no description)" : desc.c_str());
-						}
+					}
+					if (ImGui::IsItemHovered()) {
+						const auto& desc = luaRuntime.GetSceneDescription();
+						ImGui::SetTooltip("%s", desc.empty() ? "(no description)" : desc.c_str());
 					}
 				}
-				ImGui::EndListBox();
 			}
+			ImGui::EndChild();
+			ImGui::Spacing();
 			if (ImGui::Button("Refresh")) {
 				scanScenes();
 			}
@@ -335,6 +337,7 @@ int main() {
 				ImGui::SetTooltip("Rescan scenes/ folder");
 
 			{
+				ImGui::Spacing();
 				ImGui::SeparatorText("Current Scene");
 				std::string sceneName = currentScenePath.size() > 4
 					? currentScenePath.substr(0, currentScenePath.size() - 4)
@@ -342,11 +345,12 @@ int main() {
 				ImGui::Text("Filename: %s", sceneName.c_str());
 				const auto& desc = luaRuntime.GetSceneDescription();
 				ImGui::Text("Description: ");
-				// ImGui::SameLine();
 				ImGui::PushTextWrapPos(0.0f);
 				ImGui::TextDisabled("%s", desc.empty() ? "(none)" : desc.c_str());
 				ImGui::PopTextWrapPos();
 			}
+
+			ImGui::Spacing();
 
 			GUI.Text(("Frame: " + std::to_string(frameNumber)).c_str());
 			GUI.ButtonFunc(simRunning ? "Stop" : "Start", [&]() {
@@ -360,10 +364,14 @@ int main() {
 				luaRuntime.simTime = 0.0f;
 				simRunning = true;
 			});
+
+			ImGui::Spacing();
+			ImGui::SeparatorText("Lua Output");
+			ImGui::Spacing();
+			GUI.RenderLogInline("Lua Output", luaRuntime.luaLogger.GetContents(), luaRuntime.luaLogger.GetLineLevels());
 			GUI.EndWindow();
 
 			GUI.RenderLog("Log Output", LOG_CONTENTS(), LOG_LINE_LEVELS());
-			GUI.RenderLog("Lua Output", luaRuntime.luaLogger.GetContents(), luaRuntime.luaLogger.GetLineLevels());
 
 			// Show error overlay if present
 			if (showSceneError) {
