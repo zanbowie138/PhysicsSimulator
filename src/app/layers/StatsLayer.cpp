@@ -30,5 +30,5 @@ void StatsLayer::OnGUI() {
     ImGui::Text("%.2f ms (%.0f FPS)", mspf, 1000.0f / mspf);
     ImGui::End();
 
-    app.GetGUI().RenderLog("Log Output", LOG_CONTENTS(), LOG_LINE_LEVELS());
+    app.GetGUI().RenderLog("Engine Logs", LOG_CONTENTS(), LOG_LINE_LEVELS());
 }

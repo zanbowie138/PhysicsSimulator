@@ -1,3 +1,5 @@
+-- Description: An empty scene.
+
 function OnInit()
     print("Empty scene initialized")
 end
@@ -17,5 +19,4 @@ light = CreateSphere({
 
 return {
     light = light,
-    description = "An empty scene.",
 }

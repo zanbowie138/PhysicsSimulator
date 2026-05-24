@@ -1,3 +1,5 @@
+-- Description: Ray casting, BVH, and entity selection showcase.
+
 Utils.Log("test.lua scene initializing...")
 
 -- Debug Lines for visualization
@@ -190,7 +192,6 @@ end
 
 return {
     light = light,
-    description = "ray casting, BVH, and entity selection showcase.",
     camera = {
         position = {0, 1, 7},
         fov = 45

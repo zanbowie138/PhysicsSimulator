@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <cstdint>
+#include <unordered_map>
 
 #include "Layer.h"
 
@@ -27,6 +28,7 @@ private:
 
     std::string currentScenePath{"test.lua"};
     std::vector<std::string> sceneFiles;
+    std::unordered_map<std::string, std::string> sceneDescriptions;
     int selectedSceneIdx{0};
     bool simRunning{true};
     uint64_t frameNumber{0};

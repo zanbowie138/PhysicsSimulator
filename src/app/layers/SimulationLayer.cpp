@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <fstream>
 
 #include <GLFW/glfw3.h>
 
@@ -91,51 +92,50 @@ void SimulationLayer::OnGUI() {
 
     GUI::StartWindow("Lua Scene");
 
-    ImGui::Spacing();
-    ImGui::SeparatorText("Scene Selection");
-
-    float listHeight = std::min(static_cast<int>(sceneFiles.size()), 5)
-        * ImGui::GetTextLineHeightWithSpacing()
-        + ImGui::GetStyle().FramePadding.y * 2;
-    if (ImGui::BeginChild("##scenes", ImVec2(-FLT_MIN, listHeight), true)) {
-        for (int i = 0; i < static_cast<int>(sceneFiles.size()); i++) {
-            std::string displayName = sceneFiles[i];
-            if (displayName.size() > 4)
-                displayName = displayName.substr(0, displayName.size() - 4);
-            bool isSelected = (i == selectedSceneIdx);
-            if (ImGui::Selectable(displayName.c_str(), isSelected) && !isSelected) {
-                selectedSceneIdx = i;
-                currentScenePath = sceneFiles[i];
-                ReloadScene();
-                frameNumber = 0;
-                luaRuntime->simTime = 0.0f;
-                simRunning = true;
-            }
-            if (isSelected)
-                ImGui::SetItemDefaultFocus();
-            if (ImGui::IsItemHovered()) {
-                const auto& desc = luaRuntime->GetSceneDescription();
-                ImGui::SetTooltip("%s", desc.empty() ? "(no description)" : desc.c_str());
-            }
-        }
-    }
-    ImGui::EndChild();
-
-    ImGui::Spacing();
-    if (ImGui::Button("Refresh"))
-        ScanScenes();
-    if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("Rescan scenes/ folder");
-
     {
         ImGui::Spacing();
         ImGui::SeparatorText("Current Scene");
         std::string sceneName = currentScenePath.size() > 4
             ? currentScenePath.substr(0, currentScenePath.size() - 4)
             : currentScenePath;
-        ImGui::Text("Filename: %s", sceneName.c_str());
-        const auto& desc = luaRuntime->GetSceneDescription();
-        ImGui::Text("Description: ");
+        ImGui::Text("Scene:");
+        ImGui::SameLine();
+        if (ImGui::SmallButton(sceneName.c_str()))
+            ImGui::OpenPopup("##scene_select");
+        ImGui::SameLine();
+        ImGui::TextDisabled("(click to change)");
+
+        if (ImGui::BeginPopup("##scene_select")) {
+            ImGui::SeparatorText("Select Scene");
+            for (int i = 0; i < static_cast<int>(sceneFiles.size()); i++) {
+                std::string name = sceneFiles[i];
+                if (name.size() > 4) name = name.substr(0, name.size() - 4);
+                bool isSelected = (i == selectedSceneIdx);
+                if (ImGui::Selectable(name.c_str(), isSelected) && !isSelected) {
+                    selectedSceneIdx = i;
+                    currentScenePath = sceneFiles[i];
+                    ReloadScene();
+                    frameNumber = 0;
+                    luaRuntime->simTime = 0.0f;
+                    simRunning = true;
+                    ImGui::CloseCurrentPopup();
+                }
+                if (isSelected) ImGui::SetItemDefaultFocus();
+                if (ImGui::IsItemHovered()) {
+                    auto it = sceneDescriptions.find(sceneFiles[i]);
+                    const std::string& desc = (it != sceneDescriptions.end()) ? it->second : "";
+                    ImGui::SetTooltip("%s", desc.empty() ? "(no description)" : desc.c_str());
+                }
+            }
+            ImGui::Separator();
+            if (ImGui::SmallButton("Refresh")) ScanScenes();
+            if (ImGui::IsItemHovered()) ImGui::SetTooltip("Rescan scenes/ folder");
+            ImGui::EndPopup();
+        }
+
+        auto descIt = sceneDescriptions.find(currentScenePath);
+        const std::string& desc = (descIt != sceneDescriptions.end()) ? descIt->second : "";
+        ImGui::Text("Description:");
         ImGui::PushTextWrapPos(0.0f);
         ImGui::TextDisabled("%s", desc.empty() ? "(none)" : desc.c_str());
         ImGui::PopTextWrapPos();
@@ -155,9 +155,8 @@ void SimulationLayer::OnGUI() {
     });
 
     ImGui::Spacing();
-    ImGui::SeparatorText("Lua Output");
-    ImGui::Spacing();
-    gui.RenderLogInline("Lua Output",
+    ImGui::SeparatorText("Scene Logs");
+    gui.RenderLogInline("Scene Logs",
         luaRuntime->luaLogger.GetContents(),
         luaRuntime->luaLogger.GetLineLevels());
 
@@ -213,4 +212,13 @@ void SimulationLayer::ScanScenes() {
     auto it = std::find(sceneFiles.begin(), sceneFiles.end(), currentScenePath);
     selectedSceneIdx = (it != sceneFiles.end())
         ? static_cast<int>(std::distance(sceneFiles.begin(), it)) : 0;
+
+    static const std::string prefix = "-- Description: ";
+    sceneDescriptions.clear();
+    for (const auto& file : sceneFiles) {
+        std::ifstream f(Utils::GetResourcePath("/scenes/", file));
+        std::string line;
+        std::getline(f, line);
+        sceneDescriptions[file] = line.rfind(prefix, 0) == 0 ? line.substr(prefix.size()) : "";
+    }
 }
