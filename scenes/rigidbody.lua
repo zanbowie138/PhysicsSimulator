@@ -10,13 +10,6 @@ rays = CreateLines({
     color = {0, 1, 0}
 })
 
-hits = CreateLines({
-    name = "hits",
-    capacity = 10000,
-    shader = "basic",
-    color = {1, 0, 0}
-})
-
 boxes = CreateLines({
     name = "boxes",
     capacity = 10000,
@@ -33,25 +26,28 @@ floor = CreateBox({
     specular = "planksSpec.png"
 })
 PhysicsSystem.tree:AddToTree(floor)
+PhysicsSystem.AddRigidbody(floor, true)
 
 -- Random Cubes
-for _ = 1, 100 do
+for i = 1, 100 do
     cube = CreateCube({
         position = {
-            math.random() * 8.0 - 4.0,
-            math.random() * 3.0,
-            math.random() * 8.0 - 4.0
+            math.random() * 1,
+            math.random() * 0.01 + 0.3*(i + 1),
+            math.random() * 1
         },
         scale = 0.1,
         shader = "flat",
         color = {math.random(), math.random(), math.random()}
     })
+    world.GetTransform(cube):SetRotationEuler(vec3(math.random() * 360, math.random() * 360, math.random() * 360))
     PhysicsSystem.tree:AddToTree(cube)
+    PhysicsSystem.AddRigidbody(cube, false)
 end
 
 -- Light sphere
 light = CreateSphere({
-    position = { 0, 1, 0 },
+    position = { 1, 1, 0 },
     scale = 0.1,
     shader = "basic",
     color = { 1, 1, 1 },
@@ -59,7 +55,7 @@ light = CreateSphere({
 })
 PhysicsSystem.tree:AddToTree(light)
 
--- Runtime states
+-- Runtime state
 local state = {
     time = 0
 }
@@ -67,37 +63,66 @@ local state = {
 local debugState = {
     rayLines = nil,
     boxLines = nil,
-    hitLines = nil,
     showDynamicBoxes = false,
     showOnlyDynamicLeaf = false
 }
 
-local selectedState = {
+local dragState = {
     entity = nil,
-    updatedPos = vec3({0, 0, 0}),
-    changed = false,
+    t = 0,          -- ray parameter at pick time (encodes drag depth)
+    prevMouse = false
 }
 
--- Initialize debug renderables
 function OnInit()
     debugState.rayLines = Debug.GetLines("rays")
     debugState.boxLines = Debug.GetLines("boxes")
-    debugState.hitLines = Debug.GetLines("hits")
 
     print("Scene initialized")
 end
 
--- Update loop (called every frame)
 function OnUpdate(dt, input, camera)
     state.time = state.time + dt
 
-    if selectedState.entity and selectedState.changed then
-        local entityTransform = world.GetTransform(selectedState.entity)
-        print(string.format("Updating %d with position (%.2f, %.2f, %.2f)", selectedState.entity,
-            selectedState.updatedPos:unpack()))
-        entityTransform.worldPos = selectedState.updatedPos
-        PhysicsSystem.tree:UpdateEntity(selectedState.entity, selectedState.updatedPos)
-        selectedState.changed = false
+    -- Detect mouse-button press transition
+    local justPressed = input.leftMouse and not dragState.prevMouse
+    dragState.prevMouse = input.leftMouse
+
+    if justPressed then
+        local ray = Utils.ScreenPointToRay(input.mousePosNormalized, camera.cameraMatrix)
+        local entity, hit = PhysicsSystem.tree:QueryRay(ray)
+        if hit and world.HasRigidbody(entity) then
+            local rb = world.GetRigidbody(entity)
+            if not rb.isStatic then
+                dragState.entity = entity
+                -- Store ray parameter = projection of (center - origin) onto ray direction
+                local c = world.GetTransform(entity).worldPos
+                local o = ray.origin
+                local d = ray.direction
+                dragState.t = (c.x - o.x) * d.x + (c.y - o.y) * d.y + (c.z - o.z) * d.z
+            end
+        else
+            dragState.entity = nil
+        end
+    end
+
+    if not input.leftMouse then
+        dragState.entity = nil
+    end
+
+    -- Apply spring force toward cursor while dragging
+    if dragState.entity and input.leftMouse then
+        local ray = Utils.ScreenPointToRay(input.mousePosNormalized, camera.cameraMatrix)
+        local target = ray:GetPoint(dragState.t)
+        local pos = world.GetTransform(dragState.entity).worldPos
+        local rb = world.GetRigidbody(dragState.entity)
+
+        local diff = target - pos
+        rb:AddForce(diff * 50000.0 - rb.linearVelocity * 20.0)
+
+        debugState.rayLines:Clear()
+        debugState.rayLines:PushRay(ray, dragState.t)
+    else
+        debugState.rayLines:Clear()
     end
 
     debugState.boxLines:Clear()
@@ -106,21 +131,8 @@ function OnUpdate(dt, input, camera)
     end
 end
 
--- GUI panels (called between NewFrame and Render)
 function OnGUI()
     GUI.Begin("Lua Script Config")
-    if GUI.CollapsingHeader("Entity Info") then
-        if selectedState.entity then
-            GUI.Text("Entity ID: " .. tostring(selectedState.entity))
-            local t = world.GetTransform(selectedState.entity)
-            if GUI.DragFloat3("Position", selectedState.updatedPos, 0.1) then
-                selectedState.changed = true
-            end
-        else
-            GUI.Text("No entity selected.")
-        end
-    end
-
     if GUI.CollapsingHeader("Config") then
         if GUI.CollapsingHeader("Dynamic BVH Tree") then
             debugState.showDynamicBoxes = GUI.Checkbox("Show Bounding Boxes ##Dynamic", debugState.showDynamicBoxes)
@@ -129,35 +141,6 @@ function OnGUI()
         end
     end
     GUI.End()
-end
-
--- Mouse click handler
-function OnClick(input, camera)
-    -- Generate ray from screen to world
-    local ray = Utils.ScreenPointToRay(input.mousePosNormalized, camera.cameraMatrix)
-
-    -- Visualize ray
-    debugState.rayLines:Clear()
-    debugState.rayLines:PushRay(ray, 10)
-
-    -- Query collision with scene
-    local entity, hit = PhysicsSystem.tree:QueryRay(ray)
-    local intersectedBoxes, anyHit = PhysicsSystem.tree:QueryRayCollisions(ray)
-
-    debugState.hitLines:Clear()
-    if anyHit then
-        debugState.hitLines:PushBoundingBoxes(intersectedBoxes)
-    end
-
-    if hit then
-        print("Hit entity: " .. tostring(entity))
-        selectedState.entity = entity
-        local t = world.GetTransform(selectedState.entity)
-        selectedState.updatedPos = vec3({t.worldPos.x, t.worldPos.y, t.worldPos.z})
-    else
-        print("No hit")
-        selectedState.entity = nil
-    end
 end
 
 return {

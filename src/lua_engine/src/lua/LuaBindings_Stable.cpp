@@ -27,7 +27,16 @@ void BindStableTypes(sol::state& lua) {
 
         "unpack", [](const glm::vec3& v) {
             return std::make_tuple(v.x, v.y, v.z);
-        }
+        },
+
+        sol::meta_function::addition,       [](const glm::vec3& a, const glm::vec3& b) { return a + b; },
+        sol::meta_function::subtraction,    [](const glm::vec3& a, const glm::vec3& b) { return a - b; },
+        sol::meta_function::multiplication, sol::overload(
+            [](const glm::vec3& v, float s) { return v * s; },
+            [](float s, const glm::vec3& v) { return s * v; },
+            [](const glm::vec3& a, const glm::vec3& b) { return a * b; }
+        ),
+        sol::meta_function::unary_minus,    [](const glm::vec3& v) { return -v; }
     );
 
     // UNUSED: vec2 not referenced in test.lua
@@ -41,20 +50,21 @@ void BindStableTypes(sol::state& lua) {
     lua.new_usertype<Components::Transform>("Transform",
         sol::no_constructor,
         "worldPos", &Components::Transform::worldPos,
-        "scale", &Components::Transform::scale
-        // UNUSED: Rotation methods not called in test.lua
-        // "SetRotationEuler", &Components::Transform::SetRotationEuler,
-        // "GetEulerRotation", &Components::Transform::GetEulerRotation
+        "scale", &Components::Transform::scale,
+        "SetRotationEuler", &Components::Transform::SetRotationEuler,
+        "GetEulerRotation", &Components::Transform::GetEulerRotation
     );
 
-    // UNUSED: Rigidbody component not accessed from Lua in test.lua
-    // lua.new_usertype<Components::Rigidbody>("Rigidbody",
-    //     sol::no_constructor,
-    //     "linearVelocity", &Components::Rigidbody::linearVelocity,
-    //     "AddForce", &Components::Rigidbody::AddForce,
-    //     "SetMass", &Components::Rigidbody::SetMass,
-    //     "GetMass", &Components::Rigidbody::GetMass
-    // );
+    lua.new_usertype<Components::Rigidbody>("Rigidbody",
+        sol::no_constructor,
+        "linearVelocity",  &Components::Rigidbody::linearVelocity,
+        "angularVelocity", &Components::Rigidbody::angularVelocity,
+        "isStatic",        sol::readonly(&Components::Rigidbody::isStatic),
+        "AddForce",        &Components::Rigidbody::AddForce,
+        "AddTorque",       &Components::Rigidbody::AddTorque,
+        "SetMass",         &Components::Rigidbody::SetMass,
+        "GetMass",         &Components::Rigidbody::GetMass
+    );
 
     // UNUSED: RenderInfo component not accessed from Lua in test.lua
     // lua.new_usertype<Components::RenderInfo>("RenderInfo",

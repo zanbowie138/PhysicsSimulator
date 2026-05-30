@@ -69,24 +69,23 @@ void BindDynamicAPIs(sol::state& lua, const DynamicAPIContext& ctx) {
         }
     };
 
-    // UNUSED: Rigidbody accessors not called in test.lua
-    // worldTable["GetRigidbody"] = [&world](Entity entity) -> Components::Rigidbody& {
-    //     try {
-    //         return world.GetComponent<Components::Rigidbody>(entity);
-    //     } catch (const ECSException& e) {
-    //         throw std::runtime_error(std::string("GetRigidbody failed: ") + e.what());
-    //     }
-    // };
-    //
-    // worldTable["HasRigidbody"] = [&world](Entity entity) -> bool {
-    //     try {
-    //         auto sig = world.GetEntitySignature(entity);
-    //         auto compType = world.GetComponentType<Components::Rigidbody>();
-    //         return sig.test(compType);
-    //     } catch (...) {
-    //         return false;
-    //     }
-    // };
+    worldTable["GetRigidbody"] = [&world](Entity entity) -> Components::Rigidbody& {
+        try {
+            return world.GetComponent<Components::Rigidbody>(entity);
+        } catch (const ECSException& e) {
+            throw std::runtime_error(std::string("GetRigidbody failed: ") + e.what());
+        }
+    };
+
+    worldTable["HasRigidbody"] = [&world](Entity entity) -> bool {
+        try {
+            auto sig = world.GetEntitySignature(entity);
+            auto compType = world.GetComponentType<Components::Rigidbody>();
+            return sig.test(compType);
+        } catch (...) {
+            return false;
+        }
+    };
 
     // UNUSED: RenderInfo accessors not called in test.lua
     // worldTable["GetRenderInfo"] = [&world](Entity entity) -> Components::RenderInfo& {
@@ -151,7 +150,7 @@ void BindDynamicAPIs(sol::state& lua, const DynamicAPIContext& ctx) {
     lua.new_usertype<Physics::DynamicBBTree>("DynamicBBTree",
         sol::no_constructor,
         "QueryRay", [](Physics::DynamicBBTree& tree, const Ray& ray) -> std::tuple<Entity, bool> {
-            LOG(LOG_INFO) << "Query TREE!" << "\n";
+            // LOG(LOG_INFO) << "Query TREE!" << "\n";
             auto [entity, hit] = tree.QueryRay(ray);
             return std::make_tuple(entity, hit);
         },
@@ -190,7 +189,24 @@ void BindDynamicAPIs(sol::state& lua, const DynamicAPIContext& ctx) {
 
     // Expose tree via PhysicsSystem namespace
     lua["PhysicsSystem"] = lua.create_table_with(
-        "tree", std::ref(tree)
+        "tree", std::ref(tree),
+        "AddRigidbody", [&world, &physicsRegistry](Entity entity, bool isStatic) {
+            auto& t = world.GetComponent<Components::Transform>(entity);
+            Components::Rigidbody rb{};
+            rb.position  = t.worldPos;
+            rb.rotation  = t.rotation;
+            rb.prevRotation = t.rotation;
+            rb.isStatic  = isStatic;
+            if (isStatic) rb.inverseMass = 0.0f;
+            auto it = physicsRegistry.find(entity);
+            if (it != physicsRegistry.end()) {
+                rb.localHalfExtents = (it->second.max - it->second.min) * 0.5f;
+                float shapeM = (rb.inverseMass > 0.0f) ? rb.GetMass() : 0.0f;
+                rb.shape = CollisionShapeData::MakeBox(rb.localHalfExtents, shapeM);
+            }
+            rb.UpdateWorldInertia();
+            world.AddComponent(entity, rb);
+        }
     );
 
     // Debug namespace - access registered renderables

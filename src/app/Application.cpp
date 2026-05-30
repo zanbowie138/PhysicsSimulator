@@ -90,6 +90,8 @@ void Application::Run() {
         windowManager.ProcessInputs(!GUI::MouseOver());
         GUI::SetMouse(windowManager.mouseShown);
 
+        physicsSystem->Update(dt_ms / 1000.0f);
+
         layerStack.OnUpdate(dt_ms);
 
         GUI::NewFrame();
